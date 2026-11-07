@@ -1,0 +1,30 @@
+# ---- data and large outputs: never commit images, archives, caches or models
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+artifacts/*
+!artifacts/.gitkeep
+*.npz
+*.keras
+*.h5
+*.tar.gz
+*.zip
+
+# ---- python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ---- OS junk (CID archive contains macOS ._ files)
+.DS_Store
+._*
+Thumbs.db
+~$*
+
+# ---- secrets
+kaggle.json
+.env

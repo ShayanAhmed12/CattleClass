@@ -1,0 +1,1 @@
+date,commit,experiment,dataset,scoring,n_images,accuracy,balanced_accuracy,macro_f1,macro_f1_std,notes
