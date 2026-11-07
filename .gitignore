@@ -1,17 +1,14 @@
-# ---- data and large outputs: never commit images, archives, caches or models
-data/raw/*
-data/interim/*
-data/processed/*
-!data/**/.gitkeep
-artifacts/*
-!artifacts/.gitkeep
+# Datasets, caches and trained models: never commit them (images may not be redistributed).
+data/
+models/*
+!models/.gitkeep
 *.npz
 *.keras
 *.h5
 *.tar.gz
 *.zip
 
-# ---- python
+# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -19,12 +16,12 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 
-# ---- OS junk (CID archive contains macOS ._ files)
+# OS junk (the CID archive contains macOS ._ files)
 .DS_Store
 ._*
 Thumbs.db
 ~$*
 
-# ---- secrets
+# Secrets
 kaggle.json
 .env

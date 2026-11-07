@@ -1,0 +1,12 @@
+# Python 3.12 (3.10-3.13 work; TensorFlow has no wheels for 3.14 yet).
+# On Linux/WSL2 with an NVIDIA GPU, setup.sh --gpu installs tensorflow[and-cuda] instead.
+tensorflow>=2.16
+numpy
+pandas
+scikit-learn
+pillow
+imagehash
+matplotlib
+gradio
+kagglehub
+pytest
