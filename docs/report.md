@@ -16,6 +16,7 @@ Write a few sentences under the matching heading at the end of each working day,
 | 8 | Ethics and licences | 0.5 | Licences and attribution; Kaggle copyright; no redistribution; privacy in review; intended-use caveat | — | Report (5) |
 | 9 | AI-use disclosure | 0.25 | Tools used, what for, how the output was checked (guidelines §5) | — | Report (5) |
 | 10 | Reproducibility | 0.25 | Repository, commit, run order, seed, run times, versions | — | Report (5) |
+| 11 | Contributions | 0.25 | Who did which tasks (from `PROGRESS.md` Owner column) | — | Required by guidelines §3 |
 | — | References | — | CID; Mendeley DOI; Kaggle URL; EfficientNet (Tan & Le 2019); Grad-CAM (Selvaraju et al. 2017); label smoothing (Szegedy et al. 2016); Keras; TensorFlow; scikit-learn; breed reference | — | — |
 
 ## Final check
@@ -27,6 +28,7 @@ Write a few sentences under the matching heading at the end of each working day,
 - [ ] Figure captions state the takeaway.
 - [ ] Label assumptions and removal counts are stated.
 - [ ] The report covers limitations, ethics and AI use.
+- [ ] Each member's contribution is stated.
 - [ ] It is 8–10 pages.
 
 ## Notes

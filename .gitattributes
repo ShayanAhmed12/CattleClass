@@ -1,2 +1,7 @@
-# Shell scripts must keep LF endings or bash in WSL/Linux fails on them.
+# Same line endings for everyone, whatever their OS.
+* text=auto
+# Shell scripts must keep LF endings or bash on Linux/WSL fails on them.
 *.sh text eol=lf
+# Results tables only ever get rows added, so when two people add rows git keeps both.
+results/metrics.csv merge=union
+results/removed_images.csv merge=union

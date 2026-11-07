@@ -38,4 +38,5 @@ Practise answering each one aloud without notes. The answers are in [decisions.m
 24. How does `make_folds` keep each animal in one fold?
 25. How does `train.py` resume after a disconnect?
 26. Which parts did AI tools help with, and how did you check them?
-27. With two more weeks, what would you change first?
+27. Which tasks did you do yourself? Explain a part a teammate wrote.
+28. With two more weeks, what would you change first?

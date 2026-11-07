@@ -58,7 +58,15 @@ Each step reads the files the previous step wrote, so any step can be rerun on i
 
 ## Tasks
 
-Work in test-first cycles: write the test, see it fail, write the code, see it pass. Tick tasks off in [PROGRESS.md](PROGRESS.md).
+Work in test-first cycles: write the test, see it fail, write the code, see it pass.
+
+**Working as a team:**
+- Claim a task in [PROGRESS.md](PROGRESS.md), then do it on its own branch and open a pull request (README, "Working together").
+- Tasks that run in parallel are the easiest to split:
+  - T3, the hand review, can be split by dataset;
+  - T6 (metrics) and T7 (model) can proceed while the data tasks finish;
+  - T12 (demo) only needs `model.py`.
+- Function names and file paths in each task are the contract between tasks, so keep them as written.
 
 **T0 Setup and downloads ✅**
 - One-command setup: `setup.ps1` and `setup.sh`.

@@ -74,3 +74,9 @@ Each design choice and its reason. The defence will ask "why did you do X?", so 
   - code and `results/` through GitHub;
   - trained models through Drive;
   - datasets are re-downloaded by `prepare_data.py`.
+
+**D-15 · More than one contributor (2026-11-07).**
+- The project now has several contributors. Work happens on one branch per task, merged into `main` by pull request after another member reviews it. GitHub runs the tests on every push.
+- Every contributor uses their own Google Drive for data and models. A folder can be shared through a Drive shortcut, but only one person trains in it at a time.
+- `results/metrics.csv` and `results/removed_images.csv` use git's union merge, so rows added by two people are both kept.
+- The instructor has approved the team. Who owns each task is recorded in `PROGRESS.md`.
