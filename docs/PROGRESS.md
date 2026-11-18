@@ -17,7 +17,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T7 | Model and CV (E1, E2) | Must | Shayan | 🟡 | Two-stage training and fold resume verified on synthetic inputs. Real CID run started on the cloud CPU. |
 | T8 | Final model | Must | Shayan | 🟡 | Final training uses the median epoch in each stage. Waiting for all five real fold checkpoints. |
 | T9 | External test (E3, E4) | Must |  | ⬜ | |
-| T10 | Robustness (E5) | Should |  | ⬜ | |
+| T10 | Robustness (E5) | Should | Shayan | 🟡 | Both strengths of each corruption pass deterministic synthetic tests. Waiting for real models and reviewed external caches. |
 | T11 | Error analysis and Grad-CAM | Should |  | ⬜ | |
 | T12 | Demo | Should |  | ⬜ | Record a backup video |
 | T13 | Report, slides, defence | Must |  | ⬜ | |
@@ -29,6 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
+| 2026-11-19 | Shayan | Implemented deterministic blur, darkness and occlusion and checked oversized-image handling | Run E5 after the trained checkpoints and T3 |
 | 2026-11-19 | Shayan | Added the all-CID fit and verified epoch selection and checkpoint identity | Finish the five real folds before the final fit |
 | 2026-11-19 | Shayan | Implemented and tested EfficientNet training and fold resume. Started real CID training on CPU | Collect five-fold E1/E2 metrics |
 | 2026-11-19 | Shayan | Scored the majority-class baseline on all five CID folds | Begin E1/E2 training code and verification |

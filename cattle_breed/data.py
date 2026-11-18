@@ -15,9 +15,9 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pandas as pd
-from PIL import Image, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageFilter, ImageOps
 
-from .config import CACHE_SIZE, CLASSES, CLASS_TO_IDX, DATA_DIR, IMAGE_SUFFIXES, DUPLICATE_DISTANCE, IMG_SIZE, N_FOLDS, RESULTS_DIR, SEED, VAL_FRAC, to_canonical
+from .config import CACHE_SIZE, CLASSES, CLASS_TO_IDX, CORRUPTIONS, DATA_DIR, IMAGE_SUFFIXES, DUPLICATE_DISTANCE, IMG_SIZE, N_FOLDS, RESULTS_DIR, SEED, VAL_FRAC, to_canonical
 from .download import EXPECTED
 
 
@@ -37,7 +37,7 @@ def load_image(path: str | Path) -> np.ndarray:
         with Image.open(path) as img:
             img = ImageOps.exif_transpose(img)  # phone photos store rotation in EXIF, not pixels
             return np.asarray(img.convert("RGB"), dtype=np.uint8)  # greyscale, RGBA, palette -> RGB
-    except (OSError, UnidentifiedImageError) as err:
+    except (OSError, Image.DecompressionBombError) as err:
         raise ImageLoadError(f"cannot read image {path}: {err}") from err
 
 
@@ -268,3 +268,28 @@ def load_cache(dataset):
     index['path'] = index['path'].map(lambda path: str(DATA_DIR.resolve() / path))
     index.loc[index.dataset != 'cid', 'animal'] = index['path']
     return index, images, labels
+
+
+def corrupt(images, kind, severity):
+    """Apply a reproducible corruption to an RGB uint8 batch without modifying it."""
+    try:
+        strength = CORRUPTIONS[kind][severity]
+    except KeyError as error:
+        raise ValueError(f'Unknown corruption or severity: {kind!r}, {severity!r}') from error
+    if kind == 'dark':
+        return np.rint(images * strength).astype(np.uint8)
+    result = images.copy()
+    if kind == 'blur':
+        blur = ImageFilter.GaussianBlur(radius=strength)
+        for i, image in enumerate(images):
+            result[i] = np.asarray(Image.fromarray(image).filter(blur))
+        return result
+
+    height, width = images.shape[1:3]
+    side = min(height, width, max(1, round((strength * height * width) ** 0.5)))
+    rng = np.random.default_rng(SEED)
+    for image in result:
+        top = rng.integers(0, height - side + 1)
+        left = rng.integers(0, width - side + 1)
+        image[top:top + side, left:left + side] = 128
+    return result

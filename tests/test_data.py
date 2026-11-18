@@ -195,3 +195,29 @@ def test_external_review_manifest_skips_only_named_dataset(tmp_path, make_image,
         'mendeley,raw/kaggle/Red_Sindhi/y.jpg,drawing\n'
     )
     assert data.build_index('kaggle').path.tolist() == [str(kept)]
+
+
+def test_corruption_preserves_shape_and_is_seeded():
+    from cattle_breed import data
+
+    rng = np.random.default_rng(71)
+    original = rng.integers(0, 256, size=(3, 30, 32, 3), dtype=np.uint8)
+    copy = original.copy()
+    for kind in ('blur', 'dark', 'occlude'):
+        for severity in (1, 2):
+            changed = data.corrupt(original, kind, severity)
+            assert changed.shape == original.shape
+            assert changed.dtype == np.uint8
+            assert not np.array_equal(changed, original)
+            np.testing.assert_array_equal(changed, data.corrupt(original, kind, severity))
+    assert data.corrupt(original, 'dark', 2).mean() < data.corrupt(original, 'dark', 1).mean() < original.mean()
+    np.testing.assert_array_equal(original, copy)
+    with pytest.raises(ValueError, match='corruption'):
+        data.corrupt(original, 'light', 1)
+
+
+def test_load_image_propagates_oversize_as_load_error(make_image, monkeypatch):
+    path = make_image('oversize.png', size=(20, 20))
+    monkeypatch.setattr(Image, 'MAX_IMAGE_PIXELS', 100)
+    with pytest.raises(ImageLoadError, match='cannot read image'):
+        load_image(path)
