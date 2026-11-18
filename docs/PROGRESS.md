@@ -19,7 +19,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T9 | External test (E3, E4) | Must | Shayan | 🟡 | Both scoring methods tested on synthetic caches. Real scoring awaits T3 and the final CNN. |
 | T10 | Robustness (E5) | Should | Shayan | 🟡 | Both strengths of each corruption pass deterministic synthetic tests. Waiting for real models and reviewed external caches. |
 | T11 | Error analysis and Grad-CAM | Should | Shayan | 🟡 | Local galleries and annotation sheet verified on synthetic data. Real errors still need review. |
-| T12 | Demo | Should |  | ⬜ | Record a backup video |
+| T12 | Demo | Should | Shayan | 🟡 | Gradio upload and top-three predictions verified with a synthetic Keras checkpoint. Real demo and backup video pending. |
 | T13 | Report, slides, defence | Must |  | ⬜ | |
 | — | E6 (50% of animals) | Could |  | ⬜ | Cut first if short of time |
 
@@ -29,6 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
+| 2026-11-19 | Shayan | Verified the Gradio upload and prediction flow with a synthetic checkpoint | Use the trained final model and record the backup |
 | 2026-11-19 | Shayan | Tested both external scoring protocols, robustness workflow and local Grad-CAM galleries | Run official external experiments after private curation and training |
 | 2026-11-19 | Shayan | Implemented deterministic blur, darkness and occlusion and checked oversized-image handling | Run E5 after the trained checkpoints and T3 |
 | 2026-11-19 | Shayan | Added the all-CID fit and verified epoch selection and checkpoint identity | Finish the five real folds before the final fit |

@@ -56,3 +56,7 @@ The evaluation command selects correct and incorrect external examples by confid
 ### 9 AI-use disclosure
 
 OpenAI Codex was used to implement and debug the Python pipeline and update the documentation. Verification used synthetic tests and local dataset counts and split checks. Manual image review and interpretation of the project results are the project team's responsibility.
+
+### Demo verification
+
+The Gradio app performs the same letterbox and center crop as classification evaluation and displays the three highest breed probabilities. A local HTTP upload verified model loading and inference with a synthetic checkpoint. The backup recording requires the trained final model.
