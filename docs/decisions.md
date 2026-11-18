@@ -87,7 +87,7 @@ Each design choice and its reason. The defence will ask "why did you do X?", so 
 
 **D-17 · Portable prepared caches.**
 - Prepared paths are relative to the data directory. The cache records the paths, labels and fold numbers in image order to detect mismatched CSV and NPZ files.
-- Exclusions from external review are recorded relative to the same directory and filtered before duplicate detection. Kaggle downloads are pinned to version 5 to match the documented counts.
+- Exclusions from external review are recorded relative to the same directory and filtered before duplicate detection. Kaggle downloads are pinned to version 5 to match the documented counts. Fetching only the three matched folders reduces cloud disk use.
 
 **D-18 · Resume only matching checkpoints.**
 - Fold outputs record the training data and protocol fingerprint, fold number and model checksum. Both the model and its predictions must match before a fold is reused.

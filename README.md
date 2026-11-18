@@ -26,7 +26,7 @@ bash setup.sh --data                                          # Linux / macOS / 
 The setup script:
 1. creates `.venv` and installs `requirements.txt`;
 2. runs the tests;
-3. with `-Data` / `--data`, downloads the three datasets into `data/` (about 30–60 minutes, 1 GB kept, no accounts needed).
+3. with `-Data` / `--data`, downloads the three datasets into `data/` (about 1.2 GB total, no accounts needed). The Kaggle step fetches only the three matched breed folders.
 
 It is safe to run again. Afterwards, activate the environment in each new terminal: `.venv\Scripts\Activate.ps1` on Windows, `source .venv/bin/activate` elsewhere.
 

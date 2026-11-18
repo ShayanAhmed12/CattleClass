@@ -45,3 +45,28 @@ def test_check_dataset_folder_totals(tmp_path, make_image):
 def test_check_dataset_missing_root(tmp_path):
     problems = check_dataset("toy", tmp_path, {"root": "raw/none", "folders": 1, "images": 1})
     assert problems and "missing" in problems[0]
+
+
+def test_get_kaggle_uses_only_incomplete_breed_folders(tmp_path, make_image, monkeypatch):
+    import kagglehub
+    from cattle_breed import download
+
+    root = tmp_path / 'data'
+    monkeypatch.setattr(download, 'DATA_DIR', root)
+    monkeypatch.setattr(download, 'EXPECTED', {
+        'kaggle': {'per_folder': {name: 1 for name in download.KAGGLE_KEEP}}
+    })
+    completed = make_image('data/raw/kaggle/Holstein_Friesian/existing.jpg')
+    calls = []
+
+    def download_folder(handle, *, path):
+        calls.append((handle, path))
+        breed = path.rsplit('/', 1)[-1]
+        return str(make_image(f'source/{breed}/new.jpg').parent)
+
+    monkeypatch.setattr(kagglehub, 'dataset_download', download_folder)
+    download.get_kaggle(tmp_path / 'downloads')
+    assert completed.is_file()
+    assert calls == [(download.KAGGLE_HANDLE, f'Indian_bovine_breeds/Indian_bovine_breeds/{breed}')
+                     for breed in ('Red_Sindhi', 'Sahiwal')]
+    assert (root / 'raw/kaggle/Sahiwal/new.jpg').is_file()

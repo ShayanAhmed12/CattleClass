@@ -29,6 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
+| 2026-11-19 | Shayan | Verified Kaggle v5 folder downloads and changed setup to fetch only the three needed breeds | No whole-archive extraction needed on reruns |
 | 2026-11-19 | Shayan | Finished Kaggle cache verification and drafted the report and slides | Add real model results, reviewed figures and rehearse the defence |
 | 2026-11-19 | Shayan | Verified the Gradio upload and prediction flow with a synthetic checkpoint | Use the trained final model and record the backup |
 | 2026-11-19 | Shayan | Tested both external scoring protocols, robustness workflow and local Grad-CAM galleries | Run official external experiments after private curation and training |

@@ -8,5 +8,5 @@ pillow
 imagehash
 matplotlib
 gradio
-kagglehub
+kagglehub>=1.0.3
 pytest

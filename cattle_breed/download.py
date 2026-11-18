@@ -139,17 +139,22 @@ def get_mendeley(downloads):
 
 
 def get_kaggle(downloads):
-    """Kaggle: kagglehub downloads the whole 2.8 GB set; we copy 3 breed folders and delete the rest."""
+    """Download just the three experiment folders from the pinned Kaggle version."""
     cache = downloads / "kagglehub"
-    os.environ["KAGGLEHUB_CACHE"] = str(cache)  # must be set before kagglehub is imported
+    os.environ["KAGGLEHUB_CACHE"] = str(cache)
     import kagglehub
 
-    print("  downloading 2.8 GB (only 331 MB is kept)")
-    src = Path(kagglehub.dataset_download(KAGGLE_HANDLE))
     out = DATA_DIR / "raw" / "kaggle"
+    out.mkdir(parents=True, exist_ok=True)
+    existing = count_images(out)
     for name in KAGGLE_KEEP:
-        folder = next(d for d in src.rglob(name) if d.is_dir())
-        shutil.copytree(folder, out / name, dirs_exist_ok=True)
+        if existing.get(name) == EXPECTED["kaggle"]["per_folder"][name]:
+            continue
+        print(f"  downloading {name}")
+        source = Path(kagglehub.dataset_download(
+            KAGGLE_HANDLE, path=f"Indian_bovine_breeds/Indian_bovine_breeds/{name}"
+        ))
+        shutil.copytree(source, out / name, dirs_exist_ok=True)
     shutil.rmtree(cache, ignore_errors=True)
     return None
 
