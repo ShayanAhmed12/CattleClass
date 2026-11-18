@@ -17,7 +17,7 @@ Sources, licences and counts for the three datasets, and the rules for reviewing
 | SHA-256 | `77a5a7aadb079b4d0d64db8b69549131b95339a8e7023b6e4c812b5372e78448` (`images.tar.gz`) | `650e8cf58256988e1a743358a9cad15214bbed33a5c60b8c00e6ce2c378f0b43` (ZIP) | — |
 | After review and de-duplication | *fill in T4* | *fill in T3/T4* | *fill in T3/T4* |
 
-`python prepare_data.py` downloads all three and checks the counts. Pretrained weights: EfficientNet-B0 ImageNet weights from `keras.applications` (Tan & Le, 2019).
+`python prepare_data.py` downloads all three and checks the counts. `python prepare_data.py --cid-samples` builds the local `results/figures/cid_samples.png` grid from the downloaded CID files. Pretrained weights: EfficientNet-B0 ImageNet weights from `keras.applications` (Tan & Le, 2019).
 
 ## Reviewing the external images (T3)
 

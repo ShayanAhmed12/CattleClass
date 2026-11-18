@@ -50,3 +50,44 @@ def test_is_image_file():
     assert is_image_file("a/B.JPG") and is_image_file("x.webp") and is_image_file("y.jpeg")
     assert not is_image_file("a/._B.jpg")  # macOS resource-fork junk in the CID archive
     assert not is_image_file("a/notes.txt")
+
+
+def test_build_cid_index(tmp_path, make_image, monkeypatch):
+    from cattle_breed import data
+
+    monkeypatch.setattr(data, "DATA_DIR", tmp_path)
+    (tmp_path / "raw/cid").mkdir(parents=True)
+    (tmp_path / "raw/cid/dataset.csv").write_text(
+        "sku,breed\nBLF 2340,LOCAL\nBLF2341,HOSTINE_CROSS\nBLF2342,PABNA\n",
+        encoding="utf-8",
+    )
+    local = make_image("raw/cid/images/BLF2340/0.jpg")
+    holstein = make_image("raw/cid/images/BLF2341/0.jpeg")
+    make_image("raw/cid/images/BLF2341/._0.jpeg")
+    make_image("raw/cid/images/BLF2342/0.jpg")
+    make_image("raw/cid/images/BLF2334/0.jpg")
+
+    index = data.build_index("cid")
+    assert list(index.columns) == ["path", "dataset", "animal", "label", "label_idx"]
+    assert index.to_records(index=False).tolist() == [
+        (str(local), "cid", "BLF2340", "Local", 1),
+        (str(holstein), "cid", "BLF2341", "Holstein cross", 0),
+    ]
+
+
+def test_build_external_index(tmp_path, make_image, monkeypatch):
+    from cattle_breed import data
+
+    monkeypatch.setattr(data, "DATA_DIR", tmp_path)
+    holstein = make_image("raw/mendeley/Cow Breed/Holstain Friesian/nested/0.JPG")
+    make_image("raw/mendeley/Cow Breed/Jersey/0.jpg")
+    sindhi = make_image("raw/kaggle/Red_Sindhi/0.jpg")
+    make_image("raw/kaggle/Local/0.jpg")
+    make_image("raw/kaggle/Red_Sindhi/._0.jpg")
+
+    assert data.build_index("mendeley").to_records(index=False).tolist() == [
+        (str(holstein), "mendeley", str(holstein), "Holstein cross", 0),
+    ]
+    assert data.build_index("kaggle").to_records(index=False).tolist() == [
+        (str(sindhi), "kaggle", str(sindhi), "Sindhi", 4),
+    ]

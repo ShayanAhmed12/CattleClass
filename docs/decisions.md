@@ -35,7 +35,7 @@ Each design choice and its reason. The defence will ask "why did you do X?", so 
 - Cattle side-view photos are wide. Stretching distorts body shape, and a square crop cuts off heads or tails.
 - Images are cached once as uint8, so every training run starts fast.
 
-**D-07 · CID photo views.** *Decide in T2* after looking at the sample grid. The default is to keep all 4 photos per animal and call the task "any view".
+**D-07 · CID photo views.** Keep all four photos per animal for the any-view task. The filename suffixes 0–3 are present for every indexed CID animal. Inspect the local sample grid before assigning viewpoint names to those slots.
 
 **D-08 · Metrics: macro-F1 and balanced accuracy; external sets scored two ways.**
 - "Local" is 70% of CID, so always guessing it scores 0.70 accuracy but only 0.165 macro-F1 (B0).

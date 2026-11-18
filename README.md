@@ -39,6 +39,8 @@ It is safe to run again. Afterwards, activate the environment in each new termin
 | 3 | `python evaluate.py` | external tests (E3, E4), robustness (E5), figures |
 | 4 | `python demo.py` | Gradio app: upload a photo, get the breed |
 
+To generate the local CID sample grid from existing downloads, run `python prepare_data.py --cid-samples`.
+
 Run the tests with `python -m pytest`. Steps 2–4 are added as the tasks in the plan are completed. Training needs a GPU to be quick: use WSL2 or Colab (see the plan).
 
 ## Working together

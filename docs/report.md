@@ -35,6 +35,8 @@ Write a few sentences under the matching heading at the end of each working day,
 
 ### 3 Data
 
+Before deduplication, the CID index contained 2,012 photos of 503 animals, with four photos per animal. The class counts by animal were Local 353, Sahiwal 59, Sindhi 38, Holstein cross 32 and Red Chittagong 21. The index maps space-normalized SKUs to metadata labels and excludes the unlabelled folder and three small classes. The local Figure 1 grid shows all four photos of one example animal per class.
+
 ### 4 Method
 
 ### 5 Results

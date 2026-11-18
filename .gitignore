@@ -25,3 +25,6 @@ Thumbs.db
 # Secrets
 kaggle.json
 .env
+
+# CID source photos in the local report sample grid
+/results/figures/cid_samples.png
