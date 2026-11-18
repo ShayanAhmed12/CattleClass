@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from .config import CACHE_SIZE, CLASSES, CLASS_TO_IDX, DATA_DIR, IMAGE_SUFFIXES, IMG_SIZE, RESULTS_DIR, to_canonical
+from .config import CACHE_SIZE, CLASSES, CLASS_TO_IDX, DATA_DIR, IMAGE_SUFFIXES, DUPLICATE_DISTANCE, IMG_SIZE, N_FOLDS, RESULTS_DIR, SEED, VAL_FRAC, to_canonical
 from .download import EXPECTED
 
 
@@ -110,3 +110,86 @@ def save_cid_samples(index: pd.DataFrame) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(path, dpi=150)
     return path
+
+
+def hash_images(paths):
+    """Hash decodable photos in path order; the cache reports unreadable files."""
+    import imagehash
+
+    hashes = {}
+    for path in paths:
+        try:
+            image = load_image(path)
+        except ImageLoadError:
+            continue
+        hashes[path] = int(str(imagehash.phash(Image.fromarray(image))), 16)
+    return hashes
+
+
+def find_duplicates(paths, *, hashes=None):
+    """Return all matching (earlier, later) pairs in input order."""
+    if hashes is None:
+        hashes = hash_images(paths)
+    earlier = []
+    pairs = []
+    for path, fingerprint in hashes.items():
+        pairs.extend((previous, path) for previous, value in earlier
+                     if (fingerprint ^ value).bit_count() <= DUPLICATE_DISTANCE)
+        earlier.append((path, fingerprint))
+    return pairs
+
+
+def clean_cid_index(index, duplicates):
+    """Merge linked animal IDs before dropping duplicate CID photos."""
+    animals = index.set_index('path')['animal'].to_dict()
+    parents = {animal: animal for animal in animals.values()}
+
+    def representative(animal):
+        while parents[animal] != animal:
+            parents[animal] = parents[parents[animal]]
+            animal = parents[animal]
+        return animal
+
+    copies = set()
+    for earlier, later in duplicates:
+        first, second = sorted((representative(animals[earlier]), representative(animals[later])))
+        parents[second] = first
+        copies.add(later)
+    clean = index.loc[~index['path'].isin(copies)].copy()
+    clean['animal'] = clean['animal'].map(representative)
+    return clean.reset_index(drop=True)
+
+
+def clean_external_index(index, cid_paths, *, cid_hashes=None):
+    """Drop external photos that match CID or an earlier photo in this set."""
+    if cid_hashes is None:
+        cid_hashes = hash_images(cid_paths)
+    earlier = list(cid_hashes.values())
+    copies = set()
+    for path, fingerprint in hash_images(index['path']).items():
+        if any((fingerprint ^ value).bit_count() <= DUPLICATE_DISTANCE for value in earlier):
+            copies.add(path)
+        earlier.append(fingerprint)
+    return index.loc[~index['path'].isin(copies)].reset_index(drop=True)
+
+
+def make_folds(cid_index):
+    """Assign each CID photo its reproducible animal-grouped test fold."""
+    from sklearn.model_selection import StratifiedGroupKFold
+
+    splitter = StratifiedGroupKFold(N_FOLDS, shuffle=True, random_state=SEED)
+    folds = np.empty(len(cid_index), dtype=np.int64)
+    for fold, (_, test) in enumerate(splitter.split(cid_index, cid_index['label_idx'], cid_index['animal'])):
+        folds[test] = fold
+    return pd.Series(folds, index=cid_index.index, name='fold')
+
+
+def split_validation(train_index):
+    """Stratify the 15% validation holdout by each animal's most frequent label."""
+    from sklearn.model_selection import train_test_split
+
+    animals = train_index.groupby('animal')['label_idx'].agg(lambda labels: labels.mode().iloc[0])
+    _, val_animals = train_test_split(animals.index, test_size=VAL_FRAC, random_state=SEED,
+                                     stratify=animals)
+    held_out = train_index['animal'].isin(val_animals)
+    return train_index.loc[~held_out], train_index.loc[held_out]

@@ -1,6 +1,7 @@
 """Task 1: image loading, letterboxing and centre cropping."""
 import numpy as np
 import pytest
+from PIL import Image
 
 from cattle_breed.data import ImageLoadError, center_crop, is_image_file, letterbox, load_image
 
@@ -91,3 +92,56 @@ def test_build_external_index(tmp_path, make_image, monkeypatch):
     assert data.build_index("kaggle").to_records(index=False).tolist() == [
         (str(sindhi), "kaggle", str(sindhi), "Sindhi", 4),
     ]
+
+
+def test_find_duplicates_of_resized_photo(make_image, tmp_path):
+    from cattle_breed import data
+
+    original = make_image('original.png', noise=True)
+    distinct = make_image('distinct.png', noise=True, seed=72)
+    resized = tmp_path / 'resized.png'
+    with Image.open(original) as image:
+        image.resize((160, 100), Image.Resampling.LANCZOS).save(resized)
+    assert data.find_duplicates([original, distinct, resized]) == [(original, resized)]
+
+
+def test_cid_duplicate_groups_are_transitive():
+    import pandas as pd
+    from cattle_breed import data
+
+    index = pd.DataFrame({'path': ['a1', 'b1', 'b2', 'c1', 'c2'],
+                          'animal': ['a', 'b', 'b', 'c', 'c']})
+    clean = data.clean_cid_index(index, [('a1', 'b1'), ('b2', 'c1')])
+    assert clean.path.tolist() == ['a1', 'b2', 'c2']
+    assert clean.animal.tolist() == ['a', 'a', 'a']
+
+
+def test_external_duplicates_use_all_cid_photos(make_image):
+    import pandas as pd
+    from cattle_breed import data
+
+    cid = make_image('cid.png', noise=True, seed=9)
+    copy = make_image('external/cid-copy.png', noise=True, seed=9)
+    external = make_image('external/first.png', noise=True, seed=25)
+    second = make_image('external/second.png', noise=True, seed=25)
+    other = make_image('external/other.png', noise=True, seed=18)
+    index = pd.DataFrame({'path': list(map(str, [copy, external, second, other]))})
+    clean = data.clean_external_index(index, [str(cid)])
+    assert clean.path.tolist() == list(map(str, [external, other]))
+
+
+def test_folds_and_validation_keep_animals_together():
+    import pandas as pd
+    from cattle_breed import data
+
+    index = pd.DataFrame([(f'{breed}_{animal}', breed) for breed in range(5)
+                          for animal in range(20) for _ in range(4)], columns=['animal', 'label_idx'])
+    folds = data.make_folds(index)
+    assert index.assign(fold=folds).groupby('animal').fold.nunique().eq(1).all()
+    assert index.assign(fold=folds).groupby('fold').label_idx.nunique().eq(5).all()
+    pd.testing.assert_series_equal(folds, data.make_folds(index))
+    train, val = data.split_validation(index[folds != 0])
+    assert set(train.animal).isdisjoint(val.animal)
+    assert set(train.index).union(val.index) == set(index.index[folds != 0])
+    assert val.animal.nunique() == 12
+    assert val.label_idx.nunique() == train.label_idx.nunique() == 5

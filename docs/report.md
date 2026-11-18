@@ -39,6 +39,8 @@ Before deduplication, the CID index contained 2,012 photos of 503 animals, with 
 
 ### 4 Method
 
+A 64-bit perceptual hash with Hamming distance at most four identified 135 matching CID pairs, all across different source SKUs. Counting each later photo once removed 119 photos. Linked SKUs share an ID before splitting, leaving 1,893 photos in 371 groups. Stratified group cross-validation held out each group once. Within each training fold a second stratified holdout selected 15% of remaining groups for validation. All five classes occurred in every training, validation and test split.
+
 ### 5 Results
 
 ### 6 Error analysis
