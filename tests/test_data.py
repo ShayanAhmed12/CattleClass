@@ -145,3 +145,53 @@ def test_folds_and_validation_keep_animals_together():
     assert set(train.index).union(val.index) == set(index.index[folds != 0])
     assert val.animal.nunique() == 12
     assert val.label_idx.nunique() == train.label_idx.nunique() == 5
+
+
+def test_cache_skips_unreadable_rows_and_preserves_labels(tmp_path, make_image, capsys):
+    import pandas as pd
+    from cattle_breed import data
+
+    good = make_image('good.png', size=(30, 50))
+    bad = tmp_path / 'bad.jpg'
+    bad.write_bytes(b'invalid')
+    index = pd.DataFrame({'path': [str(bad), str(good)], 'label_idx': [4, 2]})
+    images, labels, valid = data.build_cache(index, return_index=True)
+    assert images.shape == (1, 240, 240, 3) and images.dtype == np.uint8
+    assert labels.tolist() == [2]
+    assert valid.path.tolist() == [str(good)]
+    assert 'bad.jpg' in capsys.readouterr().err
+    assert data.build_cache(index.iloc[:1])[0].shape == (0, 240, 240, 3)
+
+
+def test_cache_round_trip_with_relative_image_paths(tmp_path, make_image, monkeypatch):
+    from cattle_breed import data
+
+    monkeypatch.setattr(data, 'DATA_DIR', tmp_path)
+    photo = make_image('raw/kaggle/Red_Sindhi/0.jpg')
+    index = data.build_index('kaggle')
+    images, labels = data.build_cache(index)
+    data.save_cache('kaggle', index, images, labels)
+    stored = (tmp_path / 'processed/kaggle.csv').read_text()
+    assert 'raw/kaggle/Red_Sindhi/0.jpg' in stored and str(tmp_path) not in stored
+    actual, restored, targets = data.load_cache('kaggle')
+    assert actual.path.tolist() == [str(photo)] and targets.tolist() == [4]
+    np.testing.assert_array_equal(images, restored)
+    (tmp_path / 'processed/kaggle.csv').write_text(stored.replace('0.jpg', '1.jpg'))
+    with pytest.raises(ValueError, match='does not match'):
+        data.load_cache('kaggle')
+
+
+def test_external_review_manifest_skips_only_named_dataset(tmp_path, make_image, monkeypatch):
+    from cattle_breed import data
+
+    results = tmp_path / 'results'
+    results.mkdir()
+    monkeypatch.setattr(data, 'DATA_DIR', tmp_path)
+    monkeypatch.setattr(data, 'RESULTS_DIR', results)
+    removed = make_image('raw/kaggle/Red_Sindhi/x.jpg')
+    kept = make_image('raw/kaggle/Red_Sindhi/y.jpg')
+    (results / 'removed_images.csv').write_text(
+        f'dataset,path,reason\nkaggle,{removed.relative_to(tmp_path).as_posix()},drawing\n'
+        'mendeley,raw/kaggle/Red_Sindhi/y.jpg,drawing\n'
+    )
+    assert data.build_index('kaggle').path.tolist() == [str(kept)]

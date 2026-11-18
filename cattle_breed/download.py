@@ -19,7 +19,7 @@ CID_CSV_URL = "https://cid-21.s3.amazonaws.com/dataset.csv"
 CID_TAR_BYTES = 833_046_375
 MENDELEY_URL = ("https://data.mendeley.com/public-files/datasets/yd84s35d73/files/"
                 "ca140aa2-171f-49b9-8811-cae5bc82fa68/file_downloaded")
-KAGGLE_HANDLE = "lukex9442/indian-bovine-breeds"
+KAGGLE_HANDLE = "lukex9442/indian-bovine-breeds/versions/5"
 KAGGLE_KEEP = ("Holstein_Friesian", "Red_Sindhi", "Sahiwal")  # the only Kaggle breeds we use
 
 # What a complete download looks like (paths relative to DATA_DIR).
@@ -157,7 +157,8 @@ def get_kaggle(downloads):
 def download_all(names=tuple(EXPECTED), check_only=False):
     """Download whatever is missing, then check every dataset. Returns True if all are complete."""
     downloads = DOWNLOAD_DIR
-    downloads.mkdir(parents=True, exist_ok=True)
+    if not check_only:
+        downloads.mkdir(parents=True, exist_ok=True)
     getters = {"cid": get_cid, "mendeley": get_mendeley, "kaggle": get_kaggle}
     all_ok = True
     for name in names:

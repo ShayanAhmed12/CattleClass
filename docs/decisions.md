@@ -84,3 +84,7 @@ Each design choice and its reason. The defence will ask "why did you do X?", so 
 **D-16 · Group all SKUs connected by near duplicates.**
 - Keep the earliest matching photo in index order and group linked CID SKUs transitively. The grouping applies even when two linked SKUs have different source labels. Each retained photo keeps its metadata label. The validation split stratifies groups by their most frequent label.
 - Compare external photos against all indexed CID photos, including copies discarded from training. Also compare against earlier photos from the same external source.
+
+**D-17 · Portable prepared caches.**
+- Prepared paths are relative to the data directory. The cache records the paths, labels and fold numbers in image order to detect mismatched CSV and NPZ files.
+- Exclusions from external review are recorded relative to the same directory and filtered before duplicate detection. Kaggle downloads are pinned to version 5 to match the documented counts.

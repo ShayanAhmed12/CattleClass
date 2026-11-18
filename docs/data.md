@@ -17,11 +17,11 @@ Sources, licences and counts for the three datasets, and the rules for reviewing
 | SHA-256 | `77a5a7aadb079b4d0d64db8b69549131b95339a8e7023b6e4c812b5372e78448` (`images.tar.gz`) | `650e8cf58256988e1a743358a9cad15214bbed33a5c60b8c00e6ce2c378f0b43` (ZIP) | — |
 | After review and de-duplication | 1,893 images / 371 grouped IDs | 173 after pHash, before manual review | *fill in T3/T4* |
 
-`python prepare_data.py` downloads all three and checks the counts. `python prepare_data.py --cid-samples` builds the local `results/figures/cid_samples.png` grid from the downloaded CID files. Pretrained weights: EfficientNet-B0 ImageNet weights from `keras.applications` (Tan & Le, 2019).
+`python prepare_data.py` downloads and checks the raw datasets, then indexes, cleans and caches them. For CID alone use `--datasets cid`. External preparation always needs CID for the duplicate check. `python prepare_data.py --cid-samples` builds the local `results/figures/cid_samples.png` grid from the downloaded CID files. Pretrained weights: EfficientNet-B0 ImageNet weights from `keras.applications` (Tan & Le, 2019).
 
 ## Reviewing the external images (T3)
 
-Look at every Mendeley and Kaggle image of the matched classes in a thumbnail view. Add each image you remove to `results/removed_images.csv` as `dataset,path,reason`, using one of these reasons:
+Look at every Mendeley and Kaggle image of the matched classes in a thumbnail view. Add each image you remove to `results/removed_images.csv` as `dataset,path,reason`. Use dataset keys `mendeley` or `kaggle`, and paths relative to `data/` with forward slashes, for example `raw/kaggle/Sahiwal/photo.jpg`. Run preparation again after review. Use one of these reasons:
 
 | Reason | Remove when |
 |---|---|

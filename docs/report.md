@@ -46,3 +46,7 @@ A 64-bit perceptual hash with Hamming distance at most four identified 135 match
 ### 6 Error analysis
 
 ### 7 Limitations
+
+### 9 AI-use disclosure
+
+OpenAI Codex was used to implement and debug the Python pipeline and update the documentation. Verification used synthetic tests and local dataset counts and split checks. Manual image review and interpretation of the project results are the project team's responsibility.

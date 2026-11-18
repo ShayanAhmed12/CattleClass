@@ -8,7 +8,10 @@
     corrupt  (Task 10) blurred, darkened and occluded copies for the robustness test
 """
 import csv
+import sys
+from contextlib import contextmanager
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pandas as pd
@@ -70,6 +73,12 @@ def build_index(dataset: str) -> pd.DataFrame:
                     raise ValueError(f"Conflicting CID breed labels for {sku}")
                 cid_labels[sku] = label
 
+    removed = set()
+    manifest = RESULTS_DIR / "removed_images.csv"
+    if dataset != "cid" and manifest.is_file():
+        with manifest.open(encoding="utf-8-sig", newline="") as source:
+            removed = {row["path"] for row in csv.DictReader(source) if row["dataset"] == dataset}
+
     rows = []
     for folder in sorted(root.iterdir()):
         if not folder.is_dir():
@@ -79,7 +88,8 @@ def build_index(dataset: str) -> pd.DataFrame:
         if label is None:
             continue
         for path in sorted(folder.rglob("*")):
-            if path.is_file() and is_image_file(path):
+            if (path.is_file() and is_image_file(path)
+                    and path.relative_to(DATA_DIR.resolve()).as_posix() not in removed):
                 filename = str(path)
                 rows.append((filename, dataset, animal if dataset == "cid" else filename,
                              label, CLASS_TO_IDX[label]))
@@ -193,3 +203,68 @@ def split_validation(train_index):
                                      stratify=animals)
     held_out = train_index['animal'].isin(val_animals)
     return train_index.loc[~held_out], train_index.loc[held_out]
+
+
+def build_cache(index, *, return_index=False):
+    """Decode and letterbox the usable rows, preserving index order and label alignment."""
+    images = np.empty((len(index), CACHE_SIZE, CACHE_SIZE, 3), dtype=np.uint8)
+    positions = []
+    for position, path in enumerate(index['path']):
+        try:
+            images[len(positions)] = letterbox(load_image(path))
+        except ImageLoadError as error:
+            print(error, file=sys.stderr)
+            continue
+        positions.append(position)
+    usable = index.iloc[positions].reset_index(drop=True)
+    images = images[:len(positions)]
+    labels = usable['label_idx'].to_numpy(dtype=np.int64)
+    return (images, labels, usable) if return_index else (images, labels)
+
+
+@contextmanager
+def atomic_output(path):
+    """Stage an output beside its destination and replace it after a successful write."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with NamedTemporaryFile(dir=path.parent, suffix=path.suffix, delete=False) as stream:
+        temporary = Path(stream.name)
+    try:
+        yield temporary
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def portable_index(index):
+    """Store dataset paths relative to DATA_DIR for use on a different machine."""
+    stored = index.copy()
+    stored['path'] = stored['path'].map(lambda path: Path(path).relative_to(DATA_DIR.resolve()).as_posix())
+    stored.loc[stored.dataset != 'cid', 'animal'] = stored['path']
+    return stored
+
+
+def save_cache(dataset, index, images, labels):
+    """Write the processed index and image cache, including the row identities."""
+    root = DATA_DIR / 'processed'
+    stored = portable_index(index)
+    with atomic_output(root / f'{dataset}.npz') as temporary:
+        np.savez_compressed(temporary, images=images, labels=labels, paths=stored['path'].to_numpy(dtype=str),
+                            folds=stored['fold'].to_numpy() if 'fold' in stored else np.empty(0, dtype=int))
+    with atomic_output(root / f'{dataset}.csv') as temporary:
+        stored.to_csv(temporary, index=False)
+
+
+def load_cache(dataset):
+    """Load a matching processed index and cache, restoring absolute source paths."""
+    root = DATA_DIR / 'processed'
+    index = pd.read_csv(root / f'{dataset}.csv', dtype={'path': str, 'animal': str})
+    with np.load(root / f'{dataset}.npz', allow_pickle=False) as cache:
+        images, labels = cache['images'], cache['labels']
+        folds = index['fold'].to_numpy() if 'fold' in index else []
+        if (len(images) != len(index) or not np.array_equal(index['path'], cache['paths'])
+                or not np.array_equal(index['label_idx'], labels) or not np.array_equal(folds, cache['folds'])):
+            raise ValueError(f'{dataset} processed index does not match its cache. Rerun prepare_data.py.')
+    index['path'] = index['path'].map(lambda path: str(DATA_DIR.resolve() / path))
+    index.loc[index.dataset != 'cid', 'animal'] = index['path']
+    return index, images, labels
