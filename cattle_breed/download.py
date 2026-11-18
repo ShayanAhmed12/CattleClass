@@ -4,13 +4,15 @@ No accounts are needed. Interrupted downloads resume, and a dataset that already
 its check is skipped, so running this again is always safe.
 """
 import hashlib
-import os
+import io
 import shutil
 import tarfile
 import urllib.request
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
+from contextlib import contextmanager
+from pathlib import Path, PurePosixPath
+from tempfile import NamedTemporaryFile
 
 from .config import DATA_DIR, DOWNLOAD_DIR, IMAGE_SUFFIXES
 
@@ -138,26 +140,111 @@ def get_mendeley(downloads):
     return zip_path
 
 
-def get_kaggle(downloads):
-    """Download just the three experiment folders from the pinned Kaggle version."""
-    cache = downloads / "kagglehub"
-    os.environ["KAGGLEHUB_CACHE"] = str(cache)
-    import kagglehub
+class ArchiveRanges(io.RawIOBase):
+    """Seekable archive input backed by HTTP byte ranges."""
 
+    def __init__(self, url, size):
+        super().__init__()
+        self.url = url
+        self.size = size
+        self.position = 0
+
+    def readable(self):
+        return True
+
+    def seekable(self):
+        return True
+
+    def tell(self):
+        return self.position
+
+    def seek(self, offset, whence=io.SEEK_SET):
+        base = {io.SEEK_SET: 0, io.SEEK_CUR: self.position, io.SEEK_END: self.size}[whence]
+        if base + offset < 0:
+            raise ValueError("Cannot seek before the archive start")
+        self.position = base + offset
+        return self.position
+
+    def readinto(self, buffer):
+        count = min(len(buffer), self.size - self.position)
+        if count <= 0:
+            return 0
+        first, last = self.position, self.position + count - 1
+        request = urllib.request.Request(self.url, headers={
+            "Range": f"bytes={first}-{last}", "Accept-Encoding": "identity",
+        })
+        for _ in range(3):
+            try:
+                with urllib.request.urlopen(request, timeout=60) as response:
+                    if (response.status != 206
+                            or response.headers.get("Content-Range") != f"bytes {first}-{last}/{self.size}"):
+                        raise OSError("Unexpected response to the Kaggle archive range request")
+                    chunk = response.read(count)
+                if len(chunk) != count:
+                    raise OSError("Incomplete response to the Kaggle archive range request")
+            except OSError:
+                continue
+            buffer[:count] = chunk
+            self.position += count
+            return count
+        raise OSError("Unable to read the requested Kaggle archive bytes after three attempts")
+
+
+@contextmanager
+def open_kaggle_zip():
+    """Resolve the pinned ZIP once, then read it without downloading unrelated files."""
+    from kagglehub.clients import build_kaggle_client
+    from kagglesdk.datasets.types.dataset_api_service import ApiDownloadDatasetRequest
+
+    owner, dataset, _, version = KAGGLE_HANDLE.split("/")
+    request = ApiDownloadDatasetRequest()
+    request.owner_slug, request.dataset_slug = owner, dataset
+    request.dataset_version_number = int(version)
+    with build_kaggle_client() as client:
+        with client.datasets.dataset_api_client.download_dataset(request) as response:
+            url = response.url
+            size = response.headers.get("Content-Length")
+            if response.status_code != 200 or not size or response.headers.get("Accept-Ranges") != "bytes":
+                raise OSError("Kaggle did not provide a seekable archive")
+    with io.BufferedReader(ArchiveRanges(url, int(size)), buffer_size=4 << 20) as source:
+        with zipfile.ZipFile(source) as archive:
+            yield archive
+
+
+def get_kaggle(_downloads):
+    """Extract the matched image folders without downloading the whole Kaggle archive."""
     out = DATA_DIR / "raw" / "kaggle"
     out.mkdir(parents=True, exist_ok=True)
     existing = count_images(out)
-    for name in KAGGLE_KEEP:
-        if existing.get(name) == EXPECTED["kaggle"]["per_folder"][name]:
-            continue
-        print(f"  downloading {name}")
-        source = Path(kagglehub.dataset_download(
-            KAGGLE_HANDLE, path=f"Indian_bovine_breeds/Indian_bovine_breeds/{name}"
-        ))
-        shutil.copytree(source, out / name, dirs_exist_ok=True)
-    shutil.rmtree(cache, ignore_errors=True)
+    wanted = {name for name in KAGGLE_KEEP if existing.get(name) != EXPECTED["kaggle"]["per_folder"][name]}
+    if not wanted:
+        return None
+    print("  extracting matched folders from Kaggle v5")
+    with open_kaggle_zip() as archive:
+        for entry in archive.infolist():
+            parts = PurePosixPath(entry.filename).parts
+            if (len(parts) != 4 or parts[:2] != ("Indian_bovine_breeds", "Indian_bovine_breeds")
+                    or parts[2] not in wanted or entry.is_dir()):
+                continue
+            filename = parts[3]
+            if (PurePosixPath(filename).suffix.lower() not in IMAGE_SUFFIXES
+                    or filename.startswith("._") or any(char in filename for char in ("\\", ":"))):
+                continue
+            destination = out.joinpath(*parts[2:])
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            if destination.is_file() and destination.stat().st_size == entry.file_size:
+                continue
+            with NamedTemporaryFile(dir=destination.parent, suffix=".part", delete=False) as target:
+                temporary = Path(target.name)
+                try:
+                    with archive.open(entry) as picture:
+                        shutil.copyfileobj(picture, target)
+                    target.close()
+                    temporary.replace(destination)
+                finally:
+                    target.close()
+                    temporary.unlink(missing_ok=True)
     return None
-
 
 def download_all(names=tuple(EXPECTED), check_only=False):
     """Download whatever is missing, then check every dataset. Returns True if all are complete."""

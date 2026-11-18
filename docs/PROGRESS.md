@@ -20,7 +20,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T10 | Robustness (E5) | Should | Shayan | 🟡 | Both strengths of each corruption pass deterministic synthetic tests. Waiting for real models and reviewed external caches. |
 | T11 | Error analysis and Grad-CAM | Should | Shayan | 🟡 | Local galleries and annotation sheet verified on synthetic data. Real errors still need review. |
 | T12 | Demo | Should | Shayan | 🟡 | Gradio upload and top-three predictions verified with a synthetic Keras checkpoint. Real demo and backup video pending. |
-| T13 | Report, slides, defence | Must | Shayan | 🟡 | Draft report and ten-minute presentation prepared. Real CNN results and individual defence still pending. |
+| T13 | Report, slides, defence | Must | Shayan | 🟡 | Eight-page draft and ten-minute presentation prepared. A clean checkout reproduced the CID folds and B0 byte for byte. Real CNN results and individual defence still pending. |
 | — | E6 (50% of animals) | Could |  | ⬜ | Cut first if short of time |
 
 ## Log
@@ -29,7 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
-| 2026-11-19 | Shayan | Verified Kaggle v5 folder downloads and changed setup to fetch only the three needed breeds | No whole-archive extraction needed on reruns |
+| 2026-11-19 | Shayan | Verified the Kaggle v5 byte-range reader against the real archive and reproduced the CID fold manifest and B0 in a clean checkout | GitHub checks for the draft and real CNN training |
 | 2026-11-19 | Shayan | Finished Kaggle cache verification and drafted the report and slides | Add real model results, reviewed figures and rehearse the defence |
 | 2026-11-19 | Shayan | Verified the Gradio upload and prediction flow with a synthetic checkpoint | Use the trained final model and record the backup |
 | 2026-11-19 | Shayan | Tested both external scoring protocols, robustness workflow and local Grad-CAM galleries | Run official external experiments after private curation and training |

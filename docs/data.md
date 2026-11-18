@@ -17,7 +17,7 @@ Sources, licences and counts for the three datasets, and the rules for reviewing
 | SHA-256 | `77a5a7aadb079b4d0d64db8b69549131b95339a8e7023b6e4c812b5372e78448` (`images.tar.gz`) | `650e8cf58256988e1a743358a9cad15214bbed33a5c60b8c00e6ce2c378f0b43` (ZIP) | — |
 | After review and de-duplication | 1,893 images / 371 grouped IDs | 173 after pHash, before manual review | 908 after pHash, before manual review |
 
-`python prepare_data.py` downloads and checks the raw datasets, then indexes, cleans and caches them. For CID alone use `--datasets cid`. External preparation always needs CID for the duplicate check. The Kaggle downloader fetches only the three matched folders from version 5 and skips complete folders on rerun. `python prepare_data.py --cid-samples` builds the local `results/figures/cid_samples.png` grid from the downloaded CID files. Pretrained weights: EfficientNet-B0 ImageNet weights from `keras.applications` (Tan & Le, 2019).
+`python prepare_data.py` downloads and checks the raw datasets, then indexes, cleans and caches them. For CID alone use `--datasets cid`. External preparation always needs CID for the duplicate check. The Kaggle downloader reads the three matched folders from the version 5 ZIP using byte ranges and skips complete folders on rerun. The range reader was verified against the real archive after the individual-file endpoint rate-limited the setup. `python prepare_data.py --cid-samples` builds the local `results/figures/cid_samples.png` grid from the downloaded CID files. Pretrained weights: EfficientNet-B0 ImageNet weights from `keras.applications` (Tan & Le, 2019).
 
 ## Reviewing the external images (T3)
 
