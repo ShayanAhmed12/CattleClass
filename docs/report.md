@@ -49,6 +49,8 @@ The B0 predictor assigns every CID photo to Local. On 1,893 held-out predictions
 
 ### 6 Error analysis
 
+The evaluation command selects correct and incorrect external examples by confidence and computes Grad-CAM for the predicted class. The candidate gallery is kept locally. The team records a likely cause and marks ambiguous cases before reporting examples.
+
 ### 7 Limitations
 
 ### 9 AI-use disclosure

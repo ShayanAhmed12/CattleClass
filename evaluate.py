@@ -1,6 +1,7 @@
 """Evaluate trained cattle breed models on cached, reviewed datasets."""
 import argparse
 import csv
+import json
 
 import numpy as np
 
@@ -208,12 +209,36 @@ def save_galleries(classifier, examples, directory):
     save_csv(notes_path, fields, (dict(zip(fields, (*key, cause))) for key, cause in notes.items()))
 
 
+def verify_checkpoints(*, include_folds):
+    """Use only model artifacts produced for the current prepared CID data."""
+    from cattle_breed.download import sha256
+    from train import read_fold, training_id
+
+    root = config.MODELS_DIR
+    final = root / "final.keras"
+    try:
+        record = json.loads((root / "final.json").read_text(encoding="utf-8"))
+        checksum = sha256(final)
+    except (OSError, ValueError) as error:
+        raise ValueError("Finish `python train.py --final` before evaluating.") from error
+    index, images, _ = data.load_cache("cid")
+    run_id = training_id(index, images, 1.0)
+    if record.get("run_id") != run_id or record.get("model_hash") != checksum:
+        raise ValueError("Final checkpoint does not match the current CID cache. Rerun training.")
+    if include_folds:
+        folds = index["fold"].value_counts()
+        if any(fold not in folds or read_fold(root, fold, run_id, int(folds[fold])) is None
+               for fold in range(config.N_FOLDS)):
+            raise ValueError("E5 requires all matching CID test-fold checkpoints. Rerun training.")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--robustness", action="store_true", help="also evaluate corrupted images")
     parser.add_argument("--figures", action="store_true", help="also generate local error and Grad-CAM galleries")
     args = parser.parse_args(argv)
 
+    verify_checkpoints(include_folds=args.robustness)
     directory = config.RESULTS_DIR / "figures"
     corruptions = [(kind, severity) for kind, settings in config.CORRUPTIONS.items()
                    for severity in settings] if args.robustness else []

@@ -37,7 +37,8 @@ It is safe to run again. Afterwards, activate the environment in each new termin
 | 1 | `python prepare_data.py` | datasets downloaded, indexed, de-duplicated, split and cached in `data/` |
 | 2 | `python train.py` | B0, E1, E2 and five-fold checkpoints |
 | 2b | `python train.py --final` | Final model trained on all CID images |
-| 3 | `python evaluate.py` | external tests (E3, E4), robustness (E5), figures |
+| 3 | `python evaluate.py` | External tests (E3, E4), after both datasets have been reviewed and re-cached |
+| 3b | `python evaluate.py --robustness --figures` | E5 and local error and Grad-CAM galleries |
 | 4 | `python demo.py` | Gradio app: upload a photo, get the breed |
 
 Run `python prepare_data.py --datasets cid` to prepare CID alone for cross-validation. To verify raw downloads, use `python prepare_data.py --check`.

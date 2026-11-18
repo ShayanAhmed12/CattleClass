@@ -28,3 +28,4 @@ kaggle.json
 
 # CID source photos in the local report sample grid
 /results/figures/cid_samples.png
+/results/figures/local/

@@ -92,3 +92,7 @@ Each design choice and its reason. The defence will ask "why did you do X?", so 
 **D-18 · Resume only matching checkpoints.**
 - Fold outputs record the training data and protocol fingerprint, fold number and model checksum. Both the model and its predictions must match before a fold is reused.
 - The final fit requires all five fold records and uses the median selected epoch for each stage.
+
+**D-19 · Verify evaluation inputs and keep photo galleries local.**
+- Before scoring, verify the final checkpoint against the current CID cache and require matching held-out models for robustness evaluation.
+- The report keeps aggregate confusion matrices and metric tables. Galleries, Grad-CAM overlays and reviewer notes containing source paths stay in the local figure folder.

@@ -82,6 +82,7 @@ def setup_evaluation(monkeypatch, tmp_path, *, cid=None):
     monkeypatch.setattr(evaluate.data, "load_cache", load_cache, raising=False)
     monkeypatch.setattr(evaluate.data, "atomic_output", atomic_output, raising=False)
     monkeypatch.setattr(evaluate, "load_model", load_model)
+    monkeypatch.setattr(evaluate, "verify_checkpoints", lambda **kwargs: None)
     return loads, seen
 
 
@@ -174,3 +175,17 @@ def test_figures_use_predicted_breeds_for_gradcam_and_preserve_error_notes(monke
     setup_evaluation(monkeypatch, tmp_path)
     evaluate.main(["--figures"])
     assert read_csv(annotations) == rows
+
+
+def test_evaluation_rejects_final_checkpoint_for_another_cid_cache(monkeypatch, tmp_path):
+    import json
+    import pytest
+    import train
+
+    monkeypatch.setattr(config, "MODELS_DIR", tmp_path)
+    monkeypatch.setattr(evaluate.data, "load_cache", lambda name: cached_examples([1], [LOCAL]))
+    monkeypatch.setattr(train, "training_id", lambda index, images, fraction: "current-cid")
+    (tmp_path / "final.keras").write_bytes(b"model")
+    (tmp_path / "final.json").write_text(json.dumps({"run_id": "older-cid", "model_hash": "old"}))
+    with pytest.raises(ValueError, match="current CID"):
+        evaluate.verify_checkpoints(include_folds=False)
