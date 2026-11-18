@@ -27,7 +27,7 @@ Practise answering each one aloud without notes. The answers are in [decisions.m
 16. Why macro-F1 instead of accuracy? What does B0 show? (D-08)
 17. Why 5-fold cross-validation? What does the standard deviation tell you? (D-04)
 18. What is the difference between 5-way and restricted scoring? (D-08)
-19. Why does performance drop more on Kaggle than on Mendeley?
+19. Which external source has the larger measured change from CID, if either, and which differences could account for it?
 20. Which breeds get confused, and why?
 21. How does Grad-CAM work, and what did it show?
 22. Which corruption hurt most, and why?
@@ -40,3 +40,10 @@ Practise answering each one aloud without notes. The answers are in [decisions.m
 26. Which parts did AI tools help with, and how did you check them?
 27. Which tasks did you do yourself? Explain a part a teammate wrote.
 28. With two more weeks, what would you change first?
+
+## Current rehearsal anchors
+
+- B0 scores 70.3% accuracy and 0.165 macro-F1 because it predicts Local for every photo. Explain how the four zero-recall classes lead to 20.0% balanced accuracy.
+- The real fold manifest has 1,893 photos in 371 groups. Explain why related source SKUs can share a group despite different label spellings or labels, and how this affects the interpretation of grouped counts.
+- A fold checkpoint is reusable only if its model checksum, fold ID and protocol fingerprint match. The final epoch schedule uses the median chosen count across all five matching folds.
+- Use the real E1–E5 values and privately reviewed examples before answering the result-dependent questions.

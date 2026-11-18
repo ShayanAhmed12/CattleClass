@@ -15,7 +15,7 @@ Sources, licences and counts for the three datasets, and the rules for reviewing
 | On disk | 514 folders × 4 = 2,056 images; `dataset.csv` 513 rows (D-10) | 263 images: Holstain Friesian 69, Jersey 73, Local Deshi 56, Sahiwal 65 | 3 of 41 breeds kept: Holstein_Friesian 328, Red_Sindhi 162, Sahiwal 439 |
 | Used | 503 animals / 2,012 images in 5 classes | 190 images in 3 classes (Jersey left out) | about 930 images in 3 classes, before review |
 | SHA-256 | `77a5a7aadb079b4d0d64db8b69549131b95339a8e7023b6e4c812b5372e78448` (`images.tar.gz`) | `650e8cf58256988e1a743358a9cad15214bbed33a5c60b8c00e6ce2c378f0b43` (ZIP) | — |
-| After review and de-duplication | 1,893 images / 371 grouped IDs | 173 after pHash, before manual review | *fill in T3/T4* |
+| After review and de-duplication | 1,893 images / 371 grouped IDs | 173 after pHash, before manual review | 908 after pHash, before manual review |
 
 `python prepare_data.py` downloads and checks the raw datasets, then indexes, cleans and caches them. For CID alone use `--datasets cid`. External preparation always needs CID for the duplicate check. `python prepare_data.py --cid-samples` builds the local `results/figures/cid_samples.png` grid from the downloaded CID files. Pretrained weights: EfficientNet-B0 ImageNet weights from `keras.applications` (Tan & Le, 2019).
 

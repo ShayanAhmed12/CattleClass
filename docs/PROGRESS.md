@@ -1,6 +1,6 @@
 # Progress
 
-**Updated:** 2026-11-19 · **Done:** T0, T1, T4 (CID and Mendeley verified), T6 · **Next:** T7/T8 (model training), plus CID view inspection and T3 manual review
+**Updated:** 2026-11-19 · **Done:** T0, T1, T4, T5, T6 · **Next:** Complete real CID training, CID view inspection and T3 private review
 
 Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress · ⬜ not started.
 **Claim a task before starting it:** put your name under *Owner* and push. This table is also the record of who did what, which the proposal and report must state.
@@ -10,9 +10,9 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T0 | Setup and downloads | Must | Shayan | ✅ | Approval received (D-01); one-command setup (D-11); all three datasets downloaded and checked |
 | T1 | Image loading | Must | Shayan | ✅ | `data.load_image`, `letterbox`, `center_crop` |
 | T2 | Index tables and CID check | Must | Shayan | 🟡 | Index code complete. Verified 503 CID animals / 2,012 photos and 190 matched Mendeley photos. View inspection pending (D-07). |
-| T3 | Review external images by hand | Must |  | ⬜ | About 3 hours; rules in `data.md` |
+| T3 | Review external images by hand | Must |  | ⬜ | 190 Mendeley and 929 Kaggle matched photos available. Review privately using `data.md`, then re-cache. |
 | T4 | Duplicates and folds | Must | Shayan | ✅ | 1,893 CID photos in 371 grouped IDs. Every train, validation and test split has all five classes. |
-| T5 | Image cache | Must | Shayan | 🟡 | End-to-end CID and Mendeley cache runs verified. Kaggle verification pending. |
+| T5 | Image cache | Must | Shayan | ✅ | Verified caches for 1,893 CID, 173 provisional Mendeley, and 908 provisional Kaggle photos. |
 | T6 | Metrics and B0 | Must | Shayan | ✅ | B0 on real CID folds: 0.703 accuracy, 0.200 balanced accuracy and 0.165 macro-F1. |
 | T7 | Model and CV (E1, E2) | Must | Shayan | 🟡 | Two-stage training and fold resume verified on synthetic inputs. Real CID run started on the cloud CPU. |
 | T8 | Final model | Must | Shayan | 🟡 | Final training uses the median epoch in each stage. Waiting for all five real fold checkpoints. |
@@ -20,7 +20,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T10 | Robustness (E5) | Should | Shayan | 🟡 | Both strengths of each corruption pass deterministic synthetic tests. Waiting for real models and reviewed external caches. |
 | T11 | Error analysis and Grad-CAM | Should | Shayan | 🟡 | Local galleries and annotation sheet verified on synthetic data. Real errors still need review. |
 | T12 | Demo | Should | Shayan | 🟡 | Gradio upload and top-three predictions verified with a synthetic Keras checkpoint. Real demo and backup video pending. |
-| T13 | Report, slides, defence | Must |  | ⬜ | |
+| T13 | Report, slides, defence | Must | Shayan | 🟡 | Draft report and ten-minute presentation prepared. Real CNN results and individual defence still pending. |
 | — | E6 (50% of animals) | Could |  | ⬜ | Cut first if short of time |
 
 ## Log
@@ -29,6 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
+| 2026-11-19 | Shayan | Finished Kaggle cache verification and drafted the report and slides | Add real model results, reviewed figures and rehearse the defence |
 | 2026-11-19 | Shayan | Verified the Gradio upload and prediction flow with a synthetic checkpoint | Use the trained final model and record the backup |
 | 2026-11-19 | Shayan | Tested both external scoring protocols, robustness workflow and local Grad-CAM galleries | Run official external experiments after private curation and training |
 | 2026-11-19 | Shayan | Implemented deterministic blur, darkness and occlusion and checked oversized-image handling | Run E5 after the trained checkpoints and T3 |
