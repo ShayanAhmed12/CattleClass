@@ -46,7 +46,7 @@ Always predicting Local achieves high accuracy because Local is common. Class-ba
 ## Generalization and robustness · 75 seconds
 
 - E1/E2 compare frozen transfer and fine-tuning on held-out CID groups.
-- E3/E4 compare five-way and restricted predictions on reviewed external data.
+- E3/E4 compare five-way and restricted predictions on automatically screened external data.
 - E5 measures changes under blur, darkness and occlusion.
 - Add measured E1–E5 values and confusion matrices after the real runs.
 
@@ -54,7 +54,7 @@ Always predicting Local achieves high accuracy because Local is common. Class-ba
 
 - Check rare breeds, ambiguous source labels and differences in photography.
 - Use local Grad-CAM overlays to discuss candidate visual cues.
-- Add examples from measured outputs after private review.
+- The local screen found no threshold-qualified exclusions. State that the original hand-reviewed condition remains unverified.
 - CID is market-heavy. External photos have no reliable animal IDs.
 
 ## Demo and conclusion · 90 seconds

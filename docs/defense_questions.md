@@ -47,3 +47,18 @@ Practise answering each one aloud without notes. The answers are in [decisions.m
 - The real fold manifest has 1,893 photos in 371 groups. Explain why related source SKUs can share a group despite different label spellings or labels, and how this affects the interpretation of grouped counts.
 - A fold checkpoint is reusable only if its model checksum, fold ID and protocol fingerprint match. The final epoch schedule uses the median chosen count across all five matching folds.
 - Use the real E1–E5 values and privately reviewed examples before answering the result-dependent questions.
+
+## Short answers for a mock defence
+
+| Question | Answer to explain aloud |
+|---|---|
+| Why put groups before folds? | Near-duplicate photos and photos of the same source animal can share visual cues. Joining their source IDs before splitting helps prevent the test fold from containing copies of the training examples. |
+| What does B0 establish? | Always predicting Local gives about 70% accuracy because Local is common. It recalls only one of five breeds and gets 0.165 macro-F1. |
+| Why train the head before unfreezing? | The head first learns a mapping from pretrained features to the five project labels. Fine-tuning then adjusts those features with a smaller learning rate. |
+| Why keep BatchNorm in inference mode? | Small, imbalanced batches can alter pretrained running statistics. Inference mode keeps those statistics fixed while gradients still reach trainable backbone weights. |
+| What is the external protocol difference? | The five-way score lets the classifier select any training class. The restricted score selects only from the labels present in the external set and depends on knowing its class coverage. |
+| How did autonomous screening work? | A pinned local image-text model compared broad exclusion prompts on a center crop and an aspect-preserving view. It applied a conservative agreement rule and kept uncertain cases. It did not use the trained breed classifier to choose the test set. |
+| How does screening affect interpretation? | The screen can miss issues, especially close breed errors or identifying details. Scoring is based on an automatically screened test set. The original hand-reviewed condition remains a separate protocol. |
+| What can Grad-CAM establish? | The map shows spatial features whose gradients support a selected prediction. Context may contribute, and a map alone cannot establish a cause for an individual error. |
+| How does a run resume? | It checks the input and code fingerprint, fold ID and model checksum before reusing a fold. The all-CID fit uses the median selected epoch counts from all five matching folds. |
+| What would improve the project? | Improve label and privacy verification, collect cattle from new sites with independent IDs, and validate the demo with an external set whose breed labels are verified. |

@@ -60,7 +60,7 @@ def center_crop(img: np.ndarray, size: int = IMG_SIZE) -> np.ndarray:
     return img[top:top + size, left:left + size]
 
 
-def build_index(dataset: str) -> pd.DataFrame:
+def build_index(dataset: str, *, apply_review=True) -> pd.DataFrame:
     """Index the supported images in a downloaded dataset in stable path order."""
     root = (DATA_DIR / EXPECTED[dataset]["root"]).resolve()
     cid_labels = {}
@@ -75,7 +75,7 @@ def build_index(dataset: str) -> pd.DataFrame:
 
     removed = set()
     manifest = RESULTS_DIR / "removed_images.csv"
-    if dataset != "cid" and manifest.is_file():
+    if apply_review and dataset != "cid" and manifest.is_file():
         with manifest.open(encoding="utf-8-sig", newline="") as source:
             removed = {row["path"] for row in csv.DictReader(source) if row["dataset"] == dataset}
 

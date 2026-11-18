@@ -1,0 +1,52 @@
+{
+  "checkpoint": {
+    "model": "Xenova/clip-vit-base-patch32",
+    "revision": "6b7c523703ae26e39be4b03774966f8571c7f523",
+    "files": [
+      [
+        "tokenizer.json",
+        "f7f3b7af117d467b58374797691a6438d3e6b9e9cef800dfd5dced7f697a90cd",
+        2224119
+      ],
+      [
+        "onnx/text_model_quantized.onnx",
+        "73baab855d406190da9faa498cfedf65f15cf309f4cc7385b7b032e6d08e5c3a",
+        64504507
+      ],
+      [
+        "onnx/vision_model_quantized.onnx",
+        "583fd1110a514667812fee7d684952aaf82a99b959760c8d7dca7e0ab9839299",
+        89117001
+      ]
+    ]
+  },
+  "counts": {
+    "mendeley": {
+      "screened": 190,
+      "excluded": {}
+    },
+    "kaggle": {
+      "screened": 929,
+      "excluded": {}
+    }
+  },
+  "cid_view_hypotheses": {
+    "0": {
+      "ambiguous": 8,
+      "detail": 11,
+      "front": 1
+    },
+    "1": {
+      "detail": 13,
+      "ambiguous": 7
+    },
+    "2": {
+      "detail": 10,
+      "ambiguous": 10
+    },
+    "3": {
+      "ambiguous": 9,
+      "detail": 11
+    }
+  }
+}

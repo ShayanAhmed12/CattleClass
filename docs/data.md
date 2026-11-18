@@ -15,7 +15,7 @@ Sources, licences and counts for the three datasets, and the rules for reviewing
 | On disk | 514 folders × 4 = 2,056 images; `dataset.csv` 513 rows (D-10) | 263 images: Holstain Friesian 69, Jersey 73, Local Deshi 56, Sahiwal 65 | 3 of 41 breeds kept: Holstein_Friesian 328, Red_Sindhi 162, Sahiwal 439 |
 | Used | 503 animals / 2,012 images in 5 classes | 190 images in 3 classes (Jersey left out) | about 930 images in 3 classes, before review |
 | SHA-256 | `77a5a7aadb079b4d0d64db8b69549131b95339a8e7023b6e4c812b5372e78448` (`images.tar.gz`) | `650e8cf58256988e1a743358a9cad15214bbed33a5c60b8c00e6ce2c378f0b43` (ZIP) | — |
-| After review and de-duplication | 1,893 images / 371 grouped IDs | 173 after pHash, before manual review | 908 after pHash, before manual review |
+| After deduplication and the automated screen | 1,893 images / 371 grouped IDs | 173 after pHash, 0 automated exclusions | 908 after pHash, 0 automated exclusions |
 
 `python prepare_data.py` downloads and checks the raw datasets, then indexes, cleans and caches them. For CID alone use `--datasets cid`. External preparation always needs CID for the duplicate check. The Kaggle downloader reads the three matched folders from the version 5 ZIP using byte ranges and skips complete folders on rerun. The range reader was verified against the real archive after the individual-file endpoint rate-limited the setup. `python prepare_data.py --cid-samples` builds the local `results/figures/cid_samples.png` grid from the downloaded CID files. Pretrained weights: EfficientNet-B0 ImageNet weights from `keras.applications` (Tan & Le, 2019).
 
@@ -41,3 +41,14 @@ Look at every Mendeley and Kaggle image of the matched classes in a thumbnail vi
 - **Red Sindhi:** deep red, often darker on the face and shoulders; more compact than Sahiwal, and easily confused with it.
 - **Holstein Friesian:** black-and-white (sometimes red-and-white) patches, large angular dairy frame, no hump.
 - **Local / Deshi:** small, with varied colours; Bangladeshi indigenous cattle.
+
+## Autonomous screening
+
+`screen_external.py` runs the quantized CLIP image and text encoders in ONNX Runtime on the same cloud workspace as the raw photos. The weight download contains model files only. Each image is compared with broad exclusion prompts on a center crop and an aspect-preserving view. An exclusion must win on both views by at least 0.045 cosine similarity over the valid-photo prompt and 0.012 over the runner-up. Uncertain photos remain in the set. The screen does not remove photos based on the study classifier's predictions or guess fine-grained breed errors.
+
+```bash
+python -m pip install onnxruntime==1.32.0 tokenizers==0.23.3
+python screen_external.py data/curation/clip data/curation/run1 --download
+```
+
+The local run screened 190 matched Mendeley and 929 matched Kaggle images. It found zero threshold-qualified exclusions. This records the behavior of the screen and leaves the 173 and 908 previously deduplicated photos in the evaluation caches. It cannot establish that labels are correct or that all identifying details were detected. No source photos, review scores or galleries are distributed. The original hand-reviewed condition is reported as unverified. [Checkpoint metadata and aggregate counts](../results/screening_summary.json) · [Pinned checkpoint](https://huggingface.co/Xenova/clip-vit-base-patch32/tree/6b7c523703ae26e39be4b03774966f8571c7f523)

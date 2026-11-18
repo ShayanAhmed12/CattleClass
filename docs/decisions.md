@@ -35,7 +35,7 @@ Each design choice and its reason. The defence will ask "why did you do X?", so 
 - Cattle side-view photos are wide. Stretching distorts body shape, and a square crop cuts off heads or tails.
 - Images are cached once as uint8, so every training run starts fast.
 
-**D-07 · CID photo views.** Keep all four photos per animal for the any-view task. The filename suffixes 0–3 are present for every indexed CID animal. Inspect the local sample grid before assigning viewpoint names to those slots.
+**D-07 · CID photo views.** Keep all four photos per animal for the any-view task. The filename suffixes 0–3 are present for every indexed CID animal. A reproducible, breed-stratified sample covered 20 animals and 80 images. The automated viewpoint estimates did not distinguish the four suffixes reliably, so no anatomical view names are assigned.
 
 **D-08 · Metrics: macro-F1 and balanced accuracy; external sets scored two ways.**
 - "Local" is 70% of CID, so always guessing it scores 0.70 accuracy but only 0.165 macro-F1 (B0).
@@ -96,3 +96,7 @@ Each design choice and its reason. The defence will ask "why did you do X?", so 
 **D-19 · Verify evaluation inputs and keep photo galleries local.**
 - Before scoring, verify the final checkpoint against the current CID cache and require matching held-out models for robustness evaluation.
 - The report keeps aggregate confusion matrices and metric tables. Galleries, Grad-CAM overlays and reviewer notes containing source paths stay in the local figure folder.
+
+**D-20 · Local automated screening for the autonomous continuation.**
+- Screen the two matched external datasets with the pinned CLIP model on two image preparations. Require agreement before excluding a file, and keep ambiguous photos. Keep per-image scores private.
+- This is a documented departure from T3's hand review. The resulting external scores must be described as automatically screened. Zero exclusions means no example met the thresholds, and does not certify breed labels or privacy.

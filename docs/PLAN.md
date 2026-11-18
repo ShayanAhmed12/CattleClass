@@ -89,7 +89,9 @@ Work in test-first cycles: write the test, see it fail, write the code, see it p
 - Real data must give 503 animals / 2,012 images: Local 353, Sahiwal 59, Sindhi 38, Holstein cross 32, Red Chittagong 21.
 - Save a grid of sample photos per class as `results/figures/cid_samples.png` (report Figure 1). Note which views the photos show (decision D-07).
 
-**T3 Review the external images by hand (days 6–9, about 3 hours, no code)**
+**T3 Review the external images by hand (original protocol)**
+
+The autonomous continuation uses the local screen in [data.md](data.md#autonomous-screening). Report its results as automatically screened. Keep the hand-reviewed condition separate in the project status.
 - Look through every Mendeley and Kaggle image of the matched classes in a file browser with thumbnails.
 - Add each removed image to `results/removed_images.csv` (`dataset, path, reason`), following the rules in [data.md](data.md).
 - `build_index` skips the listed paths.
