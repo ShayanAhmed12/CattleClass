@@ -1,0 +1,99 @@
+"""Classification metrics and experiment results for cattle breed models."""
+
+import csv
+from datetime import date
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+
+import numpy as np
+from sklearn.metrics import confusion_matrix, f1_score, recall_score
+
+from . import config
+
+_RESULT_KEY = ("experiment", "dataset", "scoring")
+_SCORE_FIELDS = ("n_images", "accuracy", "balanced_accuracy", "macro_f1")
+_RESULT_FIELDS = (*_RESULT_KEY, *_SCORE_FIELDS, "macro_f1_std", "date")
+
+
+def score(y_true, y_pred):
+    """Score canonical class indices, averaging only over true-label classes.
+
+    Per-class F1 is keyed by breed name. Both axes of the confusion matrix
+    follow config.CLASSES, including classes absent from the ground truth.
+    """
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+    if y_true.ndim != 1 or y_pred.shape != y_true.shape or not y_true.size:
+        raise ValueError("Expected matching nonempty vectors of true and predicted labels.")
+
+    labels = np.arange(len(config.CLASSES))
+    if not (np.isin(y_true, labels).all() and np.isin(y_pred, labels).all()):
+        raise ValueError("Labels must be canonical class indices.")
+    present = np.unique(y_true)
+    f1 = f1_score(y_true, y_pred, labels=labels, average=None, zero_division=0)
+    return {
+        "n_images": len(y_true),
+        "accuracy": float(np.mean(y_true == y_pred)),
+        "balanced_accuracy": float(recall_score(y_true, y_pred, labels=present, average="macro")),
+        "macro_f1": float(f1[np.isin(labels, present)].mean()),
+        "per_class_f1": {name: float(value) for name, value in zip(config.CLASSES, f1)},
+        "confusion_matrix": confusion_matrix(y_true, y_pred, labels=labels),
+    }
+
+
+def restrict(probs, classes):
+    """Return canonical indices of the highest-scoring allowed breeds."""
+    probs = np.asarray(probs)
+    if probs.ndim != 2:
+        raise ValueError("Expected a probability matrix with one column per class.")
+
+    allowed = np.asarray([
+        config.CLASS_TO_IDX.get(breed, -1) if isinstance(breed, str) else breed for breed in classes
+    ])
+    if not allowed.size or not np.isin(allowed, np.arange(probs.shape[1])).all():
+        raise ValueError("Allowed classes must identify at least one probability column.")
+    allowed = allowed.astype(int)
+    return allowed[probs[:, allowed].argmax(axis=1)]
+
+
+def save_result(experiment, dataset, scoring, scores, *, path=None):
+    """Record one summary row, replacing the same experiment's row on rerun."""
+    path = config.RESULTS_DIR / "metrics.csv" if path is None else Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    identity = (experiment, dataset, scoring)
+    result = dict(zip(_RESULT_KEY, identity))
+    result.update({field: str(scores[field]) for field in _SCORE_FIELDS})
+    result["macro_f1_std"] = str(scores.get("macro_f1_std", ""))
+    result["date"] = date.today().isoformat()
+
+    rows = []
+    if path.exists():
+        with path.open(encoding="utf-8", newline="") as source:
+            rows = list(csv.DictReader(source))
+
+    matches = [i for i, row in enumerate(rows) if tuple(row[key] for key in _RESULT_KEY) == identity]
+    if matches:
+        first, *duplicates = matches
+        previous = rows[first]
+        if all(previous[field] == result[field] for field in _RESULT_FIELDS if field != "date"):
+            result["date"] = previous["date"]
+        rows[first] = result
+        for i in reversed(duplicates):
+            del rows[i]
+    else:
+        rows.append(result)
+
+    # Keep the existing results readable if writing a new CSV fails midway.
+    with NamedTemporaryFile(
+        "w", encoding="utf-8", newline="", dir=path.parent, delete=False
+    ) as target:
+        temporary_path = Path(target.name)
+        try:
+            writer = csv.DictWriter(target, fieldnames=_RESULT_FIELDS, lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(rows)
+            target.close()
+            temporary_path.replace(path)
+        finally:
+            target.close()
+            temporary_path.unlink(missing_ok=True)
