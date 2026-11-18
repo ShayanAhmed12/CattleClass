@@ -43,6 +43,8 @@ A 64-bit perceptual hash with Hamming distance at most four identified 135 match
 
 ### 5 Results
 
+The B0 predictor assigns every CID photo to Local. On 1,893 held-out predictions across the five folds, mean accuracy was 0.703, balanced accuracy was 0.200 and macro-F1 was 0.165 (fold standard deviation 0.001). This is the reference for E1 and E2.
+
 ### 6 Error analysis
 
 ### 7 Limitations

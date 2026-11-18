@@ -1,1 +1,2 @@
 experiment,dataset,scoring,n_images,accuracy,balanced_accuracy,macro_f1,macro_f1_std,date
+B0,cid,5-way,1893,0.7026138563395108,0.2,0.16506505160371274,0.0006936954919545413,2026-11-19
