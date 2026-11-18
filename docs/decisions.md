@@ -62,10 +62,10 @@ Each design choice and its reason. The defence will ask "why did you do X?", so 
 **D-12 · Keep the code and documents small (2026-11-07).**
 - The project must be explainable in a 10-minute presentation and an oral defence. So the code is 5 modules and 4 run scripts, and the documents are 6 files.
 - Every experiment in the approved proposal is kept. Only the machinery around them is simpler:
-  - no results registry with git hashes;
+  - no separate results registry; fold checkpoints record the dataset and settings fingerprint needed for resumption;
   - no curation reason codes or contact-sheet tool.
 
-**D-13 · Where training runs.** *Decide in T7:* WSL2 with the local GPU, Colab, or CPU overnight. Record the TensorFlow and Keras versions used.
+**D-13 · Where training runs.** Initial verified runtime was the Codex cloud CPU with TensorFlow 2.21.0 and Keras 3.15.1. A cloud GPU can run the same commands. Record the runtime that produced the reported checkpoints.
 
 **D-14 · Ready to move to Colab at any time (2026-11-07).**
 - `config.py` detects Colab: datasets and models go to *My Drive/cattle-breed*, and archives go to Colab's temporary disk.

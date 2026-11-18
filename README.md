@@ -43,7 +43,7 @@ Run `python prepare_data.py --datasets cid` to prepare CID alone for cross-valid
 
 To generate the local CID sample grid from existing downloads, run `python prepare_data.py --cid-samples`.
 
-Run the tests with `python -m pytest`. Steps 2–4 are added as the tasks in the plan are completed. Training needs a GPU to be quick: use WSL2 or Colab (see the plan).
+Run the tests with `python -m pytest`. To score the baseline alone, use `python train.py --baseline`. To train individual folds, use `python train.py --folds 0`, substituting the fold numbers you want. Verified completed folds are reused on rerun. Training needs a GPU to be quick: use WSL2 or Colab (see the plan).
 
 ## Working together
 

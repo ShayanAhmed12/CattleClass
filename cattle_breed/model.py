@@ -23,6 +23,8 @@ class InferenceBackbone(keras.layers.Wrapper):
 
 def build_model(weights="imagenet", input_shape=(config.IMG_SIZE, config.IMG_SIZE, 3)):
     """Build a classifier that accepts RGB values in 0–255 and outputs class probabilities."""
+    keras.backend.clear_session()
+    keras.utils.set_random_seed(config.SEED)
     inputs = keras.Input(shape=input_shape, name="image")
     augmentation = keras.Sequential(
         [

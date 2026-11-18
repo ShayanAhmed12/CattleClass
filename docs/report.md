@@ -41,6 +41,8 @@ Before deduplication, the CID index contained 2,012 photos of 503 animals, with 
 
 A 64-bit perceptual hash with Hamming distance at most four identified 135 matching CID pairs, all across different source SKUs. Counting each later photo once removed 119 photos. Linked SKUs share an ID before splitting, leaving 1,893 photos in 371 groups. Stratified group cross-validation held out each group once. Within each training fold a second stratified holdout selected 15% of remaining groups for validation. All five classes occurred in every training, validation and test split.
 
+EfficientNet-B0 receives RGB inputs on the 0–255 scale. Training randomly crops the letterboxed images and applies modest geometric and brightness/contrast augmentation. The frozen-head stage and the full fine-tuning stage both use class weighting and label smoothing. The backbone keeps BatchNorm moving statistics fixed throughout. Validation loss selects the epoch reported for each stage.
+
 ### 5 Results
 
 The B0 predictor assigns every CID photo to Local. On 1,893 held-out predictions across the five folds, mean accuracy was 0.703, balanced accuracy was 0.200 and macro-F1 was 0.165 (fold standard deviation 0.001). This is the reference for E1 and E2.
