@@ -29,7 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
-| 2026-11-19 | Shayan | Finished local automated external screening and audited CID viewpoints. Added a mock defence guide and verified the private recording workflow | Finish real training, then score the automatically screened external caches |
+| 2026-11-19 | Shayan | Finished local automated external screening and audited CID viewpoints. Added a mock defence guide, aligned Colab instructions and verified the private recording workflow | Finish real training, then score the automatically screened external caches |
 | 2026-11-19 | Shayan | Verified the Kaggle v5 byte-range reader against the real archive and reproduced the CID fold manifest and B0 in a clean checkout | GitHub checks for the draft and real CNN training |
 | 2026-11-19 | Shayan | Finished Kaggle cache verification and drafted the report and slides | Add real model results, reviewed figures and rehearse the defence |
 | 2026-11-19 | Shayan | Verified the Gradio upload and prediction flow with a synthetic checkpoint | Use the trained final model and record the backup |
