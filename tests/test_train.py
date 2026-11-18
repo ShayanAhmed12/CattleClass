@@ -20,8 +20,10 @@ def test_baseline_averages_folds_without_duplicate_result_rows(tmp_path):
 
 
 def test_fold_resume_rejects_stale_or_incomplete_artifacts(tmp_path, monkeypatch):
+    import shutil
+
     from cattle_breed import data
-    from train import run_folds
+    from train import read_fold, run_folds
 
     class Network:
         def predict(self, images, **kwargs):
@@ -51,8 +53,23 @@ def test_fold_resume_rejects_stale_or_incomplete_artifacts(tmp_path, monkeypatch
     assert learner.trained == 1
     assert results[0]['head_epochs'] == 2
     assert results[0]['e1'].shape == results[0]['e2'].shape == (1, 5)
+    for suffix in ('keras', 'npz'):
+        shutil.copyfile(tmp_path / f'fold_0.{suffix}', tmp_path / f'fold_1.{suffix}')
+    assert read_fold(tmp_path, 1, 'current', 1) is None
     run_folds(index, images, labels, [0], tmp_path, 'changed', learner)
     assert learner.trained == 2
     (tmp_path / 'fold_0.keras').unlink()
     run_folds(index, images, labels, [0], tmp_path, 'changed', learner)
     assert learner.trained == 3
+
+
+def test_final_epoch_schedule_uses_all_fold_medians():
+    import pytest
+    from train import final_epochs
+
+    folds = {i: {'head_epochs': head, 'ft_epochs': ft}
+             for i, (head, ft) in enumerate([(1, 5), (2, 6), (9, 2), (4, 7), (5, 3)])}
+    assert final_epochs(folds) == {'head_epochs': 4, 'ft_epochs': 5}
+    del folds[4]
+    with pytest.raises(ValueError, match='all five'):
+        final_epochs(folds)

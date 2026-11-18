@@ -15,7 +15,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T5 | Image cache | Must | Shayan | 🟡 | End-to-end CID and Mendeley cache runs verified. Kaggle verification pending. |
 | T6 | Metrics and B0 | Must | Shayan | ✅ | B0 on real CID folds: 0.703 accuracy, 0.200 balanced accuracy and 0.165 macro-F1. |
 | T7 | Model and CV (E1, E2) | Must | Shayan | 🟡 | Two-stage training and fold resume verified on synthetic inputs. Real CID run started on the cloud CPU. |
-| T8 | Final model | Must |  | ⬜ | |
+| T8 | Final model | Must | Shayan | 🟡 | Final training uses the median epoch in each stage. Waiting for all five real fold checkpoints. |
 | T9 | External test (E3, E4) | Must |  | ⬜ | |
 | T10 | Robustness (E5) | Should |  | ⬜ | |
 | T11 | Error analysis and Grad-CAM | Should |  | ⬜ | |
@@ -29,6 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
+| 2026-11-19 | Shayan | Added the all-CID fit and verified epoch selection and checkpoint identity | Finish the five real folds before the final fit |
 | 2026-11-19 | Shayan | Implemented and tested EfficientNet training and fold resume. Started real CID training on CPU | Collect five-fold E1/E2 metrics |
 | 2026-11-19 | Shayan | Scored the majority-class baseline on all five CID folds | Begin E1/E2 training code and verification |
 | 2026-11-19 | Shayan | Cached 1,893 CID and 173 provisional Mendeley photos and checked read-back | Verify Kaggle after download and rerun external preparation after hand review |

@@ -1,6 +1,7 @@
 """Score the majority baseline and train cattle breed classifiers."""
 import argparse
 import hashlib
+import inspect
 import json
 import zipfile
 from pathlib import Path
@@ -52,7 +53,8 @@ def read_fold(root, fold, run_id, n_images):
         return None
     try:
         with np.load(predictions, allow_pickle=False) as archive:
-            if archive['run_id'].item() != run_id or archive['model_hash'].item() != sha256(weights):
+            if (archive['run_id'].item() != run_id or archive['fold'].item() != fold
+                    or archive['model_hash'].item() != sha256(weights)):
                 return None
             result = {stage: archive[stage] for stage in ('e1', 'e2')}
             epochs = {stage: int(archive[stage]) for stage in ('head_epochs', 'ft_epochs')}
@@ -103,7 +105,7 @@ def run_folds(index, images, labels, fold_ids, root, run_id, learner, *, fractio
         with data.atomic_output(weights) as temporary:
             network.save(temporary)
         with data.atomic_output(root / f'fold_{fold}.npz') as temporary:
-            np.savez_compressed(temporary, run_id=run_id, model_hash=sha256(weights),
+            np.savez_compressed(temporary, run_id=run_id, fold=fold, model_hash=sha256(weights),
                                 e1=head_prediction[0], e2=tuned, **chosen)
         del network
 
@@ -117,6 +119,14 @@ def run_folds(index, images, labels, fold_ids, root, run_id, learner, *, fractio
         for fold, result in all_folds.items()
     }})
     return all_folds
+
+
+def final_epochs(folds):
+    """Choose the median selected epoch in each stage across all test folds."""
+    if set(folds) != set(range(config.N_FOLDS)):
+        raise ValueError('Finish all five current CID folds before training the final model.')
+    return {stage: int(np.median([result[stage] for result in folds.values()]))
+            for stage in ('head_epochs', 'ft_epochs')}
 
 
 def record_cv(index, labels, folds, fraction):
@@ -145,24 +155,51 @@ def record_cv(index, labels, folds, fraction):
 
 def training_id(index, images, fraction):
     """Fingerprint training data, order, pixels and settings for safe resumption."""
-    protocol = (1, fraction, config.CLASSES, config.SEED, config.VAL_FRAC, config.IMG_SIZE,
+    protocol = (2, fraction, config.CLASSES, config.SEED, config.VAL_FRAC, config.IMG_SIZE,
                 config.BATCH_SIZE, config.DROPOUT, config.LABEL_SMOOTHING, config.HEAD_LR,
                 config.HEAD_EPOCHS, config.HEAD_PATIENCE, config.FT_LR, config.FT_EPOCHS,
                 config.FT_PATIENCE, config.AUG_ROTATION, config.AUG_BRIGHTNESS, config.AUG_CONTRAST)
     identity = hashlib.sha256(repr(protocol).encode('utf-8'))
+    model_source = config.PROJECT_ROOT / 'cattle_breed' / 'model.py'
+    identity.update(model_source.read_text(encoding='utf-8').encode('utf-8'))
+    for operation in (run_folds, _sample_training_animals, center_crop_batch, data.split_validation):
+        identity.update(inspect.getsource(operation).encode('utf-8'))
     identity.update(data.portable_index(index).to_csv(index=False).encode('utf-8'))
     identity.update(memoryview(images))
     return identity.hexdigest()
+
+
+def train_final(index, images, labels, root, run_id, learner):
+    folds = {int(fold): read_fold(root, fold, run_id, len(frame))
+             for fold, frame in index.groupby('fold')}
+    epochs = final_epochs({fold: result for fold, result in folds.items() if result is not None})
+    checkpoint = root / 'final.keras'
+    record = root / 'final.json'
+    if checkpoint.is_file() and record.is_file():
+        try:
+            previous = json.loads(record.read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            previous = {}
+        if previous == {'run_id': run_id, 'model_hash': sha256(checkpoint), **epochs}:
+            print('Final model: checkpoint verified, skipping')
+            return
+    network = learner.build_model()
+    learner.train(network, (images, labels), **epochs)
+    with data.atomic_output(checkpoint) as temporary:
+        network.save(temporary)
+    write_json(record, {'run_id': run_id, 'model_hash': sha256(checkpoint), **epochs})
+    print(f'Wrote {checkpoint}')
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--baseline', action='store_true', help='score B0 without loading TensorFlow')
+    mode.add_argument('--final', action='store_true', help='fit the all-CID model after cross-validation')
     mode.add_argument('--folds', nargs='+', type=int, choices=range(config.N_FOLDS))
     parser.add_argument('--fraction', type=float, choices=(0.5, 1.0), default=1.0)
     args = parser.parse_args()
-    if args.baseline and args.fraction != 1:
+    if (args.final or args.baseline) and args.fraction != 1:
         parser.error('--fraction 0.5 is for the optional E6 cross-validation run')
     if args.baseline:
         index = pd.read_csv(config.DATA_DIR / 'processed' / 'cid.csv')
@@ -176,11 +213,14 @@ def main():
     index, images, labels = data.load_cache('cid')
     run_id = training_id(index, images, args.fraction)
     root = config.MODELS_DIR if args.fraction == 1 else config.MODELS_DIR / 'fraction_0.5'
-    if args.fraction == 1:
-        run_baseline(index)
-    fold_ids = args.folds if args.folds is not None else range(config.N_FOLDS)
-    folds = run_folds(index, images, labels, fold_ids, root, run_id, model, fraction=args.fraction)
-    record_cv(index, labels, folds, args.fraction)
+    if args.final:
+        train_final(index, images, labels, root, run_id, model)
+    else:
+        if args.fraction == 1:
+            run_baseline(index)
+        fold_ids = args.folds if args.folds is not None else range(config.N_FOLDS)
+        folds = run_folds(index, images, labels, fold_ids, root, run_id, model, fraction=args.fraction)
+        record_cv(index, labels, folds, args.fraction)
 
 
 if __name__ == '__main__':
