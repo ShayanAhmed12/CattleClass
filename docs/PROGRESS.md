@@ -21,7 +21,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T11 | Error analysis and Grad-CAM | Should | Shayan | ✅ | Quantified per-class errors and tested crop, brightness and edge sensitivity on local examples. |
 | T12 | Demo | Should | Shayan | ✅ | Verified UI upload and saved the real-model backup recording privately. |
 | T13 | Report, slides, defence | Must | Shayan | 🟡 | Real CID, external and robustness results are recorded in the eight-page report and ten-minute presentation. A clean checkout reproduced the CID folds and B0 byte for byte. Individual defence remains open. |
-| — | E6 (50% of animals) | Could |  | ⬜ | Cut first if short of time |
+| — | E6 (50% of animals) | Could | Shayan | ✅ | Five-fold results recorded in metrics.csv. |
 
 ## Log
 
