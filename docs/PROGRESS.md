@@ -20,7 +20,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T10 | Robustness (E5) | Should | Shayan | ✅ | Measured both strengths of all three corruptions in each source. |
 | T11 | Error analysis and Grad-CAM | Should | Shayan | ✅ | Quantified per-class errors and tested crop, brightness and edge sensitivity on local examples. |
 | T12 | Demo | Should | Shayan | ✅ | Verified UI upload and saved the real-model backup recording privately. |
-| T13 | Report, slides, defence | Must | Shayan | 🟡 | Report, slides and measured defence examples published. A clean checkout independently reproduced all 37 main metric rows. The optional E6 rerun and individual defence remain open. |
+| T13 | Report, slides, defence | Must | Shayan | 🟡 | Report and slides published. A fresh cloud checkout rebuilt the CID folds and independently reproduced all 38 published metric rows within 1e-9. Individual defence remains open. |
 | — | E6 (50% of animals) | Could | Shayan | ✅ | Five-fold results recorded in metrics.csv. |
 
 ## Log
