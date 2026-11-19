@@ -62,7 +62,7 @@ Always predicting Local achieves high accuracy because Local is common. Class-ba
 - Upload a reviewed cattle photo and show the top three predicted breeds.
 - The demo uses the same crop and pixel range as evaluation.
 - Demonstrate the trained final model and keep a private backup recording.
-- B0, E1 and E2 are measured on CID. The external tests will address generalization to other sources.
+- E6 used half the CID training groups and reached 0.467 macro-F1 on the same test folds. External performance varied by source and scoring mode.
 
 ## Discussion · 60 seconds
 

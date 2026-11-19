@@ -88,6 +88,7 @@ E5 tests the same label sets after controlled corruption. Gaussian blur uses rad
 | B0 | CID, 1,893 photos | 0.703 | 0.200 | 0.165 ± 0.001 |
 | E1 | CID, 1,893 photos | 0.611 | 0.533 | 0.453 ± 0.053 |
 | E2 | CID, 1,893 photos | 0.656 | 0.580 | 0.500 ± 0.046 |
+| E6 | CID, half training groups | 0.619 | 0.559 | 0.467 ± 0.034 |
 | E3 | Mendeley, 5-way | 0.526 | 0.495 | 0.561 |
 | E3 | Mendeley, restricted | 0.763 | 0.733 | 0.728 |
 | E4 | Kaggle, 5-way | 0.472 | 0.514 | 0.458 |
@@ -98,7 +99,7 @@ For cid, blur-2 had the lowest five-way macro-F1 (0.189, compared with 0.500 on 
 
 The B0 accuracy closely follows the fraction of Local photos in the folds. Its balanced accuracy is exactly one fifth because Local is the only class it recalls and all five classes occur in every fold. Its macro-F1 is lower than 0.20 because every non-Local photo is a false positive for Local and the other classes have zero F1. The small variation across folds is consistent with the grouped stratification. These results establish a reference before judging the CNN.
 
-The model comparison will test the prespecified expectation that fine-tuning improves on frozen transfer learning and that both improve over B0 in macro-F1. Report the measured outcome even if ordering differs. If the ordering differs, the implementation checks concern input range, class mapping, class weights and the ability to fit a small training subset. Use held-out fold performance for reporting and preserve the distinction between checks and model tuning.
+The five-fold results followed the expected macro-F1 ordering: E2 exceeded E1, and both exceeded B0. For the optional E6 run, each fold trained on a stratified sample of half its training animal groups, with the same validation and test splits. E6 macro-F1 was 0.033 lower relative to E2. Both were evaluated on all 1,893 held-out CID photos across the five folds.
 
 The external table reports both scoring protocols after automated screening. The robustness CSV records both strengths for each source. Numeric evidence belongs in the metrics CSV. Each final chart should state which subset and model produced it. [Recorded metrics](../results/metrics.csv)
 
