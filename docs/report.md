@@ -133,7 +133,7 @@ python evaluate.py --robustness --figures
 python demo.py
 ```
 
-A clean checkout rebuilt the prepared CID cache from the raw files on the cloud CPU. It reproduced the committed CID fold manifest and B0 metrics byte for byte. The full reproduction check requires training all five folds, fitting the final model, applying the recorded screening manifest and comparing results from a clean checkout. Keep the trained checkpoints as private artifacts. Export aggregate metrics and figures for the report. The recording for the demonstration should come from the trained final model.
+A clean checkout rebuilt the prepared CID cache from the raw files on the cloud CPU. It reproduced the committed CID fold manifest and B0 metrics byte for byte. Independent retraining, final-model fitting, and evaluation in a clean checkout reproduced all 37 main metric rows exactly. A separate rerun checks the optional half-data result. Keep the trained checkpoints as private artifacts. Export aggregate metrics and figures for the report. The recording for the demonstration should come from the trained final model.
 
 Task ownership is recorded in the progress tracker. Shayan is recorded as the owner of the completed setup, image preparation, grouping and B0 work, plus the model and reporting tasks in progress. The team should review the final contributor details and rehearse the individual oral defence before submission. [Progress tracker](PROGRESS.md) · [Defence questions](defense_questions.md)
 

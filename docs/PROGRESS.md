@@ -20,7 +20,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T10 | Robustness (E5) | Should | Shayan | ✅ | Measured both strengths of all three corruptions in each source. |
 | T11 | Error analysis and Grad-CAM | Should | Shayan | ✅ | Quantified per-class errors and tested crop, brightness and edge sensitivity on local examples. |
 | T12 | Demo | Should | Shayan | ✅ | Verified UI upload and saved the real-model backup recording privately. |
-| T13 | Report, slides, defence | Must | Shayan | 🟡 | Report, slides and measured defence examples published. The clean checkout rebuilt CID folds and reproduced E1, E2 and E6 from saved checkpoints. Independent retraining is running. Individual defence remains open. |
+| T13 | Report, slides, defence | Must | Shayan | 🟡 | Report, slides and measured defence examples published. A clean checkout independently reproduced all 37 main metric rows. The optional E6 rerun and individual defence remain open. |
 | — | E6 (50% of animals) | Could | Shayan | ✅ | Five-fold results recorded in metrics.csv. |
 
 ## Log
@@ -29,6 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
+| 2026-11-19 | Shayan | Independently reproduced the CID folds and all 37 main metric rows from a clean checkout | Finish the optional E6 rerun |
 | 2026-11-19 | Shayan | Audited viewpoints across all CID photos, added an independent external detector screen, and started the clean-checkout reproduction | Finish independent reproduction and retain the original hand-review limitation |
 | 2026-11-19 | Shayan | Published real CID, external and robustness results and updated the report and slides. Verified the private demo recording. | Monitor optional E6 and retain the recorded protocol limitations |
 | 2026-11-19 | Shayan | Verified and recorded real CID E1 and E2 | Check the automatically screened external results and their limitations |
