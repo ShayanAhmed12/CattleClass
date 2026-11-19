@@ -48,7 +48,7 @@ Always predicting Local achieves high accuracy because Local is common. Class-ba
 - E1/E2 compare frozen transfer and fine-tuning on held-out CID groups.
 - E3/E4 compare five-way and restricted predictions on automatically screened external data.
 - E5 measures changes under blur, darkness and occlusion.
-- Add measured E1–E5 values and confusion matrices after the real runs.
+- On the five real CID folds, E1 macro-F1 was 0.453 and E2 macro-F1 was 0.500. Five-way macro-F1 was 0.561 on Mendeley and 0.458 on Kaggle after automated screening.
 
 ## Errors and limitations · 60 seconds
 
@@ -62,7 +62,7 @@ Always predicting Local achieves high accuracy because Local is common. Class-ba
 - Upload a reviewed cattle photo and show the top three predicted breeds.
 - The demo uses the same crop and pixel range as evaluation.
 - Demonstrate the trained final model and keep a private backup recording.
-- The current verified result is B0. The trained-model comparison will answer the research question.
+- B0, E1 and E2 are measured on CID. The external tests will address generalization to other sources.
 
 ## Discussion · 60 seconds
 

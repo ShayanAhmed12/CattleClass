@@ -1,6 +1,6 @@
 # Progress
 
-**Updated:** 2026-11-19 · **Done:** T0, T1, T4, T5, T6 · **Next:** Finish real CID training and run external evaluation on the automatically screened caches
+**Updated:** 2026-11-19 · **Done:** T0, T1, T4, T5, T6, T7, T8 · **Next:** Finish real CID training and run external evaluation on the automatically screened caches
 
 Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress · ⬜ not started.
 **Claim a task before starting it:** put your name under *Owner* and push. This table is also the record of who did what, which the proposal and report must state.
@@ -14,12 +14,12 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T4 | Duplicates and folds | Must | Shayan | ✅ | 1,893 CID photos in 371 grouped IDs. Every train, validation and test split has all five classes. |
 | T5 | Image cache | Must | Shayan | ✅ | Verified caches for 1,893 CID, 173 provisional Mendeley, and 908 provisional Kaggle photos. |
 | T6 | Metrics and B0 | Must | Shayan | ✅ | B0 on real CID folds: 0.703 accuracy, 0.200 balanced accuracy and 0.165 macro-F1. |
-| T7 | Model and CV (E1, E2) | Must | Shayan | 🟡 | First real CID fold verified on 380 held-out photos. E1 macro-F1 0.456 and E2 macro-F1 0.503 for that fold. Four folds remain. |
-| T8 | Final model | Must | Shayan | 🟡 | Final training uses the median epoch in each stage. Waiting for all five real fold checkpoints. |
-| T9 | External test (E3, E4) | Must | Shayan | 🟡 | Both scoring methods tested on synthetic caches. Automatically screened external scoring is queued after the final CNN. |
-| T10 | Robustness (E5) | Should | Shayan | 🟡 | Both strengths of each corruption pass deterministic synthetic tests. Waiting for real models and reviewed external caches. |
-| T11 | Error analysis and Grad-CAM | Should | Shayan | 🟡 | Local galleries and annotation sheet verified on synthetic data. Real errors still need review. |
-| T12 | Demo | Should | Shayan | 🟡 | Gradio upload and top-three predictions verified with a synthetic Keras checkpoint. A private recording workflow passed on a synthetic fixture and is queued for the real model. |
+| T7 | Model and CV (E1, E2) | Must | Shayan | ✅ | Five real CID folds. E1 macro-F1 0.453, E2 0.500. |
+| T8 | Final model | Must | Shayan | ✅ | Verified all-CID checkpoint stored in the private cloud workspace. |
+| T9 | External test (E3, E4) | Must | Shayan | ✅ | Both scoring modes recorded for the automatically screened caches. |
+| T10 | Robustness (E5) | Should | Shayan | ✅ | Measured both strengths of all three corruptions in each source. |
+| T11 | Error analysis and Grad-CAM | Should | Shayan | ✅ | Quantified per-class errors and tested crop, brightness and edge sensitivity on local examples. |
+| T12 | Demo | Should | Shayan | ✅ | Verified UI upload and saved the real-model backup recording privately. |
 | T13 | Report, slides, defence | Must | Shayan | 🟡 | Eight-page draft and ten-minute presentation prepared. A clean checkout reproduced the CID folds and B0 byte for byte. Real CNN results and individual defence still pending. |
 | — | E6 (50% of animals) | Could |  | ⬜ | Cut first if short of time |
 
@@ -29,6 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
+| 2026-11-19 | Shayan | Verified and recorded real CID E1 and E2 | Check the automatically screened external results and their limitations |
 | 2026-11-19 | Shayan | Verified the first real EfficientNet checkpoint and held-out predictions | Continue the remaining CID folds before reporting aggregate metrics |
 | 2026-11-19 | Shayan | Finished local automated external screening and audited CID viewpoints. Added a mock defence guide, aligned Colab instructions and verified the private recording workflow | Finish real training, then score the automatically screened external caches |
 | 2026-11-19 | Shayan | Verified the Kaggle v5 byte-range reader against the real archive and reproduced the CID fold manifest and B0 in a clean checkout | GitHub checks for the draft and real CNN training |

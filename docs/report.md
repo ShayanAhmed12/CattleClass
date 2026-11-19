@@ -11,7 +11,7 @@ This project asks whether a cattle breed classifier trained on photos from one s
 
 The task is five-class image classification. Each input is one RGB photo and each model output is a probability over Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi. The CID label Local groups indigenous cattle under a common dataset label. The model uses CID for development and tests generalization on photos from Mendeley and Kaggle. The evaluation design also tests controlled changes to lighting, sharpness and visibility.
 
-**Status as of 19 November 2026.** Data preparation, all five grouped splits and the majority-class baseline have been verified on real CID data. The EfficientNet training pipeline and downstream workflows have passed synthetic tests. The local automated external screen has completed. Real-model results, manual external curation and interpretation are pending. The results table on page 6 gives the current evidence.
+**Status as of 19 November 2026.** Data preparation, all five grouped splits and the majority-class baseline have been verified on real CID data. The EfficientNet training pipeline and downstream workflows have passed synthetic tests. The local automated external screen has completed. E1 and E2 are verified on the five real CID folds. The verified all-CID model is available in the private cloud workspace. Manual external curation and interpretation are pending. The results table on page 6 gives the current evidence.
 
 ### Related work and contribution
 
@@ -86,23 +86,27 @@ E5 tests the same label sets after controlled corruption. Gaussian blur uses rad
 | Experiment | Dataset | Accuracy | Balanced accuracy | Macro-F1 |
 |---|---|---:|---:|---:|
 | B0 | CID, 1,893 photos | 0.703 | 0.200 | 0.165 ± 0.001 |
-| E1 | CID | Pending | Pending | Pending |
-| E2 | CID | Pending | Pending | Pending |
-| E3 | Mendeley | Pending | Pending | Pending |
-| E4 | Kaggle | Pending | Pending | Pending |
-| E5 | CID, Mendeley and Kaggle | Pending | Pending | Pending |
+| E1 | CID, 1,893 photos | 0.611 | 0.533 | 0.453 ± 0.053 |
+| E2 | CID, 1,893 photos | 0.656 | 0.580 | 0.500 ± 0.046 |
+| E3 | Mendeley, 5-way | 0.526 | 0.495 | 0.561 |
+| E3 | Mendeley, restricted | 0.763 | 0.733 | 0.728 |
+| E4 | Kaggle, 5-way | 0.472 | 0.514 | 0.458 |
+| E4 | Kaggle, restricted | 0.530 | 0.587 | 0.482 |
+| E5 | Six conditions per source | See CSV | See CSV | See below |
+
+For cid, blur-2 had the lowest five-way macro-F1 (0.189, compared with 0.500 on clean photos). For mendeley, blur-2 had the lowest five-way macro-F1 (0.428, compared with 0.561 on clean photos). For kaggle, occlude-2 had the lowest five-way macro-F1 (0.351, compared with 0.458 on clean photos).
 
 The B0 accuracy closely follows the fraction of Local photos in the folds. Its balanced accuracy is exactly one fifth because Local is the only class it recalls and all five classes occur in every fold. Its macro-F1 is lower than 0.20 because every non-Local photo is a false positive for Local and the other classes have zero F1. The small variation across folds is consistent with the grouped stratification. These results establish a reference before judging the CNN.
 
 The model comparison will test the prespecified expectation that fine-tuning improves on frozen transfer learning and that both improve over B0 in macro-F1. Report the measured outcome even if ordering differs. If the ordering differs, the implementation checks concern input range, class mapping, class weights and the ability to fit a small training subset. Use held-out fold performance for reporting and preserve the distinction between checks and model tuning.
 
-The external comparisons will report both scoring protocols together with class coverage and curation counts. The robustness comparison will state the difference from the clean macro-F1 for every source and severity. Numeric evidence belongs in the metrics CSV. Each final chart should state which subset and model produced it. [Recorded metrics](../results/metrics.csv)
+The external table reports both scoring protocols after automated screening. The robustness CSV records both strengths for each source. Numeric evidence belongs in the metrics CSV. Each final chart should state which subset and model produced it. [Recorded metrics](../results/metrics.csv)
 
 \newpage
 
 ## 7 Error analysis, limitations and ethics
 
-The evaluation command selects up to three correct and three incorrect predictions per external source by confidence. It stores the gallery, annotations and Grad-CAM overlays in a local folder. Grad-CAM uses the gradient of the predicted-class logit with respect to the last spatial features. It can help identify whether strongly weighted regions coincide with the animal, its coat or the background. Interpret the overlays with the predictions and image context. Actual examples and probable causes are pending real external scoring and private review. [Grad-CAM](https://arxiv.org/abs/1610.02391)
+The evaluation command selects up to three correct and three incorrect predictions per external source by confidence. It stores the gallery, annotations and Grad-CAM overlays in a local folder. Grad-CAM uses the gradient of the predicted-class logit with respect to the last spatial features. It can help identify whether strongly weighted regions coincide with the animal, its coat or the background. Interpret the overlays with the predictions and image context. On mendeley, the lowest restricted per-class F1 was 0.568 for Local. On kaggle, the lowest restricted per-class F1 was 0.226 for Sahiwal. Controlled local probes on the selected errors found 6 unresolved. An image can exhibit more than one sensitivity. Generated error examples and attribution maps are kept privately. Visual causes remain unconfirmed. [Grad-CAM](https://arxiv.org/abs/1610.02391)
 
 Potential error explanations include similar pigmentation between Sindhi and Sahiwal, unusual poses, partial visibility, calves versus mature animals and background effects. These are hypotheses until individual predictions are reviewed. The final report should name the confused labels, the visual cue considered and any ambiguity in the source label. High-confidence mistakes deserve particular attention because the interface displays the largest probabilities to users.
 
