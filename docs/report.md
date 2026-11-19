@@ -27,7 +27,7 @@ The CID publication and dataset provide images and metadata for Bangladeshi mark
 | Mendeley | External evaluation E3 | 190 | CC BY 4.0 |
 | Kaggle v5 | External evaluation E4 | 929 | Declared CC0 |
 
-CID contains 514 four-photo folders and 513 metadata records. The index removes spaces when matching SKUs, excludes the folder without a label and keeps the five classes with enough animals for grouped evaluation. Pabna, Brahma and Mir Kadim are excluded. Local makes up roughly 70% of the retained animals, so an accuracy figure alone can hide poor results on the other classes. The local CID sample grid displays all four indexed views of one example per class. All four photos enter the any-view protocol, and an automated audit on 80 breed-stratified images did not confirm viewpoint names for their suffixes. [Data provenance and checksums](data.md)
+CID contains 514 four-photo folders and 513 metadata records. The index removes spaces when matching SKUs, excludes the folder without a label and keeps the five classes with enough animals for grouped evaluation. Pabna, Brahma and Mir Kadim are excluded. Local makes up roughly 70% of the retained animals, so an accuracy figure alone can hide poor results on the other classes. The local CID sample grid displays all four indexed views of one example per class. All four photos enter the any-view protocol. Across 503 images per suffix, the pose audit found 475, 497 and 434 image-left profiles for suffixes 0, 1 and 2, and 496 image-right profiles for suffix 3. The labels describe direction within the frame. [Data provenance and checksums](data.md)
 
 | CID class | Source animal IDs | Indexed photos |
 |---|---:|---:|

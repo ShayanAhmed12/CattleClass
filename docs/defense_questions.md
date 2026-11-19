@@ -62,3 +62,14 @@ Practise answering each one aloud without notes. The answers are in [decisions.m
 | What can Grad-CAM establish? | The map shows spatial features whose gradients support a selected prediction. Context may contribute, and a map alone cannot establish a cause for an individual error. |
 | How does a run resume? | It checks the input and code fingerprint, fold ID and model checksum before reusing a fold. The all-CID fit uses the median selected epoch counts from all five matching folds. |
 | What would improve the project? | Improve label and privacy verification, collect cattle from new sites with independent IDs, and validate the demo with an external set whose breed labels are verified. |
+
+## Questions about the measured results
+
+| Question | Answer to explain aloud |
+|---|---|
+| Why is accuracy lower for E2 than for B0? | B0 accurately predicts the majority class and has zero recall on four breeds. On CID, E2 reaches 65.6% accuracy, 58.0% balanced accuracy, and 0.500 macro-F1. The latter two scores capture the gains across breeds. |
+| What did fine-tuning change? | Mean macro-F1 rose from 0.453 for the frozen backbone to 0.500 for fine-tuning across the same five held-out folds. Fold standard deviations were 0.053 and 0.046. |
+| What did the half-data test show? | Using half the training animal groups in each fold gave 0.467 macro-F1, about 0.033 below the full-training result on the same held-out photos. This comparison comes from the recorded stratified samples. |
+| How did the model generalize? | Five-way macro-F1 was 0.561 on Mendeley and 0.458 on Kaggle. Restricted scores were 0.728 and 0.482. The sources differ in collection context, breed coverage, and label provenance, so the score gap alone cannot identify a cause. |
+| What was the weakest corruption condition? | Strong blur had the lowest five-way macro-F1 on CID and Mendeley, at 0.189 and 0.428. Strong occlusion was lowest on Kaggle, at 0.351. Compare each value with the clean score for the same source. |
+| What can you show about reproducibility? | The clean checkout regenerated the CID fold manifest. Scoring the saved predictions against the rebuilt cache reproduced the published E1, E2, and E6 fold means. Independent retraining is a separate reproduction check. |

@@ -35,7 +35,7 @@ Each design choice and its reason. The defence will ask "why did you do X?", so 
 - Cattle side-view photos are wide. Stretching distorts body shape, and a square crop cuts off heads or tails.
 - Images are cached once as uint8, so every training run starts fast.
 
-**D-07 · CID photo views.** Keep all four photos per animal for the any-view task. The filename suffixes 0–3 are present for every indexed CID animal. A reproducible, breed-stratified sample covered 20 animals and 80 images. The automated viewpoint estimates did not distinguish the four suffixes reliably, so no anatomical view names are assigned.
+**D-07 · CID photo views.** Keep all four photos per animal for the any-view task. The filename suffixes 0–3 are present for every indexed CID animal. Across 503 images per suffix, the pose audit found 475, 497 and 434 image-left profiles for suffixes 0, 1 and 2, and 496 image-right profiles for suffix 3. These labels describe direction within the frame. Source files lack camera-angle annotations. See [the pose audit](data.md#independent-object-and-viewpoint-audit).
 
 **D-08 · Metrics: macro-F1 and balanced accuracy; external sets scored two ways.**
 - "Local" is 70% of CID, so always guessing it scores 0.70 accuracy but only 0.165 macro-F1 (B0).

@@ -1,6 +1,6 @@
 # Progress
 
-**Updated:** 2026-11-19 · **Done:** T0, T1, T4–T12 · **Open:** CID viewpoint verification, original hand review and individual defence. See the table for E6.
+**Updated:** 2026-11-19 · **Done:** T0–T2, T4–T12 · **Open:** Original hand review, independent reproduction and individual defence. Optional E6 is complete.
 
 Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress · ⬜ not started.
 **Claim a task before starting it:** put your name under *Owner* and push. This table is also the record of who did what, which the proposal and report must state.
@@ -9,8 +9,8 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 |---|---|---|---|---|---|
 | T0 | Setup and downloads | Must | Shayan | ✅ | Approval received (D-01); one-command setup (D-11); all three datasets downloaded and checked |
 | T1 | Image loading | Must | Shayan | ✅ | `data.load_image`, `letterbox`, `center_crop` |
-| T2 | Index tables and CID check | Must | Shayan | 🟡 | Index code complete. Verified 503 CID animals / 2,012 photos and 190 matched Mendeley photos. An 80-photo local automated viewpoint audit was inconclusive. All four views retained (D-07). |
-| T3 | External image screening | Must | Shayan | 🟡 | Local automated screen examined all 1,119 matched photos. No exclusions met its threshold. The hand-reviewed protocol remains unverified. |
+| T2 | Index tables and CID check | Must | Shayan | ✅ | Indexed 503 CID animals and 2,012 photos. The all-photo pose audit found predominantly image-left profiles in suffixes 0–2 and image-right profiles in suffix 3. |
+| T3 | External image screening | Must | Shayan | 🟡 | Automated screen covered all 1,119 photos. An independent detector flagged 157 with no cow detected and 50 with a prominent person. The original hand review remains open. |
 | T4 | Duplicates and folds | Must | Shayan | ✅ | 1,893 CID photos in 371 grouped IDs. Every train, validation and test split has all five classes. |
 | T5 | Image cache | Must | Shayan | ✅ | Verified caches for 1,893 CID, 173 provisional Mendeley, and 908 provisional Kaggle photos. |
 | T6 | Metrics and B0 | Must | Shayan | ✅ | B0 on real CID folds: 0.703 accuracy, 0.200 balanced accuracy and 0.165 macro-F1. |
@@ -20,7 +20,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T10 | Robustness (E5) | Should | Shayan | ✅ | Measured both strengths of all three corruptions in each source. |
 | T11 | Error analysis and Grad-CAM | Should | Shayan | ✅ | Quantified per-class errors and tested crop, brightness and edge sensitivity on local examples. |
 | T12 | Demo | Should | Shayan | ✅ | Verified UI upload and saved the real-model backup recording privately. |
-| T13 | Report, slides, defence | Must | Shayan | 🟡 | Real CID, external and robustness results are recorded in the eight-page report and ten-minute presentation. A clean checkout reproduced the CID folds and B0 byte for byte. Individual defence remains open. |
+| T13 | Report, slides, defence | Must | Shayan | 🟡 | Report, slides and measured defence examples published. The clean checkout rebuilt CID folds and reproduced E1, E2 and E6 from saved checkpoints. Independent retraining is running. Individual defence remains open. |
 | — | E6 (50% of animals) | Could | Shayan | ✅ | Five-fold results recorded in metrics.csv. |
 
 ## Log
@@ -29,6 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
+| 2026-11-19 | Shayan | Audited viewpoints across all CID photos, added an independent external detector screen, and started the clean-checkout reproduction | Finish independent reproduction and retain the original hand-review limitation |
 | 2026-11-19 | Shayan | Published real CID, external and robustness results and updated the report and slides. Verified the private demo recording. | Monitor optional E6 and retain the recorded protocol limitations |
 | 2026-11-19 | Shayan | Verified and recorded real CID E1 and E2 | Check the automatically screened external results and their limitations |
 | 2026-11-19 | Shayan | Verified the first real EfficientNet checkpoint and held-out predictions | Continue the remaining CID folds before reporting aggregate metrics |
