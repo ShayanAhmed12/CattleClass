@@ -11,7 +11,7 @@ This project asks whether a cattle breed classifier trained on photos from one s
 
 The task is five-class image classification. Each input is one RGB photo and each model output is a probability over Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi. The CID label Local groups indigenous cattle under a common dataset label. The model uses CID for development and tests generalization on photos from Mendeley and Kaggle. The evaluation design also tests controlled changes to lighting, sharpness and visibility.
 
-**Status as of 19 November 2026.** Data preparation, all five grouped splits and the majority-class baseline have been verified on real CID data. The EfficientNet training pipeline and downstream workflows have passed synthetic tests. The local automated external screen has completed. E1 and E2 are verified on the five real CID folds. The verified all-CID model is available in the private cloud workspace. Manual external curation and interpretation are pending. The results table on page 6 gives the current evidence.
+**Status as of 19 November 2026.** The five grouped CID splits, external evaluations on the automatically screened caches, and robustness tests are complete. The final all-CID model and demo recording are stored privately. The results table summarizes aggregate performance, and the error analysis reports controlled perturbations. The original hand-reviewed condition remains unverified.
 
 ### Related work and contribution
 

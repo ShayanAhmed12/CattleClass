@@ -1,6 +1,6 @@
 # Progress
 
-**Updated:** 2026-11-19 · **Done:** T0, T1, T4, T5, T6, T7, T8 · **Next:** Finish real CID training and run external evaluation on the automatically screened caches
+**Updated:** 2026-11-19 · **Done:** T0, T1, T4–T12 · **Open:** CID viewpoint verification, original hand review and individual defence. See the table for E6.
 
 Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress · ⬜ not started.
 **Claim a task before starting it:** put your name under *Owner* and push. This table is also the record of who did what, which the proposal and report must state.
@@ -20,7 +20,7 @@ Tasks are described in [PLAN.md](PLAN.md). Status: ✅ done · 🟡 in progress 
 | T10 | Robustness (E5) | Should | Shayan | ✅ | Measured both strengths of all three corruptions in each source. |
 | T11 | Error analysis and Grad-CAM | Should | Shayan | ✅ | Quantified per-class errors and tested crop, brightness and edge sensitivity on local examples. |
 | T12 | Demo | Should | Shayan | ✅ | Verified UI upload and saved the real-model backup recording privately. |
-| T13 | Report, slides, defence | Must | Shayan | 🟡 | Eight-page draft and ten-minute presentation prepared. A clean checkout reproduced the CID folds and B0 byte for byte. Real CNN results and individual defence still pending. |
+| T13 | Report, slides, defence | Must | Shayan | 🟡 | Real CID, external and robustness results are recorded in the eight-page report and ten-minute presentation. A clean checkout reproduced the CID folds and B0 byte for byte. Individual defence remains open. |
 | — | E6 (50% of animals) | Could |  | ⬜ | Cut first if short of time |
 
 ## Log
@@ -29,6 +29,7 @@ Newest first: date, who, what was done, what is next or blocked.
 
 | Date | Who | Done | Next / blocked |
 |---|---|---|---|
+| 2026-11-19 | Shayan | Published real CID, external and robustness results and updated the report and slides. Verified the private demo recording. | Monitor optional E6 and retain the recorded protocol limitations |
 | 2026-11-19 | Shayan | Verified and recorded real CID E1 and E2 | Check the automatically screened external results and their limitations |
 | 2026-11-19 | Shayan | Verified the first real EfficientNet checkpoint and held-out predictions | Continue the remaining CID folds before reporting aggregate metrics |
 | 2026-11-19 | Shayan | Finished local automated external screening and audited CID viewpoints. Added a mock defence guide, aligned Colab instructions and verified the private recording workflow | Finish real training, then score the automatically screened external caches |
