@@ -1,7 +1,4 @@
-"""Every fixed setting of the project, in one place.
-
-Results depend on these values: change one only together with an entry in docs/decisions.md.
-"""
+"""Project settings for data, training and evaluation (see docs/report.md)."""
 import os
 import re
 from pathlib import Path
@@ -18,7 +15,7 @@ WORK_DIR = Path(os.environ.get("CATTLE_WORK_DIR",
 DATA_DIR = WORK_DIR / "data"  # data/raw (datasets) and data/processed (index + image cache)
 MODELS_DIR = WORK_DIR / "models"
 DOWNLOAD_DIR = Path("/content/downloads") if ON_COLAB else DATA_DIR / "raw" / "_downloads"  # archives
-RESULTS_DIR = PROJECT_ROOT / "results"  # small files that are committed: metrics, folds, figures
+RESULTS_DIR = PROJECT_ROOT / "results"  # published tables and local plots
 
 SEED = 42
 

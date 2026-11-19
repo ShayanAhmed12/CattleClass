@@ -1,12 +1,4 @@
-"""Turning raw dataset files into model-ready arrays.
-
-    images   load_image, letterbox, center_crop      every image ends up RGB, upright, 240 x 240
-    index    (Task 2) one table of path, animal, label for each dataset
-    clean    (Task 4) remove duplicate photos
-    folds    (Task 4) split CID animals into 5 folds
-    cache    (Task 5) save all images of a dataset as one .npz file
-    corrupt  (Task 10) blurred, darkened and occluded copies for the robustness test
-"""
+"""Index, clean, split and cache photos. Apply test corruptions to cached images."""
 import csv
 import sys
 from contextlib import contextmanager
@@ -17,18 +9,12 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageFilter, ImageOps
 
-from .config import CACHE_SIZE, CLASSES, CLASS_TO_IDX, CORRUPTIONS, DATA_DIR, IMAGE_SUFFIXES, DUPLICATE_DISTANCE, IMG_SIZE, N_FOLDS, RESULTS_DIR, SEED, VAL_FRAC, to_canonical
-from .download import EXPECTED
+from .config import CACHE_SIZE, CLASSES, CLASS_TO_IDX, CORRUPTIONS, DATA_DIR, DUPLICATE_DISTANCE, IMG_SIZE, N_FOLDS, RESULTS_DIR, SEED, VAL_FRAC, to_canonical
+from .download import EXPECTED, is_image_file
 
 
 class ImageLoadError(Exception):
     """Raised when a file cannot be decoded as an image."""
-
-
-def is_image_file(path: str | Path) -> bool:
-    """True for .jpg/.jpeg/.png/.webp files (any case), excluding macOS '._' resource-fork files."""
-    p = Path(path)
-    return p.suffix.lower() in IMAGE_SUFFIXES and not p.name.startswith("._")
 
 
 def load_image(path: str | Path) -> np.ndarray:
@@ -234,6 +220,15 @@ def atomic_output(path):
         temporary.replace(path)
     finally:
         temporary.unlink(missing_ok=True)
+
+
+def save_csv(path, fields, rows):
+    """Write a complete CSV before replacing an existing result."""
+    with atomic_output(path) as temporary:
+        with temporary.open("w", encoding="utf-8", newline="") as target:
+            writer = csv.DictWriter(target, fieldnames=fields, lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(rows)
 
 
 def portable_index(index):

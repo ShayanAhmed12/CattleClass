@@ -69,4 +69,4 @@ Always predicting Local achieves high accuracy because Local is common. Class-ba
 - Why split by animal and compare perceptual hashes?
 - Why report macro-F1 and restrict labels only in a secondary score?
 - What does the model learn from coat, pose and background?
-- Codex assisted with implementation, tests and documentation. The team reviews images and interprets the results.
+- Codex assisted with implementation, tests and documentation. The individual defence covers the methods, results and limits.

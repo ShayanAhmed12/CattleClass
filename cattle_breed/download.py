@@ -29,7 +29,7 @@ KAGGLE_KEEP = ("Holstein_Friesian", "Red_Sindhi", "Sahiwal")  # the only Kaggle 
 #   folders / images: totals over the sub-folders of root (CID has one folder per animal)
 EXPECTED = {
     # 514 animal folders x 4 photos. dataset.csv has 513 rows: folder BLF2334 has no row,
-    # so it has no label and is dropped in Task 2.
+    # so indexing skips it.
     "cid": {"root": "raw/cid/images", "folders": 514, "images": 2056, "files": ["raw/cid/dataset.csv"]},
     "mendeley": {"root": "raw/mendeley/Cow Breed",
                  "per_folder": {"Holstain Friesian": 69, "Jersey": 73, "Local Deshi": 56, "Sahiwal": 65}},
@@ -39,11 +39,18 @@ EXPECTED = {
 
 
 # --------------------------------------------------------------------------- checking
+def is_image_file(path: str | Path) -> bool:
+    """True for .jpg/.jpeg/.png/.webp files (any case), excluding macOS '._' resource-fork files."""
+    p = Path(path)
+    return p.suffix.lower() in IMAGE_SUFFIXES and not p.name.startswith("._")
+
+
 def count_images(root):
     """Number of image files (searched recursively) in each sub-folder of root."""
-    def is_image(p):
-        return p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES and not p.name.startswith("._")
-    return {d.name: sum(is_image(p) for p in d.rglob("*")) for d in sorted(Path(root).iterdir()) if d.is_dir()}
+    return {
+        directory.name: sum(path.is_file() and is_image_file(path) for path in directory.rglob("*"))
+        for directory in sorted(Path(root).iterdir()) if directory.is_dir()
+    }
 
 
 def check_dataset(name, data_dir, spec):
@@ -227,8 +234,7 @@ def get_kaggle(_downloads):
                     or parts[2] not in wanted or entry.is_dir()):
                 continue
             filename = parts[3]
-            if (PurePosixPath(filename).suffix.lower() not in IMAGE_SUFFIXES
-                    or filename.startswith("._") or any(char in filename for char in ("\\", ":"))):
+            if any(char in filename for char in ("\\", ":")) or not is_image_file(filename):
                 continue
             destination = out.joinpath(*parts[2:])
             destination.parent.mkdir(parents=True, exist_ok=True)

@@ -77,7 +77,7 @@ The headline metrics are macro-F1 and balanced accuracy. Macro-F1 averages the F
 
 E3 and E4 evaluate the final all-CID model on the automatically screened Mendeley and Kaggle datasets. Five-way scoring uses the highest probability across all classes. Restricted scoring uses the highest probability among the three class labels in that source. A five-way prediction of an absent class is counted as an error. Restricted evaluation describes performance when the label set is known in advance. Interpret the gap alongside the confusion matrix and class coverage.
 
-E5 tests the same label sets after controlled corruption. Gaussian blur uses radii of two and four pixels. Pixel brightness is multiplied by 0.5 and 0.3. Occlusion adds a seeded gray square covering approximately one-eighth or one-quarter of the cropped input. CID uses each photo's held-out fold model. External tests use the final all-CID model. Comparing each corrupted condition with its clean counterpart controls for the underlying image set. [Experiment plan](PLAN.md)
+E5 tests the same label sets after controlled corruption. Gaussian blur uses radii of two and four pixels. Pixel brightness is multiplied by 0.5 and 0.3. Occlusion adds a seeded gray square covering approximately one-eighth or one-quarter of the cropped input. CID uses each photo's held-out fold model. External tests use the final all-CID model. Comparing each corrupted condition with its clean counterpart controls for the underlying image set.
 
 \newpage
 
@@ -95,21 +95,21 @@ E5 tests the same label sets after controlled corruption. Gaussian blur uses rad
 | E4 | Kaggle, restricted | 0.530 | 0.587 | 0.482 |
 | E5 | Six conditions per source | See CSV | See CSV | See below |
 
-For cid, blur-2 had the lowest five-way macro-F1 (0.189, compared with 0.500 on clean photos). For mendeley, blur-2 had the lowest five-way macro-F1 (0.428, compared with 0.561 on clean photos). For kaggle, occlude-2 had the lowest five-way macro-F1 (0.351, compared with 0.458 on clean photos).
+For CID, blur-2 had the lowest five-way macro-F1 (0.189, compared with 0.500 on clean photos). For Mendeley, blur-2 had the lowest five-way macro-F1 (0.428, compared with 0.561 on clean photos). For Kaggle, occlude-2 had the lowest five-way macro-F1 (0.351, compared with 0.458 on clean photos).
 
 The B0 accuracy closely follows the fraction of Local photos in the folds. Its balanced accuracy is exactly one fifth because Local is the only class it recalls and all five classes occur in every fold. Its macro-F1 is lower than 0.20 because every non-Local photo is a false positive for Local and the other classes have zero F1. The small variation across folds is consistent with the grouped stratification. These results establish a reference before judging the CNN.
 
 The five-fold results followed the expected macro-F1 ordering: E2 exceeded E1, and both exceeded B0. For the optional E6 run, each fold trained on a stratified sample of half its training animal groups, with the same validation and test splits. E6 macro-F1 was 0.033 lower relative to E2. Both were evaluated on all 1,893 held-out CID photos across the five folds.
 
-The external table reports both scoring protocols after automated screening. The robustness CSV records both strengths for each source. Numeric evidence belongs in the metrics CSV. Each final chart should state which subset and model produced it. [Recorded metrics](../results/metrics.csv)
+The metrics table records both external scoring modes and both strengths of each corruption. The plots show clean confusion matrices and five-way robustness scores. [Recorded metrics](../results/metrics.csv) · [Published plots](https://github.com/ShayanAhmed12/CattleClass/tree/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/results/figures)
 
 \newpage
 
 ## 7 Error analysis, limitations and ethics
 
-The evaluation command selects up to three correct and three incorrect predictions per external source by confidence. It stores the gallery, annotations and Grad-CAM overlays in a local folder. Grad-CAM uses the gradient of the predicted-class logit with respect to the last spatial features. It can help identify whether strongly weighted regions coincide with the animal, its coat or the background. Interpret the overlays with the predictions and image context. On mendeley, the lowest restricted per-class F1 was 0.568 for Local. On kaggle, the lowest restricted per-class F1 was 0.226 for Sahiwal. Controlled local probes on the selected errors found 6 unresolved. An image can exhibit more than one sensitivity. Generated error examples and attribution maps are kept privately. Visual causes remain unconfirmed. [Grad-CAM](https://arxiv.org/abs/1610.02391)
+The evaluation command selects up to three correct and three incorrect predictions per external source by confidence. It stores the gallery, annotations and Grad-CAM overlays in a local folder. Grad-CAM uses the gradient of the predicted-class logit with respect to the last spatial features. It can help identify whether strongly weighted regions coincide with the animal, its coat or the background. Interpret the overlays with the predictions and image context. On Mendeley, the lowest restricted per-class F1 was 0.568 for Local. On Kaggle, the lowest restricted per-class F1 was 0.226 for Sahiwal. Controlled local probes on the selected errors found 6 unresolved. An image can exhibit more than one sensitivity. Generated error examples and attribution maps are kept privately. Visual causes remain unconfirmed. [Grad-CAM](https://arxiv.org/abs/1610.02391)
 
-Potential error explanations include similar pigmentation between Sindhi and Sahiwal, unusual poses, partial visibility, calves versus mature animals and background effects. These are hypotheses until individual predictions are reviewed. The final report should name the confused labels, the visual cue considered and any ambiguity in the source label. High-confidence mistakes deserve particular attention because the interface displays the largest probabilities to users.
+Potential error explanations include similar pigmentation between Sindhi and Sahiwal, unusual poses, partial visibility, calves versus mature animals and background effects. These are hypotheses until individual predictions are reviewed. High-confidence mistakes deserve particular attention because the interface displays the largest probabilities to users.
 
 CID is a market dataset dominated by Local cattle and containing many young bulls. Some breeds are represented by few groups. The external label mapping joins labels that are related but may have different definitions. The web dataset may have noisy labels and unclear underlying photo rights despite the dataset's declared licence. External photos lack reliable animal IDs, and a perceptual hash cannot establish that visibly different photos depict different animals. The reported results apply to these collections and evaluation assumptions.
 
@@ -119,22 +119,8 @@ The dataset and model files remain outside the repository. Private review exclud
 
 ## 8 Reproducibility, contributions and AI use
 
-The Python 3.12 project uses NumPy, Pillow, pandas, scikit-learn, TensorFlow/Keras, Matplotlib and Gradio. The initial cloud run uses TensorFlow 2.21.0 and Keras 3.15.1. Record the runtime and commit that produced the report's final checkpoints, including the accelerator and software versions. Image provenance, checksums, label mappings and review rules are recorded in the repository. The CID archive was checked against its recorded SHA-256. [Data provenance](data.md) · [Decisions](decisions.md)
+The initial cloud run used Python 3.12, TensorFlow 2.21.0 and Keras 3.15.1 on CPU. A fresh cloud checkout rebuilt the CID folds and independently reproduced all 38 published metric rows byte for byte. Trained checkpoints and the demo recording remain private. [Run instructions](../README.md#run-the-study) · [Data provenance](data.md) · [Reproduction comparison](../results/reproduction.json)
 
-```bash
-python -m pytest -q
-python prepare_data.py --datasets cid
-python train.py --baseline
-python train.py
-python train.py --final
-# After applying the external screening manifest:
-python prepare_data.py --datasets mendeley kaggle
-python evaluate.py --robustness --figures
-python demo.py
-```
-
-A fresh cloud checkout rebuilt the CID folds and independently reproduced all 38 published metric rows within 1e-9. Trained checkpoints and the demo recording remain private. [Reproduction comparison](../results/reproduction.json)
-
-Task ownership is recorded in the progress tracker. Shayan is recorded as the owner of the completed setup, image preparation, grouping and B0 work, plus the model and reporting tasks in progress. The team should review the final contributor details and rehearse the individual oral defence before submission. [Progress tracker](PROGRESS.md) · [Defence questions](defense_questions.md)
+Shayan Ahmed owns the project tasks. The live individual defence and the original hand review of the external photos remain open. [Progress tracker](PROGRESS.md) · [Defence questions](defense_questions.md)
 
 OpenAI Codex assisted with implementation, debugging, automated tests and documentation. Synthetic tests, local dataset checks and the independent reproduction run validate the current work. The disclosure also covers local automated photo screening. The original hand-reviewed condition remains unverified, and the individual defence is a course assessment.

@@ -11,20 +11,11 @@ import pandas as pd
 
 from cattle_breed import config, data
 from cattle_breed.download import sha256
-
-
-def average_fold_scores(folds):
-    """Average rates over folds and sum the number of test photos."""
-    averages = {key: float(np.mean([fold[key] for fold in folds]))
-                for key in ('accuracy', 'balanced_accuracy', 'macro_f1')}
-    return {**averages, 'n_images': sum(fold['n_images'] for fold in folds),
-            'macro_f1_std': float(np.std([fold['macro_f1'] for fold in folds]))}
+from cattle_breed.metrics import average_fold_scores, save_result, score
 
 
 def run_baseline(index, *, path=None):
     """Record B0 by predicting Local for each CID test fold."""
-    from cattle_breed.metrics import save_result, score
-
     local = config.CLASS_TO_IDX['Local']
     folds = [score(fold['label_idx'], np.full(len(fold), local)) for _, fold in index.groupby('fold')]
     result = average_fold_scores(folds)
@@ -130,8 +121,6 @@ def final_epochs(folds):
 
 
 def record_cv(index, labels, folds, fraction):
-    from cattle_breed.metrics import save_result, score
-
     if set(folds) != set(range(config.N_FOLDS)):
         print(f'{len(folds)}/{config.N_FOLDS} current folds complete. Aggregate metrics require all five.')
         return

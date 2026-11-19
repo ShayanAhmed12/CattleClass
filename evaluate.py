@@ -6,6 +6,7 @@ import json
 import numpy as np
 
 from cattle_breed import config, data, metrics
+from train import center_crop_batch
 
 EXTERNAL_EXPERIMENTS = {"mendeley": "E3", "kaggle": "E4"}
 
@@ -28,10 +29,6 @@ def predict(classifier, images):
     return classifier.predict(images, batch_size=config.BATCH_SIZE, verbose=0)
 
 
-def center_crops(images):
-    return np.stack([data.center_crop(image) for image in images])
-
-
 def figure(*, figsize):
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     from matplotlib.figure import Figure
@@ -46,16 +43,9 @@ def save_figure(plot, path):
         plot.savefig(temporary, dpi=150)
 
 
-def save_csv(path, fields, rows):
-    with data.atomic_output(path) as temporary, temporary.open("w", encoding="utf-8", newline="") as target:
-        writer = csv.DictWriter(target, fieldnames=fields, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def plot_confusion(dataset, scoring, scores, breeds, directory):
+def plot_confusion(dataset, scoring, matrix, breeds, directory):
     class_indices = [config.CLASS_TO_IDX[breed] for breed in breeds]
-    matrix = scores["confusion_matrix"][np.ix_(class_indices, class_indices)]
+    matrix = matrix[np.ix_(class_indices, class_indices)]
     plot = figure(figsize=(6, 5))
     ax = plot.subplots()
     heatmap = ax.imshow(matrix, cmap="Blues", vmin=0)
@@ -94,7 +84,7 @@ def gallery_examples(dataset, index, images, labels, probs):
 
 def evaluate_external(classifier, dataset, experiment, corruptions, figures_dir, include_gallery):
     index, cached, labels = data.load_cache(dataset)
-    images = center_crops(cached)
+    images = center_crop_batch(cached).copy()
     del cached
     probs = predict(classifier, images)
     clean = external_scores(dataset, labels, probs)
@@ -102,7 +92,7 @@ def evaluate_external(classifier, dataset, experiment, corruptions, figures_dir,
     for scoring, scores in clean.items():
         breeds = config.CLASSES if scoring == "5-way" else config.DATASET_CLASSES[dataset]
         metrics.save_result(experiment, dataset, scoring, scores)
-        plot_confusion(dataset, scoring, scores, breeds, figures_dir)
+        plot_confusion(dataset, scoring, scores["confusion_matrix"], breeds, figures_dir)
         per_class_rows.extend(
             {"experiment": experiment, "dataset": dataset, "scoring": scoring,
              "breed": breed, "f1": scores["per_class_f1"][breed]}
@@ -122,16 +112,6 @@ def evaluate_external(classifier, dataset, experiment, corruptions, figures_dir,
     return per_class_rows, robustness, examples
 
 
-def aggregate_folds(folds):
-    return {
-        "n_images": sum(fold["n_images"] for fold in folds),
-        **{field: float(np.mean([fold[field] for fold in folds]))
-           for field in ("accuracy", "balanced_accuracy", "macro_f1")},
-        "macro_f1_std": float(np.std([fold["macro_f1"] for fold in folds])),
-        "confusion_matrix": np.sum([fold["confusion_matrix"] for fold in folds], axis=0),
-    }
-
-
 def evaluate_cid(corruptions, figures_dir):
     index, cached, labels = data.load_cache("cid")
     fold_ids = index["fold"].to_numpy()
@@ -141,7 +121,7 @@ def evaluate_cid(corruptions, figures_dir):
     scores.update({f"{kind}-{severity}": [] for kind, severity in corruptions})
     for fold in range(config.N_FOLDS):
         selection = fold_ids == fold
-        images = center_crops(cached[selection])
+        images = center_crop_batch(cached[selection]).copy()
         fold_labels = labels[selection]
         classifier = load_model(config.MODELS_DIR / f"fold_{fold}.keras")
         scores["clean"].append(metrics.score(fold_labels, predict(classifier, images).argmax(axis=1)))
@@ -149,8 +129,9 @@ def evaluate_cid(corruptions, figures_dir):
             probs = predict(classifier, data.corrupt(images, kind, severity))
             scores[f"{kind}-{severity}"].append(metrics.score(fold_labels, probs.argmax(axis=1)))
 
-    summaries = {setting: aggregate_folds(folds) for setting, folds in scores.items()}
-    plot_confusion("cid", "5-way", summaries["clean"], config.CLASSES, figures_dir)
+    summaries = {setting: metrics.average_fold_scores(folds) for setting, folds in scores.items()}
+    confusion = np.sum([fold["confusion_matrix"] for fold in scores["clean"]], axis=0)
+    plot_confusion("cid", "5-way", confusion, config.CLASSES, figures_dir)
     for setting, summary in summaries.items():
         if setting != "clean":
             metrics.save_result("E5", "cid", f"5-way/{setting}", summary)
@@ -206,7 +187,7 @@ def save_galleries(classifier, examples, directory):
     for dataset, path, _, actual, predicted, _ in examples:
         if actual != predicted:
             notes.setdefault((dataset, str(path), config.CLASSES[actual], config.CLASSES[predicted]), "")
-    save_csv(notes_path, fields, (dict(zip(fields, (*key, cause))) for key, cause in notes.items()))
+    data.save_csv(notes_path, fields, (dict(zip(fields, (*key, cause))) for key, cause in notes.items()))
 
 
 def verify_checkpoints(*, include_folds):
@@ -252,8 +233,11 @@ def main(argv=None):
         )
         per_class.extend(rows)
         examples.extend(selected)
-    save_csv(config.RESULTS_DIR / "per_class_f1.csv",
-             ("experiment", "dataset", "scoring", "breed", "f1"), per_class)
+    data.save_csv(
+        config.RESULTS_DIR / "per_class_f1.csv",
+        ("experiment", "dataset", "scoring", "breed", "f1"),
+        per_class,
+    )
 
     if args.figures:
         save_galleries(classifier, examples, directory / "local")

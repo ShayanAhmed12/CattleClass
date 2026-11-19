@@ -3,12 +3,11 @@
 import csv
 from datetime import date
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import numpy as np
 from sklearn.metrics import confusion_matrix, f1_score, recall_score
 
-from . import config
+from . import config, data
 
 _RESULT_KEY = ("experiment", "dataset", "scoring")
 _SCORE_FIELDS = ("n_images", "accuracy", "balanced_accuracy", "macro_f1")
@@ -41,6 +40,14 @@ def score(y_true, y_pred):
     }
 
 
+def average_fold_scores(folds):
+    """Average rates over folds and sum the number of test photos."""
+    averages = {key: float(np.mean([fold[key] for fold in folds]))
+                for key in ('accuracy', 'balanced_accuracy', 'macro_f1')}
+    return {**averages, 'n_images': sum(fold['n_images'] for fold in folds),
+            'macro_f1_std': float(np.std([fold['macro_f1'] for fold in folds]))}
+
+
 def restrict(probs, classes):
     """Return canonical indices of the highest-scoring allowed breeds."""
     probs = np.asarray(probs)
@@ -59,7 +66,6 @@ def restrict(probs, classes):
 def save_result(experiment, dataset, scoring, scores, *, path=None):
     """Record one summary row, replacing the same experiment's row on rerun."""
     path = config.RESULTS_DIR / "metrics.csv" if path is None else Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
     identity = (experiment, dataset, scoring)
     result = dict(zip(_RESULT_KEY, identity))
     result.update({field: str(scores[field]) for field in _SCORE_FIELDS})
@@ -83,17 +89,4 @@ def save_result(experiment, dataset, scoring, scores, *, path=None):
     else:
         rows.append(result)
 
-    # Keep the existing results readable if writing a new CSV fails midway.
-    with NamedTemporaryFile(
-        "w", encoding="utf-8", newline="", dir=path.parent, delete=False
-    ) as target:
-        temporary_path = Path(target.name)
-        try:
-            writer = csv.DictWriter(target, fieldnames=_RESULT_FIELDS, lineterminator="\n")
-            writer.writeheader()
-            writer.writerows(rows)
-            target.close()
-            temporary_path.replace(path)
-        finally:
-            target.close()
-            temporary_path.unlink(missing_ok=True)
+    data.save_csv(path, _RESULT_FIELDS, rows)
