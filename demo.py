@@ -6,7 +6,7 @@ from pathlib import Path
 import gradio as gr
 import numpy as np
 
-from cattle_breed import config, data
+from cattle_breed import config, data, load_classifier
 
 
 @lru_cache(maxsize=1)
@@ -14,10 +14,7 @@ def _load_model(path: Path):
     if not path.is_file():
         raise gr.Error(f"No trained model found at {path}. Run `python train.py --final` first.")
 
-    from cattle_breed import model  # Registers the custom backbone before deserialization.
-    from tensorflow import keras
-
-    return keras.models.load_model(path, compile=False)
+    return load_classifier(path)
 
 
 def predict(photo_path: str | Path | None) -> dict[str, float]:
@@ -28,9 +25,10 @@ def predict(photo_path: str | Path | None) -> dict[str, float]:
     except data.ImageLoadError as error:
         raise gr.Error("Upload a readable image.") from error
 
-    image = data.center_crop(data.letterbox(rgb, config.CACHE_SIZE), config.IMG_SIZE)
+    image = data.letterbox(rgb)
+    batch = data.center_crop_batch(image[None, ...])
     classifier = _load_model(config.MODELS_DIR / "final.keras")
-    probabilities = np.asarray(classifier(image[None, ...], training=False))[0]
+    probabilities = np.asarray(classifier(batch, training=False))[0]
     top_indices = np.argsort(-probabilities, kind="stable")[:3]
     return {config.CLASSES[index]: float(probabilities[index]) for index in top_indices}
 

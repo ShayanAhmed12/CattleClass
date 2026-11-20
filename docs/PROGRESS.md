@@ -1,6 +1,6 @@
 # Progress
 
-Owner throughout: Shayan Ahmed. Updated 19 November 2026.
+Owner throughout: Shayan Ahmed. Updated 20 November 2026.
 
 | Tasks | Status |
 |---|---|
@@ -14,6 +14,8 @@ Owner throughout: Shayan Ahmed. Updated 19 November 2026.
 | Optional E6 · Half the training groups | Complete. Scored on the same five held-out CID folds. |
 
 A fresh cloud checkout independently rebuilt the CID folds and reproduced all 38 published metric rows. The cleanup consolidated the run instructions and duplicate code, and reduced the active tree from 57 to 40 tracked files. All 54 active tests passed. Reusing the verified checkpoints reproduced all 38 metric rows and regenerated the six published plots byte for byte. [Reproduction record](../results/reproduction.json)
+
+The follow-up put center cropping in the data module and made evaluation and the demo share one Keras checkpoint loader. All 54 tests passed on TensorFlow 2.21.0 with Keras 3.15.1. The tests cover both training stages and model reload. The Gradio demo returned three scores for a real photo using the final checkpoint. Re-evaluation with the verified checkpoints reproduced all 38 published metric rows and all six aggregate plots.
 
 [Report](report.md) · [Slides](slides.md) · [Defence guide](defense_questions.md)
 

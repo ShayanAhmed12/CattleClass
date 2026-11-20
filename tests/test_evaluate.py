@@ -81,7 +81,7 @@ def setup_evaluation(monkeypatch, tmp_path, *, cid=None):
     monkeypatch.setattr(config, "MODELS_DIR", tmp_path / "models")
     monkeypatch.setattr(evaluate.data, "load_cache", load_cache, raising=False)
     monkeypatch.setattr(evaluate.data, "atomic_output", atomic_output, raising=False)
-    monkeypatch.setattr(evaluate, "load_model", load_model)
+    monkeypatch.setattr(evaluate, "load_classifier", load_model)
     monkeypatch.setattr(evaluate, "verify_checkpoints", lambda **kwargs: None)
     return loads, seen
 

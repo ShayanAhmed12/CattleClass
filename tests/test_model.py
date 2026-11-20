@@ -3,10 +3,11 @@
 import numpy as np
 from tensorflow import keras
 
-from cattle_breed import model
+from cattle_breed import load_classifier, model
 
 
 def test_efficientnet_outputs_five_probabilities():
+    assert keras.backend.backend() == "tensorflow"
     network = model.build_model(weights=None, input_shape=(32, 32, 3))
     images = np.random.default_rng(42).integers(0, 256, (20, 32, 32, 3), dtype=np.uint8)
 
@@ -84,7 +85,7 @@ def test_gradcam_for_blank_image_after_serialization(tmp_path):
     network = model.build_model(weights=None)
     path = tmp_path / "network.keras"
     network.save(path)
-    network = keras.models.load_model(path, compile=False)
+    network = load_classifier(path)
 
     heatmap = model.gradcam(network, np.zeros((224, 224, 3), dtype=np.uint8), class_idx=2)
 

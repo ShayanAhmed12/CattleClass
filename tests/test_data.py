@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from cattle_breed.data import ImageLoadError, center_crop, is_image_file, letterbox, load_image
+from cattle_breed.data import ImageLoadError, center_crop_batch, is_image_file, letterbox, load_image
 
 
 def test_load_image_converts_modes(make_image):
@@ -41,10 +41,11 @@ def test_letterbox_portrait():
     assert out[120, 0].sum() == 0 and out[120, 120].sum() == 765  # padding on the sides
 
 
-def test_center_crop():
-    img = np.arange(240 * 240 * 3, dtype=np.uint32).reshape(240, 240, 3).astype(np.uint8)
-    out = center_crop(img, 224)
-    assert out.shape == (224, 224, 3) and (out == img[8:232, 8:232]).all()
+def test_center_crop_batch():
+    images = np.arange(2 * 240 * 241 * 3, dtype=np.uint32).reshape(2, 240, 241, 3).astype(np.uint8)
+    crops = center_crop_batch(images)
+    assert crops.shape == (2, 224, 224, 3)
+    np.testing.assert_array_equal(crops, images[:, 8:232, 8:232])
 
 
 def test_is_image_file():

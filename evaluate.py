@@ -5,18 +5,9 @@ import json
 
 import numpy as np
 
-from cattle_breed import config, data, metrics
-from train import center_crop_batch
+from cattle_breed import config, data, load_classifier, metrics
 
 EXTERNAL_EXPERIMENTS = {"mendeley": "E3", "kaggle": "E4"}
-
-
-def load_model(path):
-    # Import the model definitions first to register the custom backbone wrapper.
-    from cattle_breed import model  # noqa: F401
-    from tensorflow import keras
-
-    return keras.models.load_model(path, compile=False)
 
 
 def gradcam(classifier, image, class_idx):
@@ -84,7 +75,7 @@ def gallery_examples(dataset, index, images, labels, probs):
 
 def evaluate_external(classifier, dataset, experiment, corruptions, figures_dir, include_gallery):
     index, cached, labels = data.load_cache(dataset)
-    images = center_crop_batch(cached).copy()
+    images = data.center_crop_batch(cached).copy()
     del cached
     probs = predict(classifier, images)
     clean = external_scores(dataset, labels, probs)
@@ -121,9 +112,9 @@ def evaluate_cid(corruptions, figures_dir):
     scores.update({f"{kind}-{severity}": [] for kind, severity in corruptions})
     for fold in range(config.N_FOLDS):
         selection = fold_ids == fold
-        images = center_crop_batch(cached[selection]).copy()
+        images = data.center_crop_batch(cached[selection]).copy()
         fold_labels = labels[selection]
-        classifier = load_model(config.MODELS_DIR / f"fold_{fold}.keras")
+        classifier = load_classifier(config.MODELS_DIR / f"fold_{fold}.keras")
         scores["clean"].append(metrics.score(fold_labels, predict(classifier, images).argmax(axis=1)))
         for kind, severity in corruptions:
             probs = predict(classifier, data.corrupt(images, kind, severity))
@@ -223,7 +214,7 @@ def main(argv=None):
     directory = config.RESULTS_DIR / "figures"
     corruptions = [(kind, severity) for kind, settings in config.CORRUPTIONS.items()
                    for severity in settings] if args.robustness else []
-    classifier = load_model(config.MODELS_DIR / "final.keras")
+    classifier = load_classifier(config.MODELS_DIR / "final.keras")
     per_class = []
     robustness = {}
     examples = []

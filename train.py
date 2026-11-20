@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from cattle_breed import config, data
+from cattle_breed.data import center_crop_batch
 from cattle_breed.download import sha256
 from cattle_breed.metrics import average_fold_scores, save_result, score
 
@@ -21,15 +22,6 @@ def run_baseline(index, *, path=None):
     result = average_fold_scores(folds)
     save_result('B0', 'cid', '5-way', result, path=path)
     return result
-
-
-
-def center_crop_batch(images):
-    """Return a view of the centered model-sized region in every cached photo."""
-    height, width = images.shape[1:3]
-    size = config.IMG_SIZE
-    top, left = (height - size) // 2, (width - size) // 2
-    return images[:, top:top + size, left:left + size]
 
 
 def write_json(path, result):

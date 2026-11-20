@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageFilter, ImageOps
 
-from .config import CACHE_SIZE, CLASSES, CLASS_TO_IDX, CORRUPTIONS, DATA_DIR, DUPLICATE_DISTANCE, IMG_SIZE, N_FOLDS, RESULTS_DIR, SEED, VAL_FRAC, to_canonical
+from . import config
+from .config import CACHE_SIZE, CLASSES, CLASS_TO_IDX, CORRUPTIONS, DATA_DIR, DUPLICATE_DISTANCE, N_FOLDS, RESULTS_DIR, SEED, VAL_FRAC, to_canonical
 from .download import EXPECTED, is_image_file
 
 
@@ -39,11 +40,12 @@ def letterbox(img: np.ndarray, size: int = CACHE_SIZE) -> np.ndarray:
     return out
 
 
-def center_crop(img: np.ndarray, size: int = IMG_SIZE) -> np.ndarray:
-    """Cut the central size x size region (used for evaluation and the demo)."""
-    h, w = img.shape[:2]
-    top, left = (h - size) // 2, (w - size) // 2
-    return img[top:top + size, left:left + size]
+def center_crop_batch(images):
+    """Return a view of the centered model-sized region in every cached photo."""
+    height, width = images.shape[1:3]
+    size = config.IMG_SIZE
+    top, left = (height - size) // 2, (width - size) // 2
+    return images[:, top:top + size, left:left + size]
 
 
 def build_index(dataset: str, *, apply_review=True) -> pd.DataFrame:

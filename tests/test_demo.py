@@ -1,5 +1,4 @@
 """The Gradio demo uses synthetic images and model outputs in these tests."""
-import sys
 from types import SimpleNamespace
 
 import gradio as gr
@@ -7,7 +6,7 @@ import numpy as np
 import pytest
 
 import demo
-from cattle_breed import config
+from cattle_breed import config, model
 
 
 def test_gradio_upload_crops_and_shows_three_ranked_probabilities(monkeypatch, make_image):
@@ -57,9 +56,7 @@ def test_model_loader_caches_inference_only_model(monkeypatch, tmp_path):
         load_calls.append((filename, compile))
         return loaded_model
 
-    keras = SimpleNamespace(models=SimpleNamespace(load_model=load_model))
-    monkeypatch.setitem(sys.modules, "tensorflow", SimpleNamespace(keras=keras))
-    monkeypatch.setitem(sys.modules, "cattle_breed.model", SimpleNamespace())
+    monkeypatch.setattr(model.keras.models, "load_model", load_model)
 
     assert demo._load_model(path) is loaded_model
     assert demo._load_model(path) is loaded_model

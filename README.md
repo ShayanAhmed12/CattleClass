@@ -1,6 +1,6 @@
 # CattleClass
 
-Can a model trained on Bangladeshi cattle-market photos recognize the same breed labels in photos from other sources? CattleClass fine-tunes EfficientNet-B0 on CID to classify **Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi**. It tests on animals held out from CID, on Mendeley and Kaggle photos, and on blurred, darkened and partly blocked copies. The demo shows the three highest model scores for an uploaded photo.
+Can a model trained on Bangladeshi cattle-market photos recognize the same breed labels in photos from other sources? CattleClass uses TensorFlow's Keras API (`tf.keras`) to fine-tune EfficientNet-B0 on CID to classify **Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi**. It tests on animals held out from CID, on Mendeley and Kaggle photos, and on blurred, darkened and partly blocked copies. The demo shows the three highest model scores for an uploaded photo.
 
 ## Set up
 
@@ -30,6 +30,12 @@ On Linux or WSL2 with a compatible NVIDIA GPU, install `tensorflow[and-cuda]` fo
 | `python demo.py` | Starts a local Gradio app that uses the final model. |
 
 Use `python prepare_data.py --check` to verify downloads and `python train.py --fraction 0.5` to reproduce E6. Training reuses verified fold checkpoints. Each command documents its options with `--help`. Set `CATTLE_WORK_DIR` to store downloaded data and checkpoints elsewhere.
+
+## How the model works
+
+1. Turn each photo into an upright RGB image, pad it to a square without stretching it, then crop to 224 × 224 pixels. Training uses random crops. Evaluation and the demo use the center.
+2. `keras.applications.EfficientNetB0` starts from ImageNet weights. A small classification head produces five probabilities. Keras trains the head first, then fine-tunes the backbone at a lower learning rate. [Model code](cattle_breed/model.py)
+3. Keras saves each trained model as a `.keras` checkpoint. Evaluation and the demo load the same final checkpoint for external scoring and individual predictions. CID robustness uses the corresponding held-out fold checkpoint for each photo.
 
 ## Read the results
 
