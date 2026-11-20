@@ -19,6 +19,10 @@ The follow-up put center cropping in the data module and made evaluation and the
 
 [Report](report.md) · [Slides](slides.md) · [Defence guide](defense_questions.md) · [Project overview and run guide (PDF)](cattleclass-run-guide.pdf)
 
+## Proposed extension
+
+The age and weight plan audits the CID metadata, establishes reference baselines and proposes a staged TensorFlow/Keras benchmark and field validation. [Age and weight implementation plan](age-and-weight-plan.md)
+
 ## Project archive
 
 [Original plan](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/PLAN.md) · [Decision log](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/decisions.md) · [Proposal](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/proposal.docx) · [Course guidelines](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/guidelines.pdf) · [Previous progress log](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/PROGRESS.md)
