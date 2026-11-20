@@ -17,7 +17,7 @@ A fresh cloud checkout independently rebuilt the CID folds and reproduced all 38
 
 The follow-up put center cropping in the data module and made evaluation and the demo share one Keras checkpoint loader. All 54 tests passed on TensorFlow 2.21.0 with Keras 3.15.1. The tests cover both training stages and model reload. The Gradio demo returned three scores for a real photo using the final checkpoint. Re-evaluation with the verified checkpoints reproduced all 38 published metric rows and all six aggregate plots.
 
-[Report](report.md) · [Slides](slides.md) · [Defence guide](defense_questions.md)
+[Report](report.md) · [Slides](slides.md) · [Defence guide](defense_questions.md) · [Project overview and run guide (PDF)](cattleclass-run-guide.pdf)
 
 ## Project archive
 

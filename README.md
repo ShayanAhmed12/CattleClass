@@ -2,6 +2,8 @@
 
 Can a model trained on Bangladeshi cattle-market photos recognize the same breed labels in photos from other sources? CattleClass uses TensorFlow's Keras API (`tf.keras`) to fine-tune EfficientNet-B0 on CID to classify **Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi**. It tests on animals held out from CID, on Mendeley and Kaggle photos, and on blurred, darkened and partly blocked copies. The demo shows the three highest model scores for an uploaded photo.
 
+[Download the project overview and step-by-step run guide (PDF)](docs/cattleclass-run-guide.pdf)
+
 ## Set up
 
 From the repository root, use Python 3.12.
