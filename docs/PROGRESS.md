@@ -21,7 +21,7 @@ The follow-up put center cropping in the data module and made evaluation and the
 
 ## Proposed extension
 
-The age and weight plan audits the CID metadata, establishes reference baselines and proposes a staged TensorFlow/Keras benchmark and field validation. [Age and weight implementation plan](age-and-weight-plan.md)
+The revised age and weight plan records the measured 39.33 kg predicted-breed weight baseline, limits the CID age study to its two supported labels, and defines independent capture and field-release checks. [Age and weight implementation plan](age-and-weight-plan.md)
 
 ## Project archive
 
