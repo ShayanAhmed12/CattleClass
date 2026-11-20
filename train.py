@@ -178,8 +178,30 @@ def main():
     mode.add_argument('--baseline', action='store_true', help='score B0 without loading TensorFlow')
     mode.add_argument('--final', action='store_true', help='fit the all-CID model after cross-validation')
     mode.add_argument('--folds', nargs='+', type=int, choices=range(config.N_FOLDS))
-    parser.add_argument('--fraction', type=float, choices=(0.5, 1.0), default=1.0)
+    parser.add_argument('--fraction', type=float, choices=(0.5, 1.0))
+    parser.add_argument('--traits', action='store_true', help='run the CID age and weight research benchmark')
+    parser.add_argument('--traits-data', type=Path, help='private field study JSON')
     args = parser.parse_args()
+    if args.traits_data and not (args.traits and args.final):
+        parser.error('--traits-data requires --traits --final')
+    if args.traits:
+        if args.baseline or args.folds is not None or args.fraction is not None:
+            parser.error('--traits cannot be combined with --baseline, --folds or --fraction')
+        if args.traits_data:
+            from cattle_breed import field_traits
+
+            field_traits.train_field(args.traits_data)
+        elif args.final:
+            from cattle_breed import trait_release
+
+            trait_release.fit_final_cid()
+        else:
+            from cattle_breed import traits
+
+            traits.run_cid_benchmark()
+        return
+    if args.fraction is None:
+        args.fraction = 1.0
     if (args.final or args.baseline) and args.fraction != 1:
         parser.error('--fraction 0.5 is for the optional E6 cross-validation run')
     if args.baseline:

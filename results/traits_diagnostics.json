@@ -1,0 +1,91 @@
+{
+  "weight_background_control": {
+    "sampled": 150,
+    "kept": 44,
+    "counts_by_fold": {
+      "0": 6,
+      "1": 10,
+      "2": 8,
+      "3": 11,
+      "4": 9
+    },
+    "methods": {
+      "full": {
+        "n": 44,
+        "mae_kg": 30.570288571444426,
+        "rmse_kg": 38.63309863697471,
+        "median_error_kg": 24.571746826171875,
+        "bias_kg": -2.591414364901456,
+        "within_10_percent": 0.4318181818181818
+      },
+      "animal_box": {
+        "n": 44,
+        "mae_kg": 28.663921702991832,
+        "rmse_kg": 36.60492393726695,
+        "median_error_kg": 22.42035675048828,
+        "bias_kg": -3.765437039462003,
+        "within_10_percent": 0.45454545454545453
+      },
+      "upper_left": {
+        "n": 44,
+        "mae_kg": 23.975688934326172,
+        "rmse_kg": 31.39019301658407,
+        "median_error_kg": 18.001113891601562,
+        "bias_kg": -3.994740226052024,
+        "within_10_percent": 0.5909090909090909
+      }
+    },
+    "protocol": "30 SKUs sampled per held-out fold with seed 42. The reviewed matched subset has one detected animal and no cow in the fixed upper-left 22% crop. Grouped Ridge on log kg with frozen EfficientNet embeddings and alpha 100."
+  },
+  "age_fine_tuning": {
+    "protocol": "age fold 0 inner validation only, two epochs with top convolution unfrozen",
+    "frozen": {
+      "n": 75,
+      "mae_months": 2.24,
+      "accuracy": 0.6266666666666667,
+      "support": [
+        51,
+        24
+      ],
+      "recall": [
+        0.7843137254901961,
+        0.2916666666666667
+      ],
+      "confusion": [
+        [
+          40,
+          11
+        ],
+        [
+          17,
+          7
+        ]
+      ],
+      "balanced_accuracy": 0.5379901960784313
+    },
+    "fine_tuned": {
+      "n": 75,
+      "mae_months": 2.32,
+      "accuracy": 0.6133333333333333,
+      "support": [
+        51,
+        24
+      ],
+      "recall": [
+        0.7843137254901961,
+        0.25
+      ],
+      "confusion": [
+        [
+          40,
+          11
+        ],
+        [
+          18,
+          6
+        ]
+      ],
+      "balanced_accuracy": 0.517156862745098
+    }
+  }
+}

@@ -19,9 +19,12 @@ The follow-up put center cropping in the data module and made evaluation and the
 
 [Report](report.md) · [Slides](slides.md) · [Defence guide](defense_questions.md) · [Project overview and run guide (PDF)](cattleclass-run-guide.pdf)
 
-## Proposed extension
+## Age and weight extension
 
-The revised age and weight plan records the measured 39.33 kg predicted-breed weight baseline, limits the CID age study to its two supported labels, and defines independent capture and field-release checks. [Age and weight implementation plan](age-and-weight-plan.md)
+- CID preparation reproduced 503 source SKUs and 371 groups. The age cohort contains 498 records in the supported bands.
+- The weight candidate reached 22.72 kg MAE against 39.33 kg for the predicted-breed median. The background control also predicted weight on a matched subset, so independent field testing is necessary.
+- The age benchmark reached 53.3% balanced accuracy and missed its research gate. A limited fine-tuning check did not improve inner validation.
+- Private Keras candidate reload, field fit/calibration/evaluation, and demo withholding were exercised. Field approval remains open pending paired photos with independent scale weights or documented birth dates. [Workflow](traits.md) · [Results](../results/traits_evaluation.json) · [Plan](age-and-weight-plan.md)
 
 ## Project archive
 

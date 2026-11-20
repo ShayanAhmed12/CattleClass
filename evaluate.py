@@ -2,6 +2,7 @@
 import argparse
 import csv
 import json
+from pathlib import Path
 
 import numpy as np
 
@@ -208,7 +209,23 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--robustness", action="store_true", help="also evaluate corrupted images")
     parser.add_argument("--figures", action="store_true", help="also generate local error and Grad-CAM galleries")
+    parser.add_argument("--traits", action="store_true", help="score saved CID age and weight predictions")
+    parser.add_argument("--traits-data", type=Path, help="private field study JSON")
     args = parser.parse_args(argv)
+    if args.traits_data and not args.traits:
+        parser.error("--traits-data requires --traits")
+    if args.traits:
+        if args.robustness or args.figures:
+            parser.error("--traits cannot be combined with --robustness or --figures")
+        if args.traits_data:
+            from cattle_breed import field_traits
+
+            field_traits.evaluate_field(args.traits_data)
+        else:
+            from cattle_breed import traits
+
+            traits.evaluate_cid_benchmark()
+        return
 
     verify_checkpoints(include_folds=args.robustness)
     directory = config.RESULTS_DIR / "figures"
