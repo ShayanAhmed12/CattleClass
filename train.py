@@ -172,18 +172,62 @@ def train_final(index, images, labels, root, run_id, learner):
     print(f'Wrote {checkpoint}')
 
 
+def train_breed_manifest(manifest):
+    """Fit a private breed candidate from labeled development and validation photos."""
+    from cattle_breed import field_traits, model, traits
+
+    frame = pd.read_csv(manifest, dtype=str, keep_default_na=False)
+    required = {'split', 'animal_id', 'path', 'breed'}
+    if not required <= set(frame):
+        raise ValueError('A breed CSV requires split, animal_id, path and breed columns.')
+    splits = ('development', 'validation')
+    if set(frame['split']) != set(splits) or (frame['animal_id'].str.strip() == '').any():
+        raise ValueError('A breed CSV needs development and validation photos with stable animal IDs.')
+    frame['animal_id'] = frame['animal_id'].str.strip()
+    frame['breed'] = frame['breed'].str.strip()
+    frame['path'] = frame['path'].map(lambda name: str(field_traits._inside(manifest.parent, name)))
+    frame['label_idx'] = frame['breed'].map(config.CLASS_TO_IDX)
+    if frame['label_idx'].isna().any():
+        raise ValueError('Use the supported CattleClass breed names in the breed CSV.')
+    development, validation = (frame[frame['split'].eq(split)] for split in splits)
+    field_traits.check_partitions(development, validation)
+    if frame.groupby('animal_id')['breed'].nunique().gt(1).any():
+        raise ValueError('Each animal in the breed CSV needs one consistent breed label.')
+    bindings = [field_traits._bind(part) for part in (development, validation)]
+    if set(bindings[0]['photos']) & set(bindings[1]['photos']):
+        raise ValueError('A duplicate breed photo crosses development and validation.')
+
+    fit = data.build_cache(development)
+    check = data.build_cache(validation)
+    if set(fit[1]) != set(config.CLASS_TO_IDX.values()) or not len(check[1]):
+        raise ValueError('Breed training needs readable development photos for all five breeds and readable validation photos.')
+    identity = traits._digest([bindings, config.CLASSES])
+    checkpoint = config.MODELS_DIR / 'breed-research' / f'{identity}.keras'
+    network = model.build_model()
+    model.train(network, fit, check)
+    with data.atomic_output(checkpoint) as temporary:
+        network.save(temporary)
+    print(f'Wrote private breed candidate to {checkpoint}')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--baseline', action='store_true', help='score B0 without loading TensorFlow')
     mode.add_argument('--final', action='store_true', help='fit the all-CID model after cross-validation')
     mode.add_argument('--folds', nargs='+', type=int, choices=range(config.N_FOLDS))
+    mode.add_argument('--breed-data', type=Path, help='train a private breed candidate from a labeled CSV')
     parser.add_argument('--fraction', type=float, choices=(0.5, 1.0))
     parser.add_argument('--traits', action='store_true', help='run the CID age and weight research benchmark')
     parser.add_argument('--traits-data', type=Path, help='private field study JSON')
     args = parser.parse_args()
     if args.traits_data and not (args.traits and args.final):
         parser.error('--traits-data requires --traits --final')
+    if args.breed_data:
+        if args.traits or args.fraction is not None:
+            parser.error('--breed-data cannot be combined with --traits or --fraction')
+        train_breed_manifest(args.breed_data)
+        return
     if args.traits:
         if args.baseline or args.folds is not None or args.fraction is not None:
             parser.error('--traits cannot be combined with --baseline, --folds or --fraction')

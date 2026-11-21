@@ -75,7 +75,9 @@ python evaluate_capture.py /path/to/yolox_tiny.onnx
 
 Make a separate private study folder for the planned capture comparison. Collect paired ordinary, side, and side-with-marker photos during the same session. Split by stable animal IDs, and reserve independent sites. Keep operator-confirmed marker placement and quality records. The current field model uses RGB pixels. Calibrated scale geometry, a second photo, and dental input are separate follow-up models if the paired field results warrant them.
 
-Use separate development, calibration, and test CSV files, with one attempt per animal and capture mode. Use stable IDs across sites and studies so repeat animals can be recognized. The required common columns are `animal_id,site_id,session_id,path,capture,quality_ok,photo_date`. Use relative image paths, ISO 8601 dates, and `yes` or `no` for quality. All partitions must provide breed, weight and age references for the same animals. An attempt with an incomplete reference remains in the denominator. Leave an unavailable photo or label blank so the attempt can remain in the denominator.
+Use separate development, calibration, and test CSV files, with one attempt per animal and capture mode. Use stable IDs across sites and studies so repeat animals can be recognized. The required common columns are `animal_id,site_id,session_id,path,capture,quality_ok,photo_date`. Use relative image paths, ISO 8601 dates, and `yes` or `no` for quality.
+
+Weight development and calibration require the weight fields below. Age development and calibration require the birth fields. These can come from different sources with verified labels for each task. The test CSV requires `breed` and both sets of reference fields. A test attempt with an incomplete reference remains in the denominator. Leave an unavailable photo or label blank so the attempt can remain in the denominator. [Breed-only training](data.md#specialist-datasets)
 
 - Set `capture` to `ordinary`, `side`, or `side_marker`. Marker captures also need positive `marker_cm` and `marker_px` measurements. Confirm placement and depth in the capture workflow.
 - Record the documented breed in `breed`. For live weight, add `weight_kg,weight_source,weight_equipment_id,weighed_at`. The source must be `scale`, with timestamps for weighing and photography within two hours.
@@ -96,6 +98,8 @@ python evaluate.py --traits --traits-data private-study/study.json
 ```
 
 The first command fits and calibrates privately. The second checks the frozen model, data, policy and reserved animals, then evaluates the independent test. Test animals are tracked in a private ledger so a changed model or policy cannot simply reuse them for the same trait and capture mode. Results report the proportion of submissions receiving estimates, reference availability, and range coverage among displayed estimates. Approval depends on pooled, site, and declared subgroup gates. Keep the private ledger with the field data.
+
+Use the same reserved test animals and capture IDs for a future joint evaluation of breed, age and weight. Before locking the cohort, check its animals and sites against every model’s development and calibration or validation records. Define a correct breed, an acceptable age band and a weight tolerance in advance. Report how often the same animal satisfies all three criteria. The current field commands report age and weight separately.
 
 ## Field data still needed
 

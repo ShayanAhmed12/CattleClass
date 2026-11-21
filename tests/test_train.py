@@ -73,3 +73,45 @@ def test_final_epoch_schedule_uses_all_fold_medians():
     del folds[4]
     with pytest.raises(ValueError, match='all five'):
         final_epochs(folds)
+
+
+def test_breed_only_manifest_trains_private_keras_candidate(tmp_path, monkeypatch, make_image):
+    import sys
+
+    import pytest
+    from tensorflow import keras
+
+    import train
+    from cattle_breed import config, load_classifier, model
+
+    monkeypatch.setattr(config, 'MODELS_DIR', tmp_path / 'models')
+    rows = []
+    for split_index, split in enumerate(('development', 'validation')):
+        for i, breed in enumerate(config.CLASSES):
+            photo = make_image(f'{split}-{i}.png', color=(30 * i, 75 * split_index, 100))
+            rows.append(dict(split=split, animal_id=photo.stem, path=photo.name, breed=breed))
+    manifest = tmp_path / 'breed.csv'
+    pd.DataFrame(rows).to_csv(manifest, index=False)
+
+    def small_classifier():
+        inputs = keras.Input((224, 224, 3))
+        backbone = keras.Sequential([keras.Input((224, 224, 3)), keras.layers.Rescaling(1 / 255),
+                                     keras.layers.GlobalAveragePooling2D()], name='backbone')
+        outputs = keras.layers.Dense(len(config.CLASSES), activation='softmax')(backbone(inputs))
+        return keras.Model(inputs, outputs)
+
+    fit = model.train
+    monkeypatch.setattr(model, 'build_model', small_classifier)
+    monkeypatch.setattr(model, 'train', lambda *args: fit(*args, head_epochs=1, ft_epochs=1, verbose=0))
+    monkeypatch.setattr(sys, 'argv', ['train.py', '--breed-data', str(manifest)])
+
+    train.main()
+
+    candidate, = (config.MODELS_DIR / 'breed-research').glob('*.keras')
+    assert load_classifier(candidate).output_shape == (None, len(config.CLASSES))
+    assert not (config.MODELS_DIR / 'final.keras').exists()
+
+    rows[-1]['animal_id'] = rows[0]['animal_id']
+    pd.DataFrame(rows).to_csv(manifest, index=False)
+    with pytest.raises(ValueError, match='animal.*multiple partitions'):
+        train.main()

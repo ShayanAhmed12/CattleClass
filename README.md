@@ -33,6 +33,8 @@ On Linux or WSL2 with a compatible NVIDIA GPU, install `tensorflow[and-cuda]` fo
 
 Use `python prepare_data.py --check` to verify downloads and `python train.py --fraction 0.5` to reproduce E6. Training reuses verified fold checkpoints. Each command documents its options with `--help`. Set `CATTLE_WORK_DIR` to store downloaded data and checkpoints elsewhere.
 
+You can train separate research models on specialist datasets. Breed training accepts a private labeled CSV. Age and weight accept task-specific development and calibration data, and the reserved final test requires all three references. [Specialist data format](docs/data.md#specialist-datasets) · [Field workflow](docs/traits.md#collect-and-lock-a-field-study)
+
 ## How the model works
 
 1. Turn each photo into an upright RGB image, pad it to a square without stretching it, then crop to 224 × 224 pixels. Training uses random crops. Evaluation and the demo use the center.

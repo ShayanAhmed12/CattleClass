@@ -109,7 +109,14 @@ def test_synthetic_field_workflow_fits_locks_scores_and_withholds(tmp_path, monk
                              "photo_date": "2026-11-20T09:00:00Z", "weighed_at": "2026-11-20T09:05:00Z",
                              "weight_kg": str(100 + i * 15), "weight_source": "scale", "weight_equipment_id": "scale1",
                              "birth_date": "2024-06-01" if i % 2 else "2025-11-20", "birth_source": "record", "breed": "Local"})
-        pd.DataFrame(attempts).to_csv(tmp_path / f"{split}.csv", index=False)
+        frame = pd.DataFrame(attempts)
+        if split != "test":
+            irrelevant = (
+                ["birth_date", "birth_source"] if task == "weight"
+                else ["weight_kg", "weight_source", "weight_equipment_id", "weighed_at"]
+            )
+            frame = frame.drop(columns=["breed", *irrelevant])
+        frame.to_csv(tmp_path / f"{split}.csv", index=False)
     spec = {
         "cohort": "synthetic", "intended_use": "synthetic test", "task": task, "capture": "ordinary",
         "development": "development.csv", "calibration": "calibration.csv", "test": "test.csv",
@@ -181,17 +188,24 @@ def test_subgroup_approval_requires_every_declared_group():
     assert groups["sex"]["unknown"] == {"attempts": 0, "approved": False}
 
 
-def test_field_partition_with_only_weight_labels_is_rejected(tmp_path):
+def test_reserved_test_requires_all_references_and_keeps_incomplete_attempts(tmp_path):
     frame = pd.DataFrame([{
         "animal_id": "a", "site_id": "site", "session_id": "session", "path": "a.jpg",
         "capture": "ordinary", "quality_ok": "yes", "photo_date": "2026-11-20T12:00:00Z",
         "weight_kg": "450", "weight_source": "scale", "weight_equipment_id": "scale",
         "weighed_at": "2026-11-20T12:00:00Z",
     }])
-    frame.to_csv(tmp_path / "development.csv", index=False)
-    spec = {"task": "weight", "capture": "ordinary", "development": "development.csv"}
+    manifest = tmp_path / "test.csv"
+    frame.to_csv(manifest, index=False)
+    spec = {"task": "weight", "capture": "ordinary", "test": "test.csv"}
     with pytest.raises(ValueError, match="birth_date.*breed"):
-        field_traits._partition(tmp_path / "study.json", spec, "development")
-    frame.assign(breed="Local", birth_date="", birth_source="").to_csv(tmp_path / "development.csv", index=False)
+        field_traits._partition(tmp_path / "study.json", spec, "test")
+    frame = frame.assign(breed="Local", birth_date="", birth_source="")
+    frame.to_csv(manifest, index=False)
     with pytest.raises(ValueError, match="linked breed, age and weight"):
-        field_traits._partition(tmp_path / "study.json", spec, "development")
+        field_traits._partition(tmp_path / "study.json", spec, "test")
+    verified = frame.assign(animal_id="b", path="b.jpg", birth_date="2024-01-01", birth_source="record")
+    pd.concat([frame, verified], ignore_index=True).to_csv(manifest, index=False)
+    attempts = field_traits._partition(tmp_path / "study.json", spec, "test")
+    assert len(attempts) == 2
+    assert attempts.target.isna().tolist() == [True, False]

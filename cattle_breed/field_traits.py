@@ -14,6 +14,10 @@ from .download import sha256
 
 CAPTURES = {"ordinary", "side", "side_marker"}
 PARTITIONS = ("development", "calibration", "test")
+REFERENCE_FIELDS = {
+    "weight": {"weight_kg", "weight_source", "weight_equipment_id", "weighed_at"},
+    "age": {"birth_date", "birth_source"},
+}
 
 
 def check_partitions(*partitions):
@@ -141,10 +145,12 @@ def _partition(path, spec, split):
     base = path.parent
     csv_path = _inside(base, spec[split])
     frame = pd.read_csv(csv_path, dtype=str).fillna("")
-    needed = {
-        "animal_id", "site_id", "session_id", "path", "capture", "quality_ok", "photo_date", "breed",
-        "weight_kg", "weight_source", "weight_equipment_id", "weighed_at", "birth_date", "birth_source",
-    }
+    task = spec["task"]
+    held_out = split == "test"
+    needed = {"animal_id", "site_id", "session_id", "path", "capture", "quality_ok", "photo_date"}
+    needed |= REFERENCE_FIELDS[task]
+    if held_out:
+        needed |= REFERENCE_FIELDS["weight"] | REFERENCE_FIELDS["age"] | {"breed"}
     if not needed <= set(frame):
         raise ValueError(f"{split} is missing fields: {', '.join(sorted(needed - set(frame)))}")
     frame = frame[frame.capture == spec["capture"]].reset_index(drop=True).copy()
@@ -161,20 +167,25 @@ def _partition(path, spec, split):
             raise ValueError("Calibrated capture requires marker_cm and marker_px measurements.")
         frame["eligible"] &= traits._positive(frame.marker_cm).notna() & traits._positive(frame.marker_px).notna()
     captured = pd.to_datetime(frame.photo_date, utc=True, errors="coerce", format="ISO8601")
-    weighed = pd.to_datetime(frame.weighed_at, utc=True, errors="coerce", format="ISO8601")
-    weight_verified = (frame.weight_source.eq("scale") & frame.weight_equipment_id.ne("")
-                       & (captured - weighed).abs().le(pd.Timedelta(hours=2)))
-    weight = traits._positive(frame.weight_kg).where(weight_verified)
-    birth = pd.to_datetime(frame.birth_date, utc=True, errors="coerce", format="ISO8601")
-    age = (captured - birth).dt.total_seconds() / (86400 * 30.4375)
-    age = age.where(frame.birth_source.eq("record") & age.ge(0))
-    complete_reference = frame.breed.str.strip().ne("") & weight.notna() & age.notna()
-    if not complete_reference.any():
-        raise ValueError(f"{split} needs photos with linked breed, age and weight references.")
-    if spec["task"] == "weight":
-        frame["target"] = weight.where(complete_reference)
-    else:
-        frame["target"] = pd.cut(age, spec["age_edges_months"], right=False, labels=False).where(complete_reference)
+    references = {}
+    if task == "weight" or held_out:
+        weighed = pd.to_datetime(frame.weighed_at, utc=True, errors="coerce", format="ISO8601")
+        weight_verified = (frame.weight_source.eq("scale") & frame.weight_equipment_id.ne("")
+                           & (captured - weighed).abs().le(pd.Timedelta(hours=2)))
+        references["weight"] = traits._positive(frame.weight_kg).where(weight_verified)
+    if task == "age" or held_out:
+        birth = pd.to_datetime(frame.birth_date, utc=True, errors="coerce", format="ISO8601")
+        age = (captured - birth).dt.total_seconds() / (86400 * 30.4375)
+        references["age"] = age.where(frame.birth_source.eq("record") & age.ge(0))
+    target = references[task]
+    if task == "age":
+        target = pd.cut(target, spec["age_edges_months"], right=False, labels=False)
+    if held_out:
+        complete = frame.breed.str.strip().ne("") & references["weight"].notna() & references["age"].notna()
+        if not complete.any():
+            raise ValueError("The test split needs photos with linked breed, age and weight references.")
+        target = target.where(complete)
+    frame["target"] = target
     return frame
 
 

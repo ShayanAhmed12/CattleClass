@@ -1,4 +1,4 @@
-# CID data
+# CattleClass datasets
 
 CattleClass uses the Cow Images Dataset (CID), which links photos to recorded breed, age and weight. The images were collected in Bangladeshi cattle markets. Keep source photos and per-animal results private. [Upstream dataset and licence](https://github.com/bhuiyanmobasshir94/CID) · [Publication](https://doi.org/10.1145/3542954.3543018)
 
@@ -19,6 +19,14 @@ Indexing retains 2,012 photos across 503 original animal IDs. Perceptual duplica
 
 A YOLOX-tiny detector and ViTPose-S model audited all indexed photos. Across 503 photos per suffix, the audit found 475, 497 and 434 image-left profiles for suffixes 0, 1 and 2, and 496 image-right profiles for suffix 3. These labels describe orientation within the frame. The camera geometry is uncalibrated. Run `python prepare_data.py --cid-samples` to make a private sample grid. [Pose audit](../results/viewpoint_and_detection_audit.json)
 
-## Future field data
+## Specialist datasets
 
-The CID weights and ages are source records of unconfirmed measurement provenance. The field workflow requires photos linked to a documented breed, a birth record and a scale weight, plus held-out test sites. [Field collection protocol](traits.md)
+The default commands reproduce the CID studies. A separate source can supply breed labels for breed research, birth records and photo dates for age development and calibration, or scale readings and photo times for weight development and calibration. Review source provenance, reuse terms, capture conditions and coverage for the intended task. [Trait workflow](traits.md)
+
+To fit a private breed candidate, place a CSV beside its image folder with columns `split,animal_id,path,breed`. Use `development` or `validation` for `split`, paths relative to the CSV, and the supported breed names listed above. Use stable animal IDs across sources and assign all photos of an animal to one split. Review near-duplicate photos before training. The development split needs readable photos for all five supported breeds.
+
+```bash
+python train.py --breed-data private-study/breed.csv
+```
+
+This saves a Keras candidate under `models/breed-research/` in the work directory. The validation split is used for epoch selection. Reserve a shared final test with documented breed, age and scale weight for all three tasks. Keep its animals and sites independent of the data used by any model. [Field collection protocol](traits.md)
