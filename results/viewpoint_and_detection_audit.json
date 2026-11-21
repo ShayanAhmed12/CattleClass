@@ -9,24 +9,7 @@
   },
   "rules": {
     "keypoint_confidence_min": 0.45,
-    "profile_axis_fraction_min": 0.45,
-    "prominent_person_box_fraction_min": 0.15
-  },
-  "external_detection": {
-    "mendeley": {
-      "scanned": 190,
-      "cow_detected": 152,
-      "no_cow_detected": 38,
-      "prominent_person_detected": 1,
-      "no_cow_other_farm_animal_detected": 14
-    },
-    "kaggle": {
-      "scanned": 929,
-      "cow_detected": 810,
-      "no_cow_detected": 119,
-      "prominent_person_detected": 49,
-      "no_cow_other_farm_animal_detected": 28
-    }
+    "profile_axis_fraction_min": 0.45
   },
   "all_indexed_cid_viewpoint": {
     "0": {
@@ -53,5 +36,5 @@
       "low_keypoint_confidence": 1
     }
   },
-  "notes": "Image-facing direction describes the projected profile. Detector flags are review candidates, and the benchmark inputs remain unchanged."
+  "notes": "Image-facing direction describes the projected profile. Detector and pose labels describe approximate image-facing direction."
 }

@@ -38,12 +38,12 @@ The candidate is saved as `models/traits/candidates/cid-weight.keras` under the 
 
 Make a separate private study folder for the planned capture comparison. Collect paired ordinary, side, and side-with-marker photos during the same session. Split by stable animal IDs, and reserve independent sites. Keep operator-confirmed marker placement and quality records. The current field model uses RGB pixels. Calibrated scale geometry, a second photo, and dental input are separate follow-up models if the paired field results warrant them.
 
-Use separate development, calibration, and test CSV files, with one attempt per animal and capture mode. Use stable IDs across sites and studies so repeat animals can be recognized. The required common columns are `animal_id,site_id,session_id,path,capture,quality_ok,photo_date`. Use relative image paths, ISO 8601 dates, and `yes` or `no` for quality. Leave an unavailable photo or label blank so the attempt can remain in the denominator.
+Use separate development, calibration, and test CSV files, with one attempt per animal and capture mode. Use stable IDs across sites and studies so repeat animals can be recognized. The required common columns are `animal_id,site_id,session_id,path,capture,quality_ok,photo_date`. Use relative image paths, ISO 8601 dates, and `yes` or `no` for quality. All partitions must provide breed, weight and age references for the same animals. An attempt with an incomplete reference remains in the denominator. Leave an unavailable photo or label blank so the attempt can remain in the denominator.
 
 - Set `capture` to `ordinary`, `side`, or `side_marker`. Marker captures also need positive `marker_cm` and `marker_px` measurements. Confirm placement and depth in the capture workflow.
-- For weight, add `weight_kg,weight_source,weight_equipment_id,weighed_at`. The source must be `scale`, with timestamps for weighing and photography within two hours.
+- Record the documented breed in `breed`. For live weight, add `weight_kg,weight_source,weight_equipment_id,weighed_at`. The source must be `scale`, with timestamps for weighing and photography within two hours.
 - For chronological age, add `birth_date,birth_source`. The source must be `record`. Define explicit month-range boundaries in the study JSON. The field model only assesses records within those bands.
-- For subgroup gates, include the `sex` and/or `breed` columns and define the required labels in `required_strata`. A required group with insufficient evaluable cases prevents approval.
+- For subgroup gates, include `sex` when relevant and use `breed` and define the required labels in `required_strata`. A required group with insufficient evaluable cases prevents approval.
 
 Create a private `study.json` with `task`, `capture`, `cohort`, `intended_use`, and the relative `development`, `calibration`, and `test` CSV paths. For age, add `age_edges_months`, such as `[0, 18, 30, 48]` for a protocol that covers those ranges. Add the SHA-256 of the reserved test CSV as `test_manifest_sha256`. Register the reserved photos for the selected mode as `test_media_sha256` using the same base directory as the study JSON. The custodian can compute both values before training.
 
@@ -62,7 +62,7 @@ The first command fits and calibrates privately. The second checks the frozen mo
 
 ## Field data still needed
 
-The published dual-view RGB study and PickAMoo study describe author-request access to their underlying data. The Girolando deposit contains supporting figures and tables. The study needs an eligible, accessible cohort with independent sites, linked photos and scale readings or documented birth dates. [Dual-view study data statement](https://pmc.ncbi.nlm.nih.gov/articles/PMC13508864/) · [PickAMoo data statement](https://pmc.ncbi.nlm.nih.gov/articles/PMC13198543/) · [Girolando deposit](https://doi.org/10.6084/m9.figshare.12027582.v1)
+Field validation needs an accessible independent cohort with photographs, documented breeds, scale weights and birth records linked by animal ID.
 
 ## Start the controlled demo
 

@@ -77,24 +77,6 @@ def test_build_cid_index(tmp_path, make_image, monkeypatch):
     ]
 
 
-def test_build_external_index(tmp_path, make_image, monkeypatch):
-    from cattle_breed import data
-
-    monkeypatch.setattr(data, "DATA_DIR", tmp_path)
-    holstein = make_image("raw/mendeley/Cow Breed/Holstain Friesian/nested/0.JPG")
-    make_image("raw/mendeley/Cow Breed/Jersey/0.jpg")
-    sindhi = make_image("raw/kaggle/Red_Sindhi/0.jpg")
-    make_image("raw/kaggle/Local/0.jpg")
-    make_image("raw/kaggle/Red_Sindhi/._0.jpg")
-
-    assert data.build_index("mendeley").to_records(index=False).tolist() == [
-        (str(holstein), "mendeley", str(holstein), "Holstein cross", 0),
-    ]
-    assert data.build_index("kaggle").to_records(index=False).tolist() == [
-        (str(sindhi), "kaggle", str(sindhi), "Sindhi", 4),
-    ]
-
-
 def test_find_duplicates_of_resized_photo(make_image, tmp_path):
     from cattle_breed import data
 
@@ -115,20 +97,6 @@ def test_cid_duplicate_groups_are_transitive():
     clean = data.clean_cid_index(index, [('a1', 'b1'), ('b2', 'c1')])
     assert clean.path.tolist() == ['a1', 'b2', 'c2']
     assert clean.animal.tolist() == ['a', 'a', 'a']
-
-
-def test_external_duplicates_use_all_cid_photos(make_image):
-    import pandas as pd
-    from cattle_breed import data
-
-    cid = make_image('cid.png', noise=True, seed=9)
-    copy = make_image('external/cid-copy.png', noise=True, seed=9)
-    external = make_image('external/first.png', noise=True, seed=25)
-    second = make_image('external/second.png', noise=True, seed=25)
-    other = make_image('external/other.png', noise=True, seed=18)
-    index = pd.DataFrame({'path': list(map(str, [copy, external, second, other]))})
-    clean = data.clean_external_index(index, [str(cid)])
-    assert clean.path.tolist() == list(map(str, [external, other]))
 
 
 def test_folds_and_validation_keep_animals_together():
@@ -168,34 +136,19 @@ def test_cache_round_trip_with_relative_image_paths(tmp_path, make_image, monkey
     from cattle_breed import data
 
     monkeypatch.setattr(data, 'DATA_DIR', tmp_path)
-    photo = make_image('raw/kaggle/Red_Sindhi/0.jpg')
-    index = data.build_index('kaggle')
+    photo = make_image('raw/cid/images/BLF1/0.jpg')
+    (tmp_path / 'raw/cid/dataset.csv').write_text('sku,breed,age_in_year,weight_in_kg\nBLF1,SINDHI,2,350\n')
+    index = data.build_index('cid').assign(fold=0)
     images, labels = data.build_cache(index)
-    data.save_cache('kaggle', index, images, labels)
-    stored = (tmp_path / 'processed/kaggle.csv').read_text()
-    assert 'raw/kaggle/Red_Sindhi/0.jpg' in stored and str(tmp_path) not in stored
-    actual, restored, targets = data.load_cache('kaggle')
+    data.save_cache('cid', index, images, labels)
+    stored = (tmp_path / 'processed/cid.csv').read_text()
+    assert 'raw/cid/images/BLF1/0.jpg' in stored and str(tmp_path) not in stored
+    actual, restored, targets = data.load_cache('cid')
     assert actual.path.tolist() == [str(photo)] and targets.tolist() == [4]
     np.testing.assert_array_equal(images, restored)
-    (tmp_path / 'processed/kaggle.csv').write_text(stored.replace('0.jpg', '1.jpg'))
+    (tmp_path / 'processed/cid.csv').write_text(stored.replace('0.jpg', '1.jpg'))
     with pytest.raises(ValueError, match='does not match'):
-        data.load_cache('kaggle')
-
-
-def test_external_review_manifest_skips_only_named_dataset(tmp_path, make_image, monkeypatch):
-    from cattle_breed import data
-
-    results = tmp_path / 'results'
-    results.mkdir()
-    monkeypatch.setattr(data, 'DATA_DIR', tmp_path)
-    monkeypatch.setattr(data, 'RESULTS_DIR', results)
-    removed = make_image('raw/kaggle/Red_Sindhi/x.jpg')
-    kept = make_image('raw/kaggle/Red_Sindhi/y.jpg')
-    (results / 'removed_images.csv').write_text(
-        f'dataset,path,reason\nkaggle,{removed.relative_to(tmp_path).as_posix()},drawing\n'
-        'mendeley,raw/kaggle/Red_Sindhi/y.jpg,drawing\n'
-    )
-    assert data.build_index('kaggle').path.tolist() == [str(kept)]
+        data.load_cache('cid')
 
 
 def test_corruption_preserves_shape_and_is_seeded():
@@ -222,3 +175,12 @@ def test_load_image_propagates_oversize_as_load_error(make_image, monkeypatch):
     monkeypatch.setattr(Image, 'MAX_IMAGE_PIXELS', 100)
     with pytest.raises(ImageLoadError, match='cannot read image'):
         load_image(path)
+
+
+def test_non_cid_caches_and_raw_indexes_are_rejected():
+    from cattle_breed import data
+
+    with pytest.raises(ValueError, match="uses CID"):
+        data.build_index("breed_only")
+    with pytest.raises(ValueError, match="uses CID"):
+        data.load_cache("breed_only")

@@ -11,7 +11,7 @@ from PIL import Image, ImageFilter, ImageOps
 
 from . import config
 from .config import CACHE_SIZE, CLASSES, CLASS_TO_IDX, CORRUPTIONS, DATA_DIR, DUPLICATE_DISTANCE, N_FOLDS, RESULTS_DIR, SEED, VAL_FRAC, to_canonical
-from .download import EXPECTED, is_image_file
+from .download import CID_SPEC, is_image_file
 
 
 class ImageLoadError(Exception):
@@ -48,39 +48,35 @@ def center_crop_batch(images):
     return images[:, top:top + size, left:left + size]
 
 
-def build_index(dataset: str, *, apply_review=True) -> pd.DataFrame:
-    """Index the supported images in a downloaded dataset in stable path order."""
-    root = (DATA_DIR / EXPECTED[dataset]["root"]).resolve()
-    cid_labels = {}
-    if dataset == "cid":
-        with (root.parent / "dataset.csv").open(encoding="utf-8-sig", newline="") as source:
-            for row in csv.DictReader(source):
-                sku = "".join(row["sku"].split())
-                label = to_canonical(row["breed"], dataset)
-                if sku in cid_labels and label != cid_labels[sku]:
-                    raise ValueError(f"Conflicting CID breed labels for {sku}")
-                cid_labels[sku] = label
+def require_cid(dataset):
+    if dataset != "cid":
+        raise ValueError("CattleClass uses CID, which provides breed, age and weight labels.")
 
-    removed = set()
-    manifest = RESULTS_DIR / "removed_images.csv"
-    if apply_review and dataset != "cid" and manifest.is_file():
-        with manifest.open(encoding="utf-8-sig", newline="") as source:
-            removed = {row["path"] for row in csv.DictReader(source) if row["dataset"] == dataset}
+
+def build_index(dataset: str) -> pd.DataFrame:
+    """Index CID photos by original SKU and canonical breed in stable path order."""
+    require_cid(dataset)
+    root = (DATA_DIR / CID_SPEC["root"]).resolve()
+    labels = {}
+    with (root.parent / "dataset.csv").open(encoding="utf-8-sig", newline="") as source:
+        for row in csv.DictReader(source):
+            sku = "".join(row["sku"].split())
+            label = to_canonical(row["breed"])
+            if sku in labels and label != labels[sku]:
+                raise ValueError(f"Conflicting CID breed labels for {sku}")
+            labels[sku] = label
 
     rows = []
     for folder in sorted(root.iterdir()):
         if not folder.is_dir():
             continue
         animal = "".join(folder.name.split())
-        label = cid_labels.get(animal) if dataset == "cid" else to_canonical(folder.name, dataset)
+        label = labels.get(animal)
         if label is None:
             continue
         for path in sorted(folder.rglob("*")):
-            if (path.is_file() and is_image_file(path)
-                    and path.relative_to(DATA_DIR.resolve()).as_posix() not in removed):
-                filename = str(path)
-                rows.append((filename, dataset, animal if dataset == "cid" else filename,
-                             label, CLASS_TO_IDX[label]))
+            if path.is_file() and is_image_file(path):
+                rows.append((str(path), dataset, animal, label, CLASS_TO_IDX[label]))
     return pd.DataFrame(rows, columns=["path", "dataset", "animal", "label", "label_idx"])
 
 
@@ -158,19 +154,6 @@ def clean_cid_index(index, duplicates):
     return clean.reset_index(drop=True)
 
 
-def clean_external_index(index, cid_paths, *, cid_hashes=None):
-    """Drop external photos that match CID or an earlier photo in this set."""
-    if cid_hashes is None:
-        cid_hashes = hash_images(cid_paths)
-    earlier = list(cid_hashes.values())
-    copies = set()
-    for path, fingerprint in hash_images(index['path']).items():
-        if any((fingerprint ^ value).bit_count() <= DUPLICATE_DISTANCE for value in earlier):
-            copies.add(path)
-        earlier.append(fingerprint)
-    return index.loc[~index['path'].isin(copies)].reset_index(drop=True)
-
-
 def make_folds(cid_index):
     """Assign each CID photo its reproducible animal-grouped test fold."""
     from sklearn.model_selection import StratifiedGroupKFold
@@ -237,12 +220,12 @@ def portable_index(index):
     """Store dataset paths relative to DATA_DIR for use on a different machine."""
     stored = index.copy()
     stored['path'] = stored['path'].map(lambda path: Path(path).relative_to(DATA_DIR.resolve()).as_posix())
-    stored.loc[stored.dataset != 'cid', 'animal'] = stored['path']
     return stored
 
 
 def save_cache(dataset, index, images, labels):
     """Write the processed index and image cache, including the row identities."""
+    require_cid(dataset)
     root = DATA_DIR / 'processed'
     stored = portable_index(index)
     with atomic_output(root / f'{dataset}.npz') as temporary:
@@ -254,6 +237,7 @@ def save_cache(dataset, index, images, labels):
 
 def load_cache(dataset):
     """Load a matching processed index and cache, restoring absolute source paths."""
+    require_cid(dataset)
     root = DATA_DIR / 'processed'
     index = pd.read_csv(root / f'{dataset}.csv', dtype={'path': str, 'animal': str})
     with np.load(root / f'{dataset}.npz', allow_pickle=False) as cache:
@@ -263,7 +247,6 @@ def load_cache(dataset):
                 or not np.array_equal(index['label_idx'], labels) or not np.array_equal(folds, cache['folds'])):
             raise ValueError(f'{dataset} processed index does not match its cache. Rerun prepare_data.py.')
     index['path'] = index['path'].map(lambda path: str(DATA_DIR.resolve() / path))
-    index.loc[index.dataset != 'cid', 'animal'] = index['path']
     return index, images, labels
 
 

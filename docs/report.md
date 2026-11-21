@@ -7,25 +7,19 @@ fontsize: 11pt
 
 ## 1 Introduction
 
-This project asks whether a cattle breed classifier trained on photos from one source can generalize to independently collected photos. Farmers, livestock traders and dairy record keepers may encounter cattle in unfamiliar settings. A photo classifier could supply a candidate breed for inspection. The intended use is decision support alongside an experienced handler or verified records. Breed identity can depend on ancestry, and the model observes only what is visible in a photograph.
+This project measures how well image models predict cattle breed and recorded traits on independently held-out animals from CID. Farmers, livestock traders and dairy record keepers may encounter cattle in unfamiliar settings. A photo classifier could supply a candidate breed for inspection. The intended use is decision support alongside an experienced handler or verified records. Breed identity can depend on ancestry, and the model observes only what is visible in a photograph.
 
-The task is five-class image classification. Each input is one RGB photo and each model output is a probability over Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi. The CID label Local groups indigenous cattle under a common dataset label. The model uses CID for development and tests generalization on photos from Mendeley and Kaggle. The evaluation design also tests controlled changes to lighting, sharpness and visibility.
+The task is five-class image classification. Each input is one RGB photo and each model output is a probability over Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi. The CID label Local groups indigenous cattle under a common dataset label. The study uses CID because it links breed, age and weight to the photographed animals. The breed evaluation tests controlled changes to lighting, sharpness and visibility.
 
-**Status as of 19 November 2026.** The five grouped CID splits, external evaluations on the automatically screened caches, and robustness tests are complete. The final all-CID model and demo recording are stored privately. The results table summarizes aggregate performance, and the error analysis reports controlled perturbations. The original hand-reviewed condition remains unverified.
+**Status as of 21 November 2026.** The grouped breed evaluation, robustness tests and age and weight research benchmarks use CID. The final breed model and demo recording are stored privately. Trait estimates need independent field validation.
 
 ### Related work and contribution
 
-The CID publication and dataset provide images and metadata for Bangladeshi market cattle. EfficientNet-B0 supplies an ImageNet-pretrained visual representation for transfer learning. The contribution here is the evaluation design. It holds out animals within CID, then uses the same final model across two independent external sources. Mendeley changes photographers and collection context within Bangladesh. Kaggle changes both geography and acquisition, using web images of Indian bovine breeds. These are two different external domains, and disagreement can reflect differences in breed composition, annotation or capture conditions as well as geography. [CID publication](https://doi.org/10.1145/3542954.3543018) · [EfficientNet](https://proceedings.mlr.press/v97/tan19a.html)
+The CID publication and dataset provide images and metadata for Bangladeshi market cattle. EfficientNet-B0 supplies an ImageNet-pretrained representation for transfer learning. The evaluation holds out duplicate-linked animal groups and compares breed predictions under clean and corrupted conditions. The same groups support the trait benchmarks. [CID publication](https://doi.org/10.1145/3542954.3543018) · [EfficientNet](https://proceedings.mlr.press/v97/tan19a.html)
 
 \newpage
 
 ## 2 Data sources and label mapping
-
-| Source | Role | Images in matched labels before deduplication | Licence |
-|---|---|---:|---|
-| CID | Development and grouped cross-validation | 2,012 | Apache-2.0 |
-| Mendeley | External evaluation E3 | 190 | CC BY 4.0 |
-| Kaggle v5 | External evaluation E4 | 929 | Declared CC0 |
 
 CID contains 514 four-photo folders and 513 metadata records. The index removes spaces when matching SKUs, excludes the folder without a label and keeps the five classes with enough animals for grouped evaluation. Pabna, Brahma and Mir Kadim are excluded. Local makes up roughly 70% of the retained animals, so an accuracy figure alone can hide poor results on the other classes. The local CID sample grid displays all four indexed views of one example per class. All four photos enter the any-view protocol. Across 503 images per suffix, the pose audit found 475, 497 and 434 image-left profiles for suffixes 0, 1 and 2, and 496 image-right profiles for suffix 3. The labels describe direction within the frame. [Data provenance and checksums](data.md)
 
@@ -38,15 +32,13 @@ CID contains 514 four-photo folders and 513 metadata records. The index removes 
 | Sindhi | 38 | 152 |
 | **Total** | **503** | **2,012** |
 
-Mendeley supplies Holstein Friesian, Local Deshi and Sahiwal after excluding Jersey. Kaggle supplies Holstein Friesian, Red Sindhi and Sahiwal. The protocol maps Holstein Friesian to CID Holstein cross, Local Deshi to Local and Red Sindhi to Sindhi. The mapped labels reflect assumptions needed to compare these datasets. They also constrain the interpretation of test errors. Neither external source provides the same animal-ID grouping as CID, so its scores are per photo.
+CID records indicate 375 animals at 24 months, 123 at 30 months and 5 at 36 months after the breed and image filtering. The weight data run from 150 to 698 kg for the 503 source animal IDs. The benchmark scores one representative image per source animal. Only the 24- and 30-month classes enter the primary age evaluation. [Trait audit](age-and-weight-plan.md)
 
 \newpage
 
 ## 3 Curation, duplicate detection and grouped splits
 
-The original plan specifies hand review. The autonomous run compares broad exclusion prompts using pinned CLIP weights locally on a crop and an aspect-preserving view. Clear agreement across both views is required before excluding a photo. All 190 matched Mendeley and 929 matched Kaggle photos were screened. No image met the threshold. After perceptual hashing and decoding, 173 Mendeley and 908 Kaggle photos remain. The test labels and privacy cues have not been independently verified. [Review criteria](data.md#reviewing-the-external-images-t3)
-
-Every decodable image is compared using a 64-bit perceptual hash computed after EXIF orientation correction. Hamming distance at most four marks a pair as near-duplicate. CID produced 135 matching pairs, all between distinct source SKUs. Because a later photo can match multiple earlier photos, counting each removed photo once gives 119 removals. Linked SKUs are assigned the same group transitively, leaving 1,893 images in 371 groups. External photos are compared against all indexed CID photos and earlier photos in their own source. This prevents obvious cross-dataset copies from inflating performance.
+Every decodable image is compared using a 64-bit perceptual hash computed after EXIF orientation correction. Hamming distance at most four marks a pair as near-duplicate. CID produced 135 matching pairs, all between distinct source SKUs. Because a later photo can match multiple earlier photos, counting each removed photo once gives 119 removals. Linked SKUs are assigned the same group transitively, leaving 1,893 images in 371 groups.
 
 Some linked groups contain multiple source labels. Each retained photo keeps its metadata label. Grouping keeps potentially related images in the same partition despite label differences. Seventeen linked groups contain more than one label. The hash detects similarity in the pixels, and these groups may contain genuinely different animals. The grouped data therefore represent an evaluation safeguard rather than independent verification of animal identity.
 
@@ -75,9 +67,7 @@ B0 always predicts Local. E1 and E2 use exactly the same five held-out CID folds
 
 The headline metrics are macro-F1 and balanced accuracy. Macro-F1 averages the F1 scores of the classes present in the ground truth and gives a rare class the same weight as a common class. Balanced accuracy is the mean recall across the same set of classes. Plain accuracy remains useful to show the fraction of correctly classified photos, especially when presented with these class-balanced metrics.
 
-E3 and E4 evaluate the final all-CID model on the automatically screened Mendeley and Kaggle datasets. Five-way scoring uses the highest probability across all classes. Restricted scoring uses the highest probability among the three class labels in that source. A five-way prediction of an absent class is counted as an error. Restricted evaluation describes performance when the label set is known in advance. Interpret the gap alongside the confusion matrix and class coverage.
-
-E5 tests the same label sets after controlled corruption. Gaussian blur uses radii of two and four pixels. Pixel brightness is multiplied by 0.5 and 0.3. Occlusion adds a seeded gray square covering approximately one-eighth or one-quarter of the cropped input. CID uses each photo's held-out fold model. External tests use the final all-CID model. Comparing each corrupted condition with its clean counterpart controls for the underlying image set.
+E5 tests the CID breed labels after controlled corruption. Gaussian blur uses radii of two and four pixels. Pixel brightness is multiplied by 0.5 and 0.3. Occlusion adds a seeded gray square covering approximately one-eighth or one-quarter of the cropped input. CID uses each photo's held-out fold model. Comparing each corrupted condition with its clean counterpart controls for the underlying image set.
 
 \newpage
 
@@ -89,38 +79,34 @@ E5 tests the same label sets after controlled corruption. Gaussian blur uses rad
 | E1 | CID, 1,893 photos | 0.611 | 0.533 | 0.453 ± 0.053 |
 | E2 | CID, 1,893 photos | 0.656 | 0.580 | 0.500 ± 0.046 |
 | E6 | CID, half training groups | 0.619 | 0.559 | 0.467 ± 0.034 |
-| E3 | Mendeley, 5-way | 0.526 | 0.495 | 0.561 |
-| E3 | Mendeley, restricted | 0.763 | 0.733 | 0.728 |
-| E4 | Kaggle, 5-way | 0.472 | 0.514 | 0.458 |
-| E4 | Kaggle, restricted | 0.530 | 0.587 | 0.482 |
-| E5 | Six conditions per source | See CSV | See CSV | See below |
+| E5 | Six CID corruption conditions | See CSV | See CSV | See below |
 
-For CID, blur-2 had the lowest five-way macro-F1 (0.189, compared with 0.500 on clean photos). For Mendeley, blur-2 had the lowest five-way macro-F1 (0.428, compared with 0.561 on clean photos). For Kaggle, occlude-2 had the lowest five-way macro-F1 (0.351, compared with 0.458 on clean photos).
+Strong blur had the lowest CID macro-F1, at 0.189 compared with 0.500 on clean photos.
 
 The B0 accuracy closely follows the fraction of Local photos in the folds. Its balanced accuracy is exactly one fifth because Local is the only class it recalls and all five classes occur in every fold. Its macro-F1 is lower than 0.20 because every non-Local photo is a false positive for Local and the other classes have zero F1. The small variation across folds is consistent with the grouped stratification. These results establish a reference before judging the CNN.
 
 The five-fold results followed the expected macro-F1 ordering: E2 exceeded E1, and both exceeded B0. For the optional E6 run, each fold trained on a stratified sample of half its training animal groups, with the same validation and test splits. E6 macro-F1 was 0.033 lower relative to E2. Both were evaluated on all 1,893 held-out CID photos across the five folds.
 
-The metrics table records both external scoring modes and both strengths of each corruption. The plots show clean confusion matrices and five-way robustness scores. [Recorded metrics](../results/metrics.csv) · [Published plots](https://github.com/ShayanAhmed12/CattleClass/tree/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/results/figures)
+The CID weight benchmark reached 22.72 kg mean absolute error against 39.33 kg for the predicted-breed median. The age benchmark reached 53.3% balanced accuracy and missed its 55% research gate. The weight background-control result motivates independent field testing. [Breed metrics](../results/metrics.csv) · [Trait results](../results/traits_evaluation.json)
 
 \newpage
 
 ## 7 Error analysis, limitations and ethics
 
-The evaluation command selects up to three correct and three incorrect predictions per external source by confidence. It stores the gallery, annotations and Grad-CAM overlays in a local folder. Grad-CAM uses the gradient of the predicted-class logit with respect to the last spatial features. It can help identify whether strongly weighted regions coincide with the animal, its coat or the background. Interpret the overlays with the predictions and image context. On Mendeley, the lowest restricted per-class F1 was 0.568 for Local. On Kaggle, the lowest restricted per-class F1 was 0.226 for Sahiwal. Controlled local probes on the selected errors found 6 unresolved. An image can exhibit more than one sensitivity. Generated error examples and attribution maps are kept privately. Visual causes remain unconfirmed. [Grad-CAM](https://arxiv.org/abs/1610.02391)
+The evaluation command selects up to three correct and three incorrect held-out predictions by confidence. Each Grad-CAM overlay comes from the fold model that predicted the corresponding photo. These overlays can help identify whether influential regions coincide with the animal, coat or background. Interpret them with the predictions and image context. Galleries and annotations stay private. [Grad-CAM](https://arxiv.org/abs/1610.02391)
 
 Potential error explanations include similar pigmentation between Sindhi and Sahiwal, unusual poses, partial visibility, calves versus mature animals and background effects. These are hypotheses until individual predictions are reviewed. High-confidence mistakes deserve particular attention because the interface displays the largest probabilities to users.
 
-CID is a market dataset dominated by Local cattle and containing many young bulls. Some breeds are represented by few groups. The external label mapping joins labels that are related but may have different definitions. The web dataset may have noisy labels and unclear underlying photo rights despite the dataset's declared licence. External photos lack reliable animal IDs, and a perceptual hash cannot establish that visibly different photos depict different animals. The reported results apply to these collections and evaluation assumptions.
+CID is a cattle-market dataset dominated by Local cattle and young bulls. Some breeds have few groups. Its weight and age labels come from source records of unconfirmed measurement provenance. A background-only weight control performed well on a small subset, so the weight results require validation on new sites. Future data collection requires all three reference labels linked to photographs of the same animal. [Field protocol](traits.md)
 
-The dataset and model files remain outside the repository. Private review excludes images with prominent identifying details. Photo-containing analysis figures stay local and reports or presentations can include examples only after the team checks their provenance and suitability. Kaggle's web photos are used for testing. The demo illustrates candidate breeds to support human judgement and is unsuitable as a standalone basis for decisions about ancestry, purchase or breeding.
+Raw photo files, trained models and photo-containing galleries stay private. The demo provides candidate breeds for a human to check.
 
 \newpage
 
 ## 8 Reproducibility, contributions and AI use
 
-The initial cloud run used Python 3.12, TensorFlow 2.21.0 and Keras 3.15.1 on CPU. A fresh cloud checkout rebuilt the CID folds and independently reproduced all 38 published metric rows byte for byte. Trained checkpoints and the demo recording remain private. [Run instructions](../README.md#run-the-study) · [Data provenance](data.md) · [Reproduction comparison](../results/reproduction.json)
+The initial cloud run used Python 3.12, TensorFlow 2.21.0 and Keras 3.15.1 on CPU. The grouped folds, breed metrics and trait scores are available with run instructions. [Run instructions](../README.md#run-the-study) · [CID provenance](data.md) · [Grouped folds](../results/cid_folds.csv)
 
-Shayan Ahmed owns the project tasks. The live individual defence and the original hand review of the external photos remain open. [Progress tracker](PROGRESS.md) · [Defence questions](defense_questions.md)
+Shayan Ahmed owns the project tasks. The live individual defence remains open. [Progress tracker](PROGRESS.md) · [Defence questions](defense_questions.md)
 
-OpenAI Codex assisted with implementation, debugging, automated tests and documentation. Synthetic tests, local dataset checks and the independent reproduction run validate the current work. The disclosure also covers local automated photo screening. The original hand-reviewed condition remains unverified, and the individual defence is a course assessment.
+OpenAI Codex assisted with implementation, debugging, automated tests and documentation. Synthetic tests and real CID runs verify the current workflow.

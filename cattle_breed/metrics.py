@@ -48,21 +48,6 @@ def average_fold_scores(folds):
             'macro_f1_std': float(np.std([fold['macro_f1'] for fold in folds]))}
 
 
-def restrict(probs, classes):
-    """Return canonical indices of the highest-scoring allowed breeds."""
-    probs = np.asarray(probs)
-    if probs.ndim != 2:
-        raise ValueError("Expected a probability matrix with one column per class.")
-
-    allowed = np.asarray([
-        config.CLASS_TO_IDX.get(breed, -1) if isinstance(breed, str) else breed for breed in classes
-    ])
-    if not allowed.size or not np.isin(allowed, np.arange(probs.shape[1])).all():
-        raise ValueError("Allowed classes must identify at least one probability column.")
-    allowed = allowed.astype(int)
-    return allowed[probs[:, allowed].argmax(axis=1)]
-
-
 def save_result(experiment, dataset, scoring, scores, *, path=None):
     """Record one summary row, replacing the same experiment's row on rerun."""
     path = config.RESULTS_DIR / "metrics.csv" if path is None else Path(path)

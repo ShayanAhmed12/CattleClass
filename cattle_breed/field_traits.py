@@ -141,11 +141,10 @@ def _partition(path, spec, split):
     base = path.parent
     csv_path = _inside(base, spec[split])
     frame = pd.read_csv(csv_path, dtype=str).fillna("")
-    needed = {"animal_id", "site_id", "session_id", "path", "capture", "quality_ok", "photo_date"}
-    if spec["task"] == "weight":
-        needed |= {"weight_kg", "weight_source", "weight_equipment_id", "weighed_at"}
-    else:
-        needed |= {"birth_date", "birth_source"}
+    needed = {
+        "animal_id", "site_id", "session_id", "path", "capture", "quality_ok", "photo_date", "breed",
+        "weight_kg", "weight_source", "weight_equipment_id", "weighed_at", "birth_date", "birth_source",
+    }
     if not needed <= set(frame):
         raise ValueError(f"{split} is missing fields: {', '.join(sorted(needed - set(frame)))}")
     frame = frame[frame.capture == spec["capture"]].reset_index(drop=True).copy()
@@ -162,17 +161,20 @@ def _partition(path, spec, split):
             raise ValueError("Calibrated capture requires marker_cm and marker_px measurements.")
         frame["eligible"] &= traits._positive(frame.marker_cm).notna() & traits._positive(frame.marker_px).notna()
     captured = pd.to_datetime(frame.photo_date, utc=True, errors="coerce", format="ISO8601")
+    weighed = pd.to_datetime(frame.weighed_at, utc=True, errors="coerce", format="ISO8601")
+    weight_verified = (frame.weight_source.eq("scale") & frame.weight_equipment_id.ne("")
+                       & (captured - weighed).abs().le(pd.Timedelta(hours=2)))
+    weight = traits._positive(frame.weight_kg).where(weight_verified)
+    birth = pd.to_datetime(frame.birth_date, utc=True, errors="coerce", format="ISO8601")
+    age = (captured - birth).dt.total_seconds() / (86400 * 30.4375)
+    age = age.where(frame.birth_source.eq("record") & age.ge(0))
+    complete_reference = frame.breed.str.strip().ne("") & weight.notna() & age.notna()
+    if not complete_reference.any():
+        raise ValueError(f"{split} needs photos with linked breed, age and weight references.")
     if spec["task"] == "weight":
-        weighed = pd.to_datetime(frame.weighed_at, utc=True, errors="coerce", format="ISO8601")
-        verified = (frame.weight_source.eq("scale") & frame.weight_equipment_id.ne("")
-                    & (captured - weighed).abs().le(pd.Timedelta(hours=2)))
-        frame["target"] = traits._positive(frame.weight_kg).where(verified)
+        frame["target"] = weight.where(complete_reference)
     else:
-        birth = pd.to_datetime(frame.birth_date, utc=True, errors="coerce", format="ISO8601")
-        age = (captured - birth).dt.total_seconds() / (86400 * 30.4375)
-        edges = spec["age_edges_months"]
-        bands = pd.cut(age, edges, right=False, labels=False)
-        frame["target"] = bands.where(frame.birth_source.eq("record"))
+        frame["target"] = pd.cut(age, spec["age_edges_months"], right=False, labels=False).where(complete_reference)
     return frame
 
 

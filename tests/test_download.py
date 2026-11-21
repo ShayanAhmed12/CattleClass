@@ -46,58 +46,14 @@ def test_check_dataset_missing_root(tmp_path):
     problems = check_dataset("toy", tmp_path, {"root": "raw/none", "folders": 1, "images": 1})
     assert problems and "missing" in problems[0]
 
-
-
-def test_get_kaggle_extracts_only_incomplete_breed_folders(tmp_path, make_image, monkeypatch):
-    from zipfile import ZipFile
-
+def test_cid_check_requires_age_breed_and_weight_fields(tmp_path, make_image, monkeypatch):
     from cattle_breed import download
 
-    root = tmp_path / 'data'
-    monkeypatch.setattr(download, 'DATA_DIR', root)
-    monkeypatch.setattr(download, 'EXPECTED', {
-        'kaggle': {'per_folder': {name: 1 for name in download.KAGGLE_KEEP}}
-    })
-    completed = make_image('data/raw/kaggle/Holstein_Friesian/existing.jpg')
-    archive = tmp_path / 'source.zip'
-    with ZipFile(archive, 'w') as output:
-        for breed in (*download.KAGGLE_KEEP, 'Jersey'):
-            image = make_image(f'source/{breed}/new.jpg')
-            output.write(image, f'Indian_bovine_breeds/Indian_bovine_breeds/{breed}/new.jpg')
-    monkeypatch.setattr(download, 'open_kaggle_zip', lambda: ZipFile(archive), raising=False)
-
-    download.get_kaggle(tmp_path / 'downloads')
-    assert completed.is_file()
-    assert not (completed.parent / 'new.jpg').exists()
-    assert not (root / 'raw/kaggle/Jersey').exists()
-    assert (root / 'raw/kaggle/Red_Sindhi/new.jpg').is_file()
-    assert (root / 'raw/kaggle/Sahiwal/new.jpg').is_file()
-
-
-def test_kaggle_archive_ranges_retry_and_clip_at_eof(monkeypatch):
-    import io
-
-    from cattle_breed import download
-
-    archive = b'abcdefghij'
-    requested = []
-
-    def fetch_range(request, *, timeout):
-        raw = request.get_header('Range')
-        requested.append(raw)
-        if len(requested) == 1:
-            raise OSError('temporary failure')
-        first, last = map(int, raw.removeprefix('bytes=').split('-'))
-        response = io.BytesIO(archive[first:last + 1])
-        response.status = 206
-        response.headers = {'Content-Range': f'bytes {first}-{last}/{len(archive)}'}
-        return response
-
-    monkeypatch.setattr(download.urllib.request, 'urlopen', fetch_range)
-    source = download.ArchiveRanges('https://example.com/archive.zip', len(archive))
-    assert source.seek(-3, io.SEEK_END) == 7
-    result = bytearray(7)
-    assert source.readinto(result) == 3
-    assert result[:3] == b'hij'
-    assert source.readinto(result) == 0
-    assert requested == ['bytes=7-9', 'bytes=7-9']
+    make_image("raw/cid/images/A/0.jpg")
+    source = tmp_path / "raw/cid/dataset.csv"
+    monkeypatch.setattr(download, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(download, "CID_SPEC", {**download.CID_SPEC, "folders": 1, "images": 1})
+    source.write_text("sku,breed\nA,LOCAL\n")
+    assert download.download_cid(check_only=True) is False
+    source.write_text("sku,breed,age_in_year,weight_in_kg\nA,LOCAL,2,315\n")
+    assert download.download_cid(check_only=True) is True

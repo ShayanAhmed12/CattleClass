@@ -24,42 +24,24 @@ SEED = 42
 CLASSES = ("Holstein cross", "Local", "Red Chittagong", "Sahiwal", "Sindhi")
 CLASS_TO_IDX = {name: i for i, name in enumerate(CLASSES)}
 
-# Raw label in each dataset -> our class. Labels not listed (Pabna, Brahma, Mir Kadim, Jersey, ...)
-# are dropped. Keys are normalised with normalise_label().
+# The CID CSV spells Holstein cross as HOSTINE_CROSS.
 LABEL_MAP = {
-    # CID, "breed" column of dataset.csv (HOSTINE_CROSS is misspelt in the source)
     "hostinecross": "Holstein cross",
     "local": "Local",
     "redchittagong": "Red Chittagong",
     "sahiwal": "Sahiwal",
     "sindhi": "Sindhi",
-    # Mendeley folders (the ZIP spells it "Holstain Friesian")
-    "holsteinfriesian": "Holstein cross",
-    "holstainfriesian": "Holstein cross",
-    "localdeshi": "Local",
-    # Kaggle folders (Holstein_Friesian and Sahiwal are covered above)
-    "redsindhi": "Sindhi",
-}
-
-# Classes each test set can contain. Used for "restricted" scoring of the external sets.
-DATASET_CLASSES = {
-    "cid": CLASSES,
-    "mendeley": ("Holstein cross", "Local", "Sahiwal"),
-    "kaggle": ("Holstein cross", "Sahiwal", "Sindhi"),
 }
 
 
 def normalise_label(raw):
-    """Lower-case letters only: 'HOSTINE_CROSS' -> 'hostinecross', 'Local Deshi' -> 'localdeshi'."""
+    """Collapse the CID source spelling to lowercase letters."""
     return re.sub(r"[^a-z]", "", str(raw).lower())
 
 
-def to_canonical(raw, dataset=None):
-    """Our class name for a raw label, or None if the label is not used (or not in that dataset)."""
-    name = LABEL_MAP.get(normalise_label(raw))
-    if name is not None and dataset is not None and name not in DATASET_CLASSES[dataset]:
-        return None
-    return name
+def to_canonical(raw):
+    """Return the supported CID breed name, or None."""
+    return LABEL_MAP.get(normalise_label(raw))
 
 
 # --------------------------------------------------------------------------- images
