@@ -103,6 +103,20 @@ Field validation needs photographs and documented breeds, scale weights, and bir
 
 The public releases reviewed for the follow-up do not close all of those gaps. The rotary-parlor release has dated RGB and depth frames. Its workbook contains animal IDs, dates, paths and body-condition scores, with no individual breed, birth date or scale weight fields. The Horqin release provides paired images and body measurements, with no documented age labels. The Simmental and Sanhe study describes synchronized RGB and platform-scale data, and its authors say the dataset is pending public release. [Rotary-parlor workbook and dataset](https://zenodo.org/records/20290988) · [Horqin dataset](https://data.mendeley.com/datasets/h2s22wr5py/2) · [Simmental and Sanhe study](https://doi.org/10.3390/ani16162532)
 
+### Additional public dataset screening
+
+The repository and catalog search checked the original downloads, label schemas, or authors’ access statements for the strongest leads. None supplied dated photos, verified ages, documented breeds, and same-session scale weights linked to individual animals.
+
+| Candidate | What the published material establishes |
+|---|---|
+| Hanwoo commercial farms | The CC BY package contains reference weights and derived features for 310 sessions across three farms. Its ZIP contains tables and code. The raw RGB-D images are absent. [Zenodo release](https://zenodo.org/records/23943523) |
+| Acme AI Bangladesh smartphone dataset | The publisher documents girth-based weight estimates and says breed and age are outside the dataset’s scope. [Kaggle release and collection brief](https://www.kaggle.com/dsv/8858637) |
+| Ganader.IA CowDB | The published schema includes image, cow ID, breed, weight, source, sex and view. It provides no birth or capture date fields. [Hugging Face dataset card](https://huggingface.co/datasets/ganader-ia-developers/cowdb) |
+| Hereford CowDB and CowDatabase | Both workbooks contain recorded live weight and body measurements. The workbook for the 103-animal release also has camera timestamps. Neither workbook supplies age or birth date. [154-animal workbook](https://github.com/ruchaya/CowDB/blob/master/Manual_measurements.xlsx) · [103-animal workbook](https://github.com/ruchaya/CowDatabase/blob/master/Measurements.xlsx) |
+| Calf Play Behavior | The released calf metadata links identities and sessions across two Dutch farms, with no age or scale-weight fields. [Published calf metadata](https://huggingface.co/datasets/Sonam5/Calf-Play-Behavior-Dataset/blob/main/metadata/calves.csv) |
+| AI-Hub cattle reproductive behavior | The catalog lists Hanwoo and dairy cattle, 3D body images and birth dates. It lists no same-session scale weights and limits data applications to South Korean nationals. [Official catalog](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=71471) |
+| PickAMoo | The paper describes smartphone images, Swedish Red and Swedish Holstein cattle, age, and automated scale readings. Its data availability statement says the dataset is available on request and public release is temporarily restricted. [Study and data availability](https://pmc.ncbi.nlm.nih.gov/articles/PMC13198543/) |
+
 Start the eventual pilot with one photo per capture mode and one scale reading for the same animal and session. Keep a row for each planned attempt, including failed captures. Compare modes on the same animals and report how many attempts each mode loses. Reserve new sites for the final evaluation after selecting the capture mode. [Field data plan](age-and-weight-plan.md#5-field-data-plan)
 
 ## Start the controlled demo
