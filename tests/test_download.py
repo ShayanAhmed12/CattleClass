@@ -45,3 +45,15 @@ def test_check_dataset_folder_totals(tmp_path, make_image):
 def test_check_dataset_missing_root(tmp_path):
     problems = check_dataset("toy", tmp_path, {"root": "raw/none", "folders": 1, "images": 1})
     assert problems and "missing" in problems[0]
+
+def test_cid_check_requires_age_breed_and_weight_fields(tmp_path, make_image, monkeypatch):
+    from cattle_breed import download
+
+    make_image("raw/cid/images/A/0.jpg")
+    source = tmp_path / "raw/cid/dataset.csv"
+    monkeypatch.setattr(download, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(download, "CID_SPEC", {**download.CID_SPEC, "folders": 1, "images": 1})
+    source.write_text("sku,breed\nA,LOCAL\n")
+    assert download.download_cid(check_only=True) is False
+    source.write_text("sku,breed,age_in_year,weight_in_kg\nA,LOCAL,2,315\n")
+    assert download.download_cid(check_only=True) is True

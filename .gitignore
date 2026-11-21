@@ -1,7 +1,6 @@
 # Datasets, caches and trained models: never commit them (images may not be redistributed).
 data/
-models/*
-!models/.gitkeep
+/models/
 *.npz
 *.keras
 *.h5
@@ -14,7 +13,6 @@ __pycache__/
 *.egg-info/
 .venv/
 .pytest_cache/
-.ipynb_checkpoints/
 
 # OS junk (the CID archive contains macOS ._ files)
 .DS_Store
@@ -25,3 +23,6 @@ Thumbs.db
 # Secrets
 kaggle.json
 .env
+
+# Generated plots and private photo galleries
+/results/figures/
