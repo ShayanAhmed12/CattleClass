@@ -8,6 +8,11 @@ import numpy as np
 
 from cattle_breed import config, data, load_classifier
 
+BREED_SCOPE = (
+    f"Supported breeds are {', '.join(config.CLASSES)}. "
+    "Cattle outside these breeds can receive high scores."
+)
+
 
 @lru_cache(maxsize=1)
 def _load_model(path: Path):
@@ -71,8 +76,9 @@ def create_field_demo(cohort, capture) -> gr.Interface:
             gr.Image(label="Cattle photo", sources=["upload"], type="filepath", image_mode=None),
             gr.Checkbox(label=f"Operator confirmed the enrolled animal and {capture} capture protocol"),
         ],
-        outputs=[gr.Label(label="Breed probabilities"), gr.Textbox(label="Age"), gr.Textbox(label="Weight")],
+        outputs=[gr.Label(label="Supported breed scores"), gr.Textbox(label="Age"), gr.Textbox(label="Weight")],
         title="CattleClass field assessment",
+        description=BREED_SCOPE,
     )
 
 
@@ -80,8 +86,9 @@ def create_demo() -> gr.Interface:
     return gr.Interface(
         fn=predict,
         inputs=gr.Image(label="Cattle photo", sources=["upload"], type="filepath", image_mode=None),
-        outputs=gr.Label(label="Breed probabilities"),
+        outputs=gr.Label(label="Supported breed scores"),
         title="Cattle Breed Classifier",
+        description=BREED_SCOPE,
     )
 
 

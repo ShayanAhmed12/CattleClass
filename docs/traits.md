@@ -48,6 +48,29 @@ Run `python evaluate_public_weight.py` after fitting the CID candidate above. Th
 
 All predictions underestimated the reported weights, which ranged from 556 to 746 kg. Left-view error was 14.70 kg lower than right-view error on the same animals (paired bootstrap 95% interval of 5.98–23.47 kg). The error rules out using this candidate for this cohort. CowDatabase2 has no ordinary phone-photo or side-with-marker comparison. The study reports a cohort age of 16.5 months, and without photo dates individual ages at capture cannot be calculated. Aberdeen Angus also falls outside the five CID breed classes. The check qualifies neither trait for the demo.
 
+## Capture and breed follow-up
+
+For each weight comparison, the two models used the same CID animals, frozen TensorFlow/Keras EfficientNet features, and the same Ridge setting. YOLOX-tiny supplied boxes with a detection threshold of 0.70. The analysis excluded photos without exactly one detected cow and scores the same cases for both methods. The CowDatabase2 checks used research models refitted to one CID photo per eligible animal, then reused the public side views as an exploratory comparison. [Follow-up results](../results/capture_diagnostics.json)
+
+| Cohort | Usable photos | Full-frame MAE | Animal-crop MAE |
+|---|---:|---:|---:|
+| CID held-out folds | 478 of 503 | 22.20 kg | 25.76 kg |
+| CowDatabase2 left | 95 of 95 | 288.25 kg | 280.97 kg |
+| CowDatabase2 right | 94 of 95 | 389.98 kg | 313.47 kg |
+
+Cropping made the CID error 3.55 kg worse (paired group-bootstrap 95% interval of 1.72–5.54 kg). It reduced error on both external views, but every external estimate still missed the reported weight by more than 10%. The external comparison uses single-photo training and has different absolute errors from the all-photo CID candidate above. These findings leave cropping, phone-vs-side comparison and marker calibration open for a verified paired field study.
+
+The CID age inventory had 375 animals at 24 months, 123 at 30 months and five at 36 months. This provides little support for wider age bands. A separate age cohort needs dated photos and verified birth records spanning the intended bands. [CID age counts](../results/capture_diagnostics.json)
+
+The breed rejection experiment compared each photo with reference images in the frozen feature space and calibrated the distance threshold on separate CID folds. It retained 90.7% of known CID animals and rejected all 95 Angus left views. When each CID breed was withheld from the reference and calibration sets in turn, rejection ranged from 0% to 53.1%, below the preset 80% target in all five cases. The demo identifies its five supported breeds and explains that other breeds can still receive high scores. Evaluating a reliable **Unknown breed** output needs more unsupported breeds photographed under comparable conditions. [Breed rejection results](../results/capture_diagnostics.json)
+
+To rerun the follow-up, complete CID preparation and the five fold runs described above. Install the optional detector in the same environment, download the published YOLOX-tiny ONNX file, and pass its path to the script. This is separate from the normal training and demo setup. [YOLOX-tiny weights](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.onnx)
+
+```bash
+python -m pip install rtmlib==0.0.16
+python evaluate_capture.py /path/to/yolox_tiny.onnx
+```
+
 ## Collect and lock a field study
 
 Make a separate private study folder for the planned capture comparison. Collect paired ordinary, side, and side-with-marker photos during the same session. Split by stable animal IDs, and reserve independent sites. Keep operator-confirmed marker placement and quality records. The current field model uses RGB pixels. Calibrated scale geometry, a second photo, and dental input are separate follow-up models if the paired field results warrant them.
@@ -77,6 +100,10 @@ The first command fits and calibrates privately. The second checks the frozen mo
 ## Field data still needed
 
 Field validation needs photographs and documented breeds, scale weights, and birth records linked by animal ID across independent sites. Record photo dates and weighing times so each reference can be checked against the capture.
+
+The public releases reviewed for the follow-up do not close all of those gaps. The rotary-parlor release has dated RGB and depth frames. Its workbook contains animal IDs, dates, paths and body-condition scores, with no individual breed, birth date or scale weight fields. The Horqin release provides paired images and body measurements, with no documented age labels. The Simmental and Sanhe study describes synchronized RGB and platform-scale data, and its authors say the dataset is pending public release. [Rotary-parlor workbook and dataset](https://zenodo.org/records/20290988) · [Horqin dataset](https://data.mendeley.com/datasets/h2s22wr5py/2) · [Simmental and Sanhe study](https://doi.org/10.3390/ani16162532)
+
+Start the eventual pilot with one photo per capture mode and one scale reading for the same animal and session. Keep a row for each planned attempt, including failed captures. Compare modes on the same animals and report how many attempts each mode loses. Reserve new sites for the final evaluation after selecting the capture mode. [Field data plan](age-and-weight-plan.md#5-field-data-plan)
 
 ## Start the controlled demo
 

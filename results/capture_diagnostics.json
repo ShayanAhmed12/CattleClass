@@ -1,0 +1,159 @@
+{
+  "cid_study_id": "72620ecc182a1f0ec934d3bf09954df4e0a35c5a432ceb7ca5ddc848cb74fd47",
+  "yolox_sha256": "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7",
+  "ridge_alpha": 10,
+  "cid_age_labels": [
+    {
+      "recorded_months": 24.0,
+      "animals": 375,
+      "duplicate_linked_groups": 289
+    },
+    {
+      "recorded_months": 30.0,
+      "animals": 123,
+      "duplicate_linked_groups": 102
+    },
+    {
+      "recorded_months": 36.0,
+      "animals": 5,
+      "duplicate_linked_groups": 5
+    }
+  ],
+  "cid_animals_without_age": 0,
+  "cid_crop": {
+    "attempted": 503,
+    "retained": 478,
+    "full_frame": {
+      "n": 478,
+      "mae_kg": 22.204325017569953,
+      "rmse_kg": 33.932327909390956,
+      "median_error_kg": 15.690216064453125,
+      "bias_kg": -2.3197854014121337,
+      "within_10_percent": 0.6715481171548117
+    },
+    "animal_crop": {
+      "n": 478,
+      "mae_kg": 25.756654332372435,
+      "rmse_kg": 38.60961571519644,
+      "median_error_kg": 18.229408264160156,
+      "bias_kg": -2.5203546819327767,
+      "within_10_percent": 0.6276150627615062
+    },
+    "training_median": {
+      "n": 478,
+      "mae_kg": 44.03138075313807,
+      "rmse_kg": 70.17509482041612,
+      "median_error_kg": 28.75,
+      "bias_kg": -15.468619246861925,
+      "within_10_percent": 0.4372384937238494
+    },
+    "mae_improvement_crop_vs_full_kg_95_ci": {
+      "lower": -5.542331751416214,
+      "upper": -1.7174268720475654,
+      "estimate": -3.552329314802481
+    }
+  },
+  "cowdatabase2": {
+    "revision": "3359f0a5a5e69d8416c2e939500b17d02da0ad81",
+    "field_approved": false,
+    "left": {
+      "attempted": 95,
+      "retained": 95,
+      "full_frame": {
+        "n": 95,
+        "mae_kg": 288.2489291542455,
+        "rmse_kg": 292.4494473278695,
+        "median_error_kg": 284.53375244140625,
+        "bias_kg": -288.2489291542455,
+        "within_10_percent": 0.0
+      },
+      "animal_crop": {
+        "n": 95,
+        "mae_kg": 280.9709276701275,
+        "rmse_kg": 284.036957108149,
+        "median_error_kg": 282.677978515625,
+        "bias_kg": -280.9709276701275,
+        "within_10_percent": 0.0
+      },
+      "training_median": {
+        "n": 95,
+        "mae_kg": 375.82105263157894,
+        "rmse_kg": 377.2586017993214,
+        "median_error_kg": 371.0,
+        "bias_kg": -375.82105263157894,
+        "within_10_percent": 0.0
+      },
+      "mae_improvement_crop_vs_full_kg_95_ci": {
+        "lower": 0.2062286979273746,
+        "upper": 14.750953875089946,
+        "estimate": 7.27800148411801
+      }
+    },
+    "right": {
+      "attempted": 95,
+      "retained": 94,
+      "full_frame": {
+        "n": 94,
+        "mae_kg": 389.9774184531354,
+        "rmse_kg": 391.6836020966622,
+        "median_error_kg": 384.89107513427734,
+        "bias_kg": -389.9774184531354,
+        "within_10_percent": 0.0
+      },
+      "animal_crop": {
+        "n": 94,
+        "mae_kg": 313.4665696164395,
+        "rmse_kg": 316.0295872124172,
+        "median_error_kg": 313.1641082763672,
+        "bias_kg": -313.4665696164395,
+        "within_10_percent": 0.0
+      },
+      "training_median": {
+        "n": 94,
+        "mae_kg": 376.1808510638298,
+        "rmse_kg": 377.61599598736797,
+        "median_error_kg": 371.0,
+        "bias_kg": -376.1808510638298,
+        "within_10_percent": 0.0
+      },
+      "mae_improvement_crop_vs_full_kg_95_ci": {
+        "lower": 70.7549646905128,
+        "upper": 82.11887783699846,
+        "estimate": 76.5108488366959
+      }
+    }
+  },
+  "breed_abstention": {
+    "known_n": 503,
+    "known_acceptance": 0.9065606361829026,
+    "unknown": {
+      "Holstein cross": {
+        "n": 32,
+        "rejection_rate": 0.53125
+      },
+      "Local": {
+        "n": 353,
+        "rejection_rate": 0.254957507082153
+      },
+      "Red Chittagong": {
+        "n": 21,
+        "rejection_rate": 0.0
+      },
+      "Sahiwal": {
+        "n": 59,
+        "rejection_rate": 0.03389830508474576
+      },
+      "Sindhi": {
+        "n": 38,
+        "rejection_rate": 0.05263157894736842
+      },
+      "Aberdeen Angus": {
+        "n": 95,
+        "rejection_rate": 1.0
+      }
+    },
+    "known_target": 0.9,
+    "unknown_target_per_breed": 0.8,
+    "research_gate_passed": false
+  }
+}
