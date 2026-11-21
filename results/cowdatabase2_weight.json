@@ -1,0 +1,74 @@
+{
+  "source": "https://github.com/ruchaya/CowDatabase2/tree/3359f0a5a5e69d8416c2e939500b17d02da0ad81",
+  "paper": "https://doi.org/10.3390/ani12162128",
+  "model": {
+    "task": "weight",
+    "stage": "research",
+    "field_approved": false,
+    "study_id": "72620ecc182a1f0ec934d3bf09954df4e0a35c5a432ceb7ca5ddc848cb74fd47",
+    "ridge_alpha": 10.0,
+    "output": "log_kg",
+    "preprocessing": "cattleclass-center-v1",
+    "model_sha256": "545e0e42ed2f5e463e8bacd45fac0f4ca33329a7a69333f2a75af0d7f35060e7"
+  },
+  "breed": "Aberdeen Angus",
+  "sites": 1,
+  "workbook_animals": 96,
+  "unmatched_animals": 1,
+  "paired_animals": 95,
+  "primary_view": "left",
+  "weight_range_kg": [
+    556.0,
+    746.0
+  ],
+  "cid_median_kg": 239.0,
+  "cid_median": {
+    "n": 95,
+    "mae_kg": 375.82105263157894,
+    "rmse_kg": 377.2586017993214,
+    "median_error_kg": 371.0,
+    "bias_kg": -375.82105263157894,
+    "within_10_percent": 0.0
+  },
+  "left": {
+    "n": 95,
+    "mae_kg": 222.40797954358553,
+    "rmse_kg": 227.4539724114495,
+    "median_error_kg": 222.7734375,
+    "bias_kg": -222.40797954358553,
+    "within_10_percent": 0.0,
+    "prediction_range_kg": [
+      308.0510559082031,
+      494.3645935058594
+    ],
+    "mae_improvement_over_cid_median_kg_95_ci": {
+      "lower": 146.04612785740903,
+      "upper": 160.88245998181796,
+      "estimate": 153.4130730879934
+    }
+  },
+  "right": {
+    "n": 95,
+    "mae_kg": 237.10674052991365,
+    "rmse_kg": 240.9142226689238,
+    "median_error_kg": 243.81124877929688,
+    "bias_kg": -237.10674052991365,
+    "within_10_percent": 0.0,
+    "prediction_range_kg": [
+      313.57373046875,
+      474.3465576171875
+    ],
+    "mae_improvement_over_cid_median_kg_95_ci": {
+      "lower": 132.1529788609555,
+      "upper": 145.31930562069542,
+      "estimate": 138.71431210166529
+    }
+  },
+  "mae_improvement_right_over_left_kg_95_ci": {
+    "lower": -23.46667569612202,
+    "upper": -5.984349774812397,
+    "estimate": -14.698760986328125
+  },
+  "age_evaluated": false,
+  "field_approved": false
+}

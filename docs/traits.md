@@ -34,6 +34,20 @@ python train.py --traits --final
 
 The candidate is saved as `models/traits/candidates/cid-weight.keras` under the work directory. Its metadata excludes it from the field demo.
 
+## Independent weight check on CowDatabase2
+
+The public CowDatabase2 workbook contains 96 Aberdeen Angus records from one feedlot. Each has a birth date and reported live weight. The breed is documented for the cohort. We matched the workbook’s frame numbers to 95 unique left/right RGB pairs and excluded one record with no matching pair. The workbook’s live-weight range and mean match Table 1 of the study, which describes live weight among measurements obtained with 3D models. The release does not establish same-session scale weights or dated photos. [Public dataset](https://github.com/ruchaya/CowDatabase2/tree/3359f0a5a5e69d8416c2e939500b17d02da0ad81) · [Study and Table 1](https://doi.org/10.3390/ani12162128)
+
+Run `python evaluate_public_weight.py` after fitting the CID candidate above. The script downloads the pinned workbook and side images in batches, verifies their checksums, and scores the frozen Keras model without fitting or calibrating on these animals. It uses the left view as the primary test and repeats the test on the right view for the same animals. Only aggregate results are saved. The public repository does not provide an explicit data licence, so the source files are linked here and excluded from the CattleClass repository. [Aggregate results](../results/cowdatabase2_weight.json)
+
+| Prediction | Mean absolute error | Within 10% of recorded weight |
+|---|---:|---:|
+| CID weight model, left view | 222.41 kg | 0 of 95 |
+| CID weight model, right view | 237.11 kg | 0 of 95 |
+| Constant CID training median of 239 kg | 375.82 kg | 0 of 95 |
+
+All predictions underestimated the reported weights, which ranged from 556 to 746 kg. Left-view error was 14.70 kg lower than right-view error on the same animals (paired bootstrap 95% interval of 5.98–23.47 kg). The error rules out using this candidate for this cohort. CowDatabase2 has no ordinary phone-photo or side-with-marker comparison. The study reports a cohort age of 16.5 months, and without photo dates individual ages at capture cannot be calculated. Aberdeen Angus also falls outside the five CID breed classes. The check qualifies neither trait for the demo.
+
 ## Collect and lock a field study
 
 Make a separate private study folder for the planned capture comparison. Collect paired ordinary, side, and side-with-marker photos during the same session. Split by stable animal IDs, and reserve independent sites. Keep operator-confirmed marker placement and quality records. The current field model uses RGB pixels. Calibrated scale geometry, a second photo, and dental input are separate follow-up models if the paired field results warrant them.
@@ -62,7 +76,7 @@ The first command fits and calibrates privately. The second checks the frozen mo
 
 ## Field data still needed
 
-Field validation needs an accessible independent cohort with photographs, documented breeds, scale weights and birth records linked by animal ID.
+Field validation needs photographs and documented breeds, scale weights, and birth records linked by animal ID across independent sites. Record photo dates and weighing times so each reference can be checked against the capture.
 
 ## Start the controlled demo
 

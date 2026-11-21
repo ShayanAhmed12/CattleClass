@@ -21,6 +21,7 @@ Dataset scope changed to CID because it links breed, age and weight to the photo
 - CID preparation reproduced 503 source SKUs and 371 groups. The age cohort contains 498 records in the supported bands.
 - The weight candidate reached 22.72 kg MAE against 39.33 kg for the predicted-breed median. The background control also predicted weight on a matched subset, so independent field testing is necessary.
 - The age benchmark reached 53.3% balanced accuracy and missed its research gate. A limited fine-tuning check did not improve inner validation.
+- The public CowDatabase2 check scored paired left and right views for 95 Aberdeen Angus animals. Mean absolute weight error was 222.41 kg and 237.11 kg, respectively. Every prediction fell below its recorded weight and outside 10% error. The public files lack photo dates and verified scale references, so the independent age and field tests remain open. [Public-data check](traits.md#independent-weight-check-on-cowdatabase2) · [Results](../results/cowdatabase2_weight.json)
 - Private Keras candidate reload, field fit/calibration/evaluation, and demo withholding were exercised. Field approval remains open pending an independent cohort with paired photos, breed labels, scale weights and documented birth dates. [Workflow](traits.md) · [Results](../results/traits_evaluation.json) · [Plan](age-and-weight-plan.md)
 
 ## Project archive
