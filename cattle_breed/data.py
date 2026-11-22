@@ -170,7 +170,7 @@ def split_validation(train_index):
     from sklearn.model_selection import train_test_split
 
     animals = train_index.groupby('animal')['label_idx'].agg(lambda labels: labels.mode().iloc[0])
-    _, val_animals = train_test_split(animals.index, test_size=VAL_FRAC, random_state=SEED,
+    _, val_animals = train_test_split(animals.index.to_numpy(), test_size=VAL_FRAC, random_state=SEED,
                                      stratify=animals)
     held_out = train_index['animal'].isin(val_animals)
     return train_index.loc[~held_out], train_index.loc[held_out]

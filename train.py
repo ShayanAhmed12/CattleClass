@@ -55,7 +55,7 @@ def _sample_training_animals(index, fraction):
     from sklearn.model_selection import train_test_split
 
     animals = index.groupby('animal')['label_idx'].agg(lambda labels: labels.mode().iloc[0])
-    selected, _ = train_test_split(animals.index, train_size=fraction, stratify=animals,
+    selected, _ = train_test_split(animals.index.to_numpy(), train_size=fraction, stratify=animals,
                                     random_state=config.SEED)
     return index.loc[index['animal'].isin(selected)]
 
