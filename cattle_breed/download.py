@@ -84,11 +84,8 @@ def fetch(url, dest, first=None, last=None, tries=5):
 
 
 def sha256(path):
-    h = hashlib.sha256()
     with open(path, "rb") as f:
-        for block in iter(lambda: f.read(1 << 20), b""):
-            h.update(block)
-    return h.hexdigest()
+        return hashlib.file_digest(f, "sha256").hexdigest()
 
 
 def get_cid(downloads, workers=8):

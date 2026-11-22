@@ -1,15 +1,12 @@
 """Research checks for animal crops, age support, and breed abstention."""
 import argparse
-import json
 from concurrent.futures import ThreadPoolExecutor
-from io import BytesIO
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageOps
 from sklearn.preprocessing import normalize
 
-import evaluate_public_weight as public
+from . import public_weight as public
 from cattle_breed import config, data, trait_release, traits
 from cattle_breed.download import sha256
 
@@ -132,22 +129,13 @@ def breed_check(cases, full, angus):
 def public_features(backbone, detect):
     import pandas as pd
 
-    url = f"https://api.github.com/repos/{public.REPO}/git/trees/{public.REVISION}?recursive=1"
-    manifest = json.loads(public.fetch(url, 2_000_000))
-    if manifest["truncated"]:
-        raise ValueError("The CowDatabase2 source manifest is incomplete.")
-    tree = {entry["path"]: entry for entry in manifest["tree"] if entry["type"] == "blob"}
-    records = public.read_workbook(public.git_blob(tree, public.WORKBOOK))
-    frames = [frame for frame in records if all(public.image_path(frame, view) in tree for view in public.VIEWS)]
-    if len(frames) != 95:
-        raise ValueError("Unexpected CowDatabase2 cohort.")
+    tree, records, frames = public.paired_source()
     reference = pd.DataFrame({"frame": frames, "weight_kg": [records[frame] for frame in frames]})
     for view in public.VIEWS:
         paths = [public.image_path(frame, view) for frame in frames]
         # Download at most one batch at a time. Raw photographs stay in memory.
         def load(path):
-            with Image.open(BytesIO(public.git_blob(tree, path))) as image:
-                return np.asarray(ImageOps.exif_transpose(image).convert("RGB"))
+            return public.load_rgb(tree, path)
 
         keep, full, crop = [], [], []
         with ThreadPoolExecutor(max_workers=8) as pool:

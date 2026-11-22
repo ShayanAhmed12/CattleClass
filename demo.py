@@ -1,4 +1,4 @@
-"""Upload a cattle photo and see the classifier's three most likely breeds."""
+"""Run the breed, research or controlled field photo demo."""
 import argparse
 from functools import lru_cache
 from pathlib import Path
@@ -12,6 +12,16 @@ BREED_SCOPE = (
     f"Supported breeds are {', '.join(config.CLASSES)}. "
     "Cattle outside these breeds can receive high scores."
 )
+
+PAGE_STYLE = """
+.gradio-container { max-width: 1080px !important; margin-inline: auto !important; padding-inline: 24px !important; }
+.gradio-container h1 { text-align: left !important; margin: 28px 0 8px; }
+#photo { min-width: 0 !important; }
+@media (max-width: 550px) {
+    .gradio-container { padding-inline: 16px !important; }
+    .gradio-container h1 { margin-top: 14px; }
+}
+"""
 
 
 @lru_cache(maxsize=1)
@@ -69,30 +79,37 @@ def predict_field(photo_path, capture_confirmed, *, cohort, capture):
     return breed, *results
 
 
+def photo_interface(fn, title, action, description, *, estimates=False, confirmation=None, about=BREED_SCOPE):
+    """Share the same upload, actions and result widgets across the three modes."""
+    inputs = [gr.Image(label="Cattle photo", sources=["upload"], type="filepath", image_mode=None,
+                       height=300, elem_id="photo")]
+    if confirmation:
+        inputs.append(gr.Checkbox(label=confirmation))
+    outputs = [gr.Label(label="Breed scores")]
+    if estimates:
+        outputs.extend([gr.Textbox(label="Age estimate"), gr.Textbox(label="Weight estimate")])
+    app = gr.Interface(
+        fn=fn, inputs=inputs, outputs=outputs, title=title, description=description,
+        submit_btn=action, clear_btn="Reset", flagging_mode="never", analytics_enabled=False,
+    )
+    with app, gr.Accordion("About these estimates", open=False):
+        gr.Markdown(about)
+    return app
+
+
 def create_field_demo(cohort, capture) -> gr.Interface:
     def run(photo_path, capture_confirmed):
         return predict_field(photo_path, capture_confirmed, cohort=cohort, capture=capture)
 
-    return gr.Interface(
-        fn=run,
-        inputs=[
-            gr.Image(label="Cattle photo", sources=["upload"], type="filepath", image_mode=None),
-            gr.Checkbox(label=f"Operator confirmed the enrolled animal and {capture} capture protocol"),
-        ],
-        outputs=[gr.Label(label="Supported breed scores"), gr.Textbox(label="Age"), gr.Textbox(label="Weight")],
-        title="CattleClass field assessment",
-        description=BREED_SCOPE,
-    )
+    return photo_interface(run, "CattleClass field assessment", "Assess photo",
+                           "Upload a photo of an enrolled animal.", estimates=True,
+                           confirmation=f"I confirmed the animal and the {capture} capture protocol",
+                           about=BREED_SCOPE + " Age and weight appear when field approval is available.")
 
 
 def create_demo() -> gr.Interface:
-    return gr.Interface(
-        fn=predict,
-        inputs=gr.Image(label="Cattle photo", sources=["upload"], type="filepath", image_mode=None),
-        outputs=gr.Label(label="Supported breed scores"),
-        title="Cattle Breed Classifier",
-        description=BREED_SCOPE,
-    )
+    return photo_interface(predict, "CattleClass breed classifier", "Identify breed",
+                           "Upload a clear photo of one animal to see its three highest breed scores.")
 
 
 def create_research_demo() -> gr.Interface:
@@ -104,29 +121,21 @@ def create_research_demo() -> gr.Interface:
         batch = image_batch(photo_path)
         try:
             classifier, record = load_bundle()
-            output = classifier(batch, training=False)
-            breed = np.asarray(output["breed"])[0]
-            age = float(np.asarray(output["age_months"])[0, 0])
-            with np.errstate(over="ignore", invalid="ignore"):
-                kg = float(np.exp(np.asarray(output["log_kg"])[0, 0]))
+            breed, age, kg = research.predict_preview(classifier, batch)
             error = float(record["benchmark"]["weight_mae_kg"])
-            if (breed.shape != (len(config.CLASSES),)
-                    or not np.isfinite(np.r_[breed, age, kg, error]).all() or age <= 0 or kg <= 0 or error < 0):
-                raise ValueError("Invalid research outputs.")
+            if not np.isfinite(error) or error < 0:
+                raise ValueError("Invalid benchmark error.")
         except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
             raise gr.Error("Research model unavailable. Run `python -m cattle_breed.research`.") from exc
         return (breed_scores(breed), f"About {age:.1f} months",
                 f"About {kg:.0f} kg · average held-out error {error:.1f} kg on CID")
 
-    return gr.Interface(
-        fn=run,
-        inputs=gr.Image(label="Cattle photo", sources=["upload"], type="filepath", image_mode=None),
-        outputs=[gr.Label(label="Supported breed scores"), gr.Textbox(label="Research age estimate"),
-                 gr.Textbox(label="Research weight estimate")],
-        title="CattleClass research prototype",
-        description=BREED_SCOPE + " Research outputs use CID's recorded labels. "
-        "CID age references span 24–36 months and are concentrated at 24 and 30. "
-        "Age and weight accuracy on independent farms remains unverified.",
+    return photo_interface(
+        run, "CattleClass", "Estimate traits",
+        "Upload a clear side photo of one animal to estimate breed, age, and weight. "
+        "Age and weight are research estimates from CID.", estimates=True,
+        about=BREED_SCOPE + "\n\nCID age records span 24–36 months, mostly at 24 and 30 months. "
+        "The displayed weight error is the CID average. Age and weight accuracy on other farms remains unverified.",
     )
 
 
@@ -142,11 +151,16 @@ def main(argv: list[str] | None = None) -> None:
     if args.traits:
         if not args.traits_cohort or args.share:
             parser.error("--traits requires an enrolled cohort and a local session")
-        create_field_demo(args.traits_cohort, args.traits_capture).launch(share=False)
+        app = create_field_demo(args.traits_cohort, args.traits_capture)
     else:
         if args.traits_cohort:
             parser.error("--traits-cohort requires --traits")
-        (create_research_demo() if args.research else create_demo()).launch(share=args.share)
+        app = create_research_demo() if args.research else create_demo()
+    theme = gr.themes.Soft(primary_hue="emerald", neutral_hue="stone", font="system-ui")
+    theme.set(body_background_fill="#f6f7f2", block_label_text_color="#16644c",
+              button_primary_background_fill="#16644c",
+              button_primary_background_fill_hover="#104f3b", button_primary_text_color="white")
+    app.launch(share=args.share, theme=theme, css=PAGE_STYLE, footer_links=[])
 
 
 if __name__ == "__main__":

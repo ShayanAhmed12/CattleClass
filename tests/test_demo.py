@@ -67,10 +67,21 @@ def test_model_loader_caches_inference_only_model(monkeypatch, tmp_path):
 def test_main_shares_only_when_requested(monkeypatch, argv, share):
     launches = []
 
-    def launch(*, share):
+    def launch(*, share, **style):
         launches.append(share)
 
     monkeypatch.setattr(demo, "create_demo", lambda: SimpleNamespace(launch=launch))
     monkeypatch.setenv("GRADIO_SHARE", "true")
     demo.main(argv)
     assert launches == [share]
+
+
+def test_research_prompt_has_one_main_action_and_no_image_flagging():
+    app = demo.create_research_demo()
+    components = app.config["components"]
+    buttons = [component["props"].get("value") for component in components if component["type"] == "button"]
+    assert app.flagging_mode == "never"
+    assert buttons.count("Estimate traits") == 1
+    assert "Reset" in buttons and "Flag" not in buttons
+    assert any(component["type"] == "accordion" and component["props"]["label"] == "About these estimates"
+               for component in components)

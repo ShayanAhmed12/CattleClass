@@ -83,11 +83,29 @@ def image_path(frame, view):
     return f"{frame}/raw_data/{view}/rgb.png"
 
 
+def paired_source():
+    url = f"https://api.github.com/repos/{REPO}/git/trees/{REVISION}?recursive=1"
+    manifest = json.loads(fetch(url, 2_000_000))
+    if manifest["truncated"]:
+        raise ValueError("The CowDatabase2 source manifest is incomplete.")
+    tree = {entry["path"]: entry for entry in manifest["tree"] if entry["type"] == "blob"}
+    records = read_workbook(git_blob(tree, WORKBOOK))
+    frames = [frame for frame in records if all(image_path(frame, view) in tree for view in VIEWS)]
+    checksums = {tree[image_path(frame, view)]["sha"] for frame in frames for view in VIEWS}
+    if len(records) != 96 or len(frames) != 95 or len(checksums) != len(frames) * len(VIEWS):
+        raise ValueError("The paired cohort differs from the audited CowDatabase2 source.")
+
+    return tree, records, frames
+
+
+def load_rgb(tree, path):
+    with Image.open(BytesIO(git_blob(tree, path))) as image:
+        return np.asarray(ImageOps.exif_transpose(image).convert("RGB"))
+
+
 def predict_views(model, tree, frames):
     def pixels(path):
-        with Image.open(BytesIO(git_blob(tree, path))) as image:
-            rgb = np.asarray(ImageOps.exif_transpose(image).convert("RGB"))
-        return data.letterbox(rgb)
+        return data.letterbox(load_rgb(tree, path))
 
     predictions = {}
     with ThreadPoolExecutor(max_workers=8) as pool:
@@ -112,16 +130,7 @@ def main():
     if any(metadata.get(key) != value for key, value in expected.items()):
         raise ValueError("Expected the verified CID research weight candidate.")
 
-    url = f"https://api.github.com/repos/{REPO}/git/trees/{REVISION}?recursive=1"
-    manifest = json.loads(fetch(url, 2_000_000))
-    if manifest["truncated"]:
-        raise ValueError("The CowDatabase2 source manifest is incomplete.")
-    tree = {entry["path"]: entry for entry in manifest["tree"] if entry["type"] == "blob"}
-    records = read_workbook(git_blob(tree, WORKBOOK))
-    frames = [frame for frame in records if all(image_path(frame, view) in tree for view in VIEWS)]
-    checksums = {tree[image_path(frame, view)]["sha"] for frame in frames for view in VIEWS}
-    if len(records) != 96 or len(frames) != 95 or len(checksums) != len(frames) * len(VIEWS):
-        raise ValueError("The paired cohort differs from the audited CowDatabase2 source.")
+    tree, records, frames = paired_source()
 
     true = np.array([records[frame] for frame in frames])
     cid = np.full_like(true, CID_MEDIAN_KG)

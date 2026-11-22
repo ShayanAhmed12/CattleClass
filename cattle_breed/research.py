@@ -86,6 +86,19 @@ def load_preview():
     return load_classifier(path), record
 
 
+def predict_preview(model, batch):
+    """Read the three named outputs of a research bundle for one photo."""
+    output = model(batch, training=False)
+    breed = np.asarray(output["breed"])[0]
+    age = np.asarray(output["age_months"]).item()
+    with np.errstate(over="ignore", invalid="ignore"):
+        kg = np.exp(np.asarray(output["log_kg"])).item()
+    if (breed.shape != (len(config.CLASSES),) or not np.isfinite(breed).all()
+            or not np.isfinite([age, kg]).all() or min(age, kg) <= 0):
+        raise ValueError("Invalid research outputs.")
+    return breed, age, kg
+
+
 def _export(rows, pixels, features, breed_id, weight_choices, report):
     from tensorflow import keras
 
