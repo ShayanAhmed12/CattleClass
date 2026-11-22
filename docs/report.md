@@ -107,7 +107,7 @@ Raw photo files, trained models and photo-containing galleries stay private. The
 
 ## 8 Reproducibility, contributions and AI use
 
-The initial cloud run used Python 3.12, TensorFlow 2.21.0 and Keras 3.15.1 on CPU. The grouped folds, breed metrics and trait scores are available with run instructions. [Run instructions](../README.md#run-the-study) · [CID provenance](data.md) · [Grouped folds](../results/cid_folds.csv)
+The initial cloud run used Python 3.12, TensorFlow 2.21.0 and Keras 3.15.1 on CPU. The grouped folds, breed metrics and trait scores are available with run instructions. [Run instructions](../README.md#run-the-research-demo) · [CID provenance](data.md) · [Grouped folds](../results/cid_folds.csv)
 
 Shayan Ahmed owns the project tasks. The live individual defence remains open. [Progress tracker](PROGRESS.md) · [Defence questions](defense_questions.md)
 

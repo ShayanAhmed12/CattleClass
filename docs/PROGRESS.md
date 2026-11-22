@@ -14,7 +14,7 @@ Owner throughout: Shayan Ahmed. Updated 22 November 2026.
 
 Dataset scope changed to CID because it links breed, age and weight to the photographed animal. A CID-only workspace rebuilt the five-fold manifest, and the held-out run reproduced all ten CID breed rows and the existing trait results. The test suite passed all 71 tests. [Earlier study and reproduction record](https://github.com/ShayanAhmed12/CattleClass/blob/a52241ad0df375bee3945196d59cba5578cd2c32/results/reproduction.json)
 
-[Report](report.md) · [Slides](slides.md) · [Defence guide](defense_questions.md) · [Project overview and run guide (PDF)](cattleclass-run-guide.pdf)
+[Report](report.md) · [Slides](slides.md) · [Defence guide](defense_questions.md) · [Archived run guide PDF](cattleclass-run-guide.pdf)
 
 ## Age and weight extension
 
@@ -30,6 +30,8 @@ Dataset scope changed to CID because it links breed, age and weight to the photo
 - Private Keras candidate reload, field fit/calibration/evaluation, and demo withholding were exercised. Field approval remains open pending an independent cohort with paired photos, breed labels, scale weights and documented birth dates. [Workflow](traits.md) · [Results](../results/traits_evaluation.json) · [Plan](age-and-weight-plan.md)
 
 ## Usability and maintenance
+
+- Added a [canonical project reference](../PROJECT.md) for project context, development, and handoff. The Colab notebook now uses the default branch.
 
 - The three demo modes share one Gradio upload and result layout. The README and Colab notebook follow the same research workflow. Optional studies live under `experiments/` and share the CowDatabase2 loader.
 - All 78 tests passed. Real CID photos produced breed, age, and weight results in desktop and mobile browser tests, including reset and re-upload. The rebuilt research bundle reproduced the published joint benchmark. [Run the demo](../README.md#run-the-research-demo) · [Benchmark](../results/cid_joint.json)

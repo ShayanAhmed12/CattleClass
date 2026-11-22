@@ -2,6 +2,8 @@
 
 Upload one cattle photo to estimate breed, age in months, and weight in kilograms. The TensorFlow/Keras models use CID, a dataset of Bangladeshi cattle photos and recorded traits. [Open the Colab notebook](cattle-class.ipynb)
 
+[Project reference for developers and assistants](PROJECT.md)
+
 ## Run the research demo
 
 Use Python 3.12 from the repository root. A GPU helps with breed training. In Colab, mount Drive to keep the dataset and checkpoints across sessions.
@@ -22,7 +24,7 @@ Open the URL shown in the terminal. Upload a clear side photo, select **Estimate
 
 EfficientNet extracts features from the photo. The breed model scores five supported breeds. Separate regressions estimate age and weight from image features. Test folds keep photos of the same animal and near-duplicates together. [Data and supported breeds](docs/data.md) · [Model and evaluation methods](docs/report.md)
 
-On 503 held-out CID animals, **179 (35.6%)** met all three criteria. Breed matched the record, age was within three months, and weight was within 10%. Mean absolute error was **2.23 months** for age and **22.72 kg** for weight. The median-age baseline averaged **1.59 months** of error. Accuracy on independent farms remains unverified. [Joint results](results/cid_joint.json)
+The [project reference](PROJECT.md#data-models-and-evaluation) explains the benchmarks and their limits. Accuracy on independent farms remains unverified.
 
 ## Explore the project
 
@@ -33,4 +35,4 @@ On 503 held-out CID animals, **179 (35.6%)** met all three criteria. Breed match
 | `results/` | The locked folds and published benchmark results. |
 | `experiments/` | Optional external and camera studies. [Commands and results](docs/traits.md) |
 
-For the breed-only app, run `python demo.py`. To reproduce the breed robustness plots, run `python evaluate.py --robustness --figures`. [Field validation](docs/traits.md#collect-and-lock-a-field-study) · [Project progress](docs/PROGRESS.md) · [Project overview PDF](docs/cattleclass-run-guide.pdf)
+For the breed-only app, run `python demo.py`. To reproduce the breed robustness plots, run `python evaluate.py --robustness --figures`. [Field validation](docs/traits.md#collect-and-lock-a-field-study) · [Project progress](docs/PROGRESS.md) · [Archived run guide PDF](docs/cattleclass-run-guide.pdf)
