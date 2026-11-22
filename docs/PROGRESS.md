@@ -1,6 +1,6 @@
 # Progress
 
-Owner throughout: Shayan Ahmed. Updated 21 November 2026.
+Owner throughout: Shayan Ahmed. Updated 22 November 2026.
 
 | Tasks | Status |
 |---|---|
@@ -26,6 +26,7 @@ Dataset scope changed to CID because it links breed, age and weight to the photo
 - An experimental breed rejection rule retained 90.7% of CID known cases and rejected all 95 Angus images. It missed the 80% rejection target for all five CID breeds used as simulated unknowns. Both demo modes now explain the five-breed scope. [Breed audit](../results/capture_diagnostics.json)
 - Additional public-data screening checked the Hanwoo archive, Hereford workbooks and calf metadata, plus other published releases. No additional candidate passed the linked-photo, breed, birth-record and scale-weight requirements. [Dataset screening](traits.md#additional-public-dataset-screening)
 - The specialist-data policy now allows a breed-only research CSV and task-specific age or weight development and calibration. The reserved final test still requires all three linked references. [Data formats](data.md#specialist-datasets)
+- The CID research prototype produces breed, age and weight from one photo. Grouped evaluation on the locked split found 160 of 498 cases (32.1%) correct on all three criteria. The Colab notebook can reproduce the prototype and its benchmark. [Research mode and results](traits.md#three-output-research-prototype)
 - Private Keras candidate reload, field fit/calibration/evaluation, and demo withholding were exercised. Field approval remains open pending an independent cohort with paired photos, breed labels, scale weights and documented birth dates. [Workflow](traits.md) · [Results](../results/traits_evaluation.json) · [Plan](age-and-weight-plan.md)
 
 ## Project archive

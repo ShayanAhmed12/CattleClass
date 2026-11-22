@@ -2,6 +2,24 @@
 
 CattleClass can train and score photo-based age and weight candidates using the existing CID folds. The public demo continues to show breed predictions. The controlled field interface shows an estimate only for a field-approved model and capture mode.
 
+## Three-output research prototype
+
+Use Python 3.12 and install `requirements.txt`. Run these commands in order from the repository root. Add `--share` to the demo command in Colab. The commands reuse checkpoints that match the locked CID study.
+
+```bash
+python prepare_data.py
+python train.py
+python train.py --final
+python train.py --traits
+python evaluate.py --traits
+python -m cattle_breed.research
+python demo.py --research
+```
+
+The packaging command verifies the fold predictions, fits the research age and weight heads on CID, and saves `models/traits/cid-research.keras` with checksum metadata in the work directory. The demo accepts one photo and shows supported breed scores, the more likely recorded age label of 24 or 30 months, and an estimated weight in kilograms. The weight screen shows the average error on the benchmark. Research mode uses its own checkpoint and gives no field approval.
+
+On 498 eligible held-out animals, 160 (32.1%) had a correct breed and age label and weight within 10% of the recorded value. All three predictions were present for every eligible animal. Five of the 503 animal records had a 36-month label and were excluded from the two-label joint benchmark. Across the shared 498 animals, breed macro-F1 was 0.517, age balanced accuracy was 53.3%, and mean absolute weight error was 22.48 kg. Age recall was 82.1% for 24 months and 24.4% for 30 months. The joint benchmark uses predictions from the matching held-out folds. The demo bundle uses models fit on the full eligible CID data. [Joint metrics](../results/cid_joint.json) · [Colab notebook](../cattle-class.ipynb)
+
 ## Reproduce the CID benchmark
 
 Use the same Python and TensorFlow environment as the breed workflow.

@@ -89,6 +89,8 @@ The five-fold results followed the expected macro-F1 ordering: E2 exceeded E1, a
 
 The CID weight benchmark reached 22.72 kg mean absolute error against 39.33 kg for the predicted-breed median. The age benchmark reached 53.3% balanced accuracy and missed its 55% research gate. The weight background-control result motivates independent field testing. [Breed metrics](../results/metrics.csv) · [Trait results](../results/traits_evaluation.json)
 
+The three-output research demo packages the breed classifier and the CID age and weight heads in a Keras checkpoint. On the 498 animals eligible for joint scoring, 160 (32.1%) had a correct breed, a correct recorded age label, and weight within 10% of the recorded value. The research demo gives a choice between 24 and 30 months. Age recall for the 30-month label was 24.4%. [Joint metrics](../results/cid_joint.json) · [Demo instructions](traits.md#three-output-research-prototype)
+
 \newpage
 
 ## 7 Error analysis, limitations and ethics

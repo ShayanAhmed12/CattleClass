@@ -15,6 +15,8 @@ Run `python prepare_data.py` to download, check and cache CID. The image archive
 
 Indexing retains 2,012 photos across 503 original animal IDs. Perceptual duplicate detection reduces these to 1,893 photos and links possible matches into 371 groups. Train and test partitions use those groups. Trait benchmarks score one representative photo per original animal ID. [Held-out folds](../results/cid_folds.csv) · [Trait benchmark and field data format](traits.md)
 
+Preparation verifies the label-file checksum, matches the cleaned index against the published fold manifest, and caches images in the manifest order. The official benchmark uses the previously reproduced folds. The later Colab run used a different partition of the same photos and its results are available in Git history. [Alternate Colab run](https://github.com/ShayanAhmed12/CattleClass/commit/8b48bb7)
+
 ## Available viewpoints
 
 A YOLOX-tiny detector and ViTPose-S model audited all indexed photos. Across 503 photos per suffix, the audit found 475, 497 and 434 image-left profiles for suffixes 0, 1 and 2, and 496 image-right profiles for suffix 3. These labels describe orientation within the frame. The camera geometry is uncalibrated. Run `python prepare_data.py --cid-samples` to make a private sample grid. [Pose audit](../results/viewpoint_and_detection_audit.json)
