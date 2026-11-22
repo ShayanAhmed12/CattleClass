@@ -24,15 +24,16 @@ def test_joint_score_uses_the_same_representative_photo_and_counts_missing_predi
     from cattle_breed.research import joint_score
 
     rows = pd.DataFrame({
-        "sku": ["a", "a", "b", "c", "d"], "path": ["a-2", "a-1", "b-1", "c-1", "d-1"],
-        "breed": ["Local"] * 5, "predicted_breed": ["Sindhi", "Local", "Local", "Local", "Local"],
-        "age_months": [24, 24, 24, 30, 36], "age_prediction": [30, 24, 24, np.nan, 30],
-        "weight_kg": [200] * 5, "weight_prediction": [100, 220, 221, 200, 200],
-        "age_eligible": [True, True, True, True, False], "weight_eligible": [True] * 5,
+        "sku": ["a", "a", "b", "c", "d", "e"], "path": ["a-2", "a-1", "b-1", "c-1", "d-1", "e-1"],
+        "breed": ["Local"] * 6, "predicted_breed": ["Sindhi", *(["Local"] * 5)],
+        "age_months": [24, 24, 24, 30, 36, 30], "age_prediction": [30, 27, 26.5, np.nan, 30, 26.5],
+        "weight_kg": [200] * 6, "weight_prediction": [100, 220, 221, 200, 200, 200],
+        "age_eligible": [True, True, True, True, False, True], "weight_eligible": [True] * 6,
     })
     result = joint_score(rows)
-    assert result == {"animals": 4, "eligible": 3, "excluded_references": 1, "all_outputs": 2,
-                      "joint_correct": 1, "joint_accuracy": 1 / 3, "weight_relative_tolerance": 0.1}
+    assert result == {"animals": 5, "eligible": 4, "excluded_references": 1, "all_outputs": 3,
+                      "joint_correct": 1, "joint_accuracy": 0.25,
+                      "age_tolerance_months": 3.0, "weight_relative_tolerance": 0.1}
 
 
 def test_research_demo_upload_shows_three_outputs(tmp_path, monkeypatch):
@@ -45,14 +46,14 @@ def test_research_demo_upload_shows_three_outputs(tmp_path, monkeypatch):
 
     def classifier(batch, training=False):
         assert batch.shape == (1, config.IMG_SIZE, config.IMG_SIZE, 3)
-        return {"breed": [[0.1, 0.6, 0.1, 0.1, 0.1]], "age": [[0.2, 0.8]],
+        return {"breed": [[0.1, 0.6, 0.1, 0.1, 0.1]], "age_months": [[27.4]],
                 "log_kg": [[np.log(202)]]}
 
     monkeypatch.setattr(research, "load_preview", lambda: (classifier, {"benchmark": {"weight_mae_kg": 22.5}}))
     interface = demo.create_research_demo()
     breed, age, weight = interface(str(photo))
     assert breed["label"] == "Local"
-    assert "30 months" in age
+    assert "27.4 months" in age
     assert "202 kg" in weight and "22.5 kg" in weight
 
 
@@ -72,3 +73,17 @@ def test_research_demo_reports_missing_bundle_and_unreadable_photo(tmp_path, mon
         interface(str(invalid))
     with pytest.raises(gr.Error, match="cattle_breed.research"):
         interface(str(picture))
+
+
+def test_numeric_age_fold_uses_every_positive_training_age_and_excludes_held_out_animals():
+    from cattle_breed.research import _age_predictions
+
+    records = pd.DataFrame({
+        "fold": [0, 0, 1, 1], "sku": ["a", "b", "c", "d"], "path": ["a", "b", "c", "d"],
+        "age_months": [8.0, 17.0, 24.0, 38.0], "age_eligible": [True] * 4,
+    })
+    inputs = np.asarray([[0.0], [1.0], [0.2], [0.8]])
+    predicted, baseline = _age_predictions(records, inputs)
+    assert baseline.to_list() == [31.0, 31.0, 12.5, 12.5]
+    assert predicted.between(8, 38).all()
+    assert not predicted.isin([24.0, 30.0]).any()

@@ -1,17 +1,40 @@
 {
   "animals": 503,
-  "eligible": 498,
-  "excluded_references": 5,
-  "all_outputs": 498,
-  "joint_correct": 160,
-  "joint_accuracy": 0.321285140562249,
+  "eligible": 503,
+  "excluded_references": 0,
+  "all_outputs": 503,
+  "joint_correct": 179,
+  "joint_accuracy": 0.3558648111332008,
+  "age_tolerance_months": 3.0,
   "weight_relative_tolerance": 0.1,
   "study_id": "72620ecc182a1f0ec934d3bf09954df4e0a35c5a432ceb7ca5ddc848cb74fd47",
-  "breed_macro_f1": 0.5172666060054596,
-  "age_balanced_accuracy": 0.5326178861788617,
-  "age_recall_by_band": {
-    "24": 0.8213333333333334,
-    "30": 0.24390243902439024
+  "breed_macro_f1": 0.5150484712270891,
+  "age": {
+    "mae_months": 2.2345218885964,
+    "median_baseline_mae_months": 1.5864811133200796,
+    "within_tolerance": 0.7495029821073559,
+    "observed_months": [
+      24.0,
+      36.0
+    ],
+    "predicted_months": [
+      23.30344581604004,
+      27.76746940612793
+    ],
+    "by_recorded_age": {
+      "24": {
+        "animals": 375,
+        "mae_months": 1.4324476928710939
+      },
+      "30": {
+        "animals": 123,
+        "mae_months": 4.3633233977527155
+      },
+      "36": {
+        "animals": 5,
+        "mae_months": 10.021569442749023
+      }
+    }
   },
-  "weight_mae_kg": 22.48064511463824
+  "weight_mae_kg": 22.71587224698683
 }

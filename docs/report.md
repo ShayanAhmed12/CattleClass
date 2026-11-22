@@ -32,7 +32,7 @@ CID contains 514 four-photo folders and 513 metadata records. The index removes 
 | Sindhi | 38 | 152 |
 | **Total** | **503** | **2,012** |
 
-CID records indicate 375 animals at 24 months, 123 at 30 months and 5 at 36 months after the breed and image filtering. The weight data run from 150 to 698 kg for the 503 source animal IDs. The benchmark scores one representative image per source animal. Only the 24- and 30-month classes enter the primary age evaluation. [Trait audit](age-and-weight-plan.md)
+CID records indicate 375 animals at 24 months, 123 at 30 months and 5 at 36 months after the breed and image filtering. The weight data run from 150 to 698 kg for the 503 source animal IDs. The joint benchmark scores one representative image per source animal across all recorded ages. [Trait audit](age-and-weight-plan.md)
 
 \newpage
 
@@ -89,7 +89,7 @@ The five-fold results followed the expected macro-F1 ordering: E2 exceeded E1, a
 
 The CID weight benchmark reached 22.72 kg mean absolute error against 39.33 kg for the predicted-breed median. The age benchmark reached 53.3% balanced accuracy and missed its 55% research gate. The weight background-control result motivates independent field testing. [Breed metrics](../results/metrics.csv) · [Trait results](../results/traits_evaluation.json)
 
-The three-output research demo packages the breed classifier and the CID age and weight heads in a Keras checkpoint. On the 498 animals eligible for joint scoring, 160 (32.1%) had a correct breed, a correct recorded age label, and weight within 10% of the recorded value. The research demo gives a choice between 24 and 30 months. Age recall for the 30-month label was 24.4%. [Joint metrics](../results/cid_joint.json) · [Demo instructions](traits.md#three-output-research-prototype)
+The three-output research demo packages the breed classifier and the CID age and weight regressions in a Keras checkpoint. On 503 held-out animals, 179 (35.6%) had a correct breed, age within three months, and weight within 10% of the recorded values. The numeric age model averaged 2.23 months of error versus 1.59 for the training-median baseline. The held-out estimates clustered between 23.3 and 27.8 months, so the benchmark gives limited evidence about older cattle. [Joint metrics](../results/cid_joint.json) · [Demo instructions](traits.md#three-output-research-prototype)
 
 \newpage
 

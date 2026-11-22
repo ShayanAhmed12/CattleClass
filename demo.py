@@ -96,7 +96,7 @@ def create_demo() -> gr.Interface:
 
 
 def create_research_demo() -> gr.Interface:
-    from cattle_breed import research, traits
+    from cattle_breed import research
 
     load_bundle = lru_cache(maxsize=1)(research.load_preview)
 
@@ -106,26 +106,27 @@ def create_research_demo() -> gr.Interface:
             classifier, record = load_bundle()
             output = classifier(batch, training=False)
             breed = np.asarray(output["breed"])[0]
-            age = np.asarray(output["age"])[0]
+            age = float(np.asarray(output["age_months"])[0, 0])
             with np.errstate(over="ignore", invalid="ignore"):
                 kg = float(np.exp(np.asarray(output["log_kg"])[0, 0]))
             error = float(record["benchmark"]["weight_mae_kg"])
-            if (breed.shape != (len(config.CLASSES),) or age.shape != (len(traits.AGE_BANDS),)
-                    or not np.isfinite(np.r_[breed, age, kg, error]).all() or kg <= 0 or error < 0):
+            if (breed.shape != (len(config.CLASSES),)
+                    or not np.isfinite(np.r_[breed, age, kg, error]).all() or age <= 0 or kg <= 0 or error < 0):
                 raise ValueError("Invalid research outputs.")
         except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
             raise gr.Error("Research model unavailable. Run `python -m cattle_breed.research`.") from exc
-        return (breed_scores(breed), f"{traits.AGE_BANDS[int(age.argmax())]} months (CID label)",
+        return (breed_scores(breed), f"About {age:.1f} months",
                 f"About {kg:.0f} kg · average held-out error {error:.1f} kg on CID")
 
     return gr.Interface(
         fn=run,
         inputs=gr.Image(label="Cattle photo", sources=["upload"], type="filepath", image_mode=None),
-        outputs=[gr.Label(label="Supported breed scores"), gr.Textbox(label="Research age label"),
+        outputs=[gr.Label(label="Supported breed scores"), gr.Textbox(label="Research age estimate"),
                  gr.Textbox(label="Research weight estimate")],
         title="CattleClass research prototype",
         description=BREED_SCOPE + " Research outputs use CID's recorded labels. "
-        "Age options are 24 and 30 months. Weight and age accuracy on independent farms remains unverified.",
+        "CID age references span 24–36 months and are concentrated at 24 and 30. "
+        "Age and weight accuracy on independent farms remains unverified.",
     )
 
 

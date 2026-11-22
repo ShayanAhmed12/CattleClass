@@ -9,8 +9,8 @@ from . import config, data, trait_models, traits
 from .download import sha256
 
 
-def fit_weight(features, target, sample_weight, *, alpha):
-    """Pack the linear log-weight regression into a serializable Keras head."""
+def fit_positive_target(features, target, sample_weight, *, alpha):
+    """Pack a Ridge model for a log-transformed target into a Keras head."""
     from tensorflow import keras
 
     fit = Ridge(alpha=alpha).fit(features, np.log(target), sample_weight=sample_weight)
@@ -18,6 +18,9 @@ def fit_weight(features, target, sample_weight, *, alpha):
     model = keras.Sequential([keras.Input(shape=(features.shape[1],)), output])
     output.set_weights([fit.coef_.reshape(-1, 1), np.asarray([fit.intercept_])])
     return model
+
+
+fit_weight = fit_positive_target
 
 
 def save_model(root, name, head, metadata, *, backbone=None):

@@ -1,6 +1,6 @@
 # CattleClass
 
-CattleClass uses TensorFlow and Keras to study five breeds of Bangladeshi cattle from CID photos. The research demo shows breed, one of CID’s two age labels, and an estimated weight from one photo. [Colab notebook](cattle-class.ipynb)
+CattleClass uses TensorFlow and Keras to study five breeds of Bangladeshi cattle from CID photos. The research demo shows breed, an age estimate in months, and an estimated weight from one photo. [Colab notebook](cattle-class.ipynb)
 
 [Download the project overview and step-by-step run guide (PDF)](docs/cattleclass-run-guide.pdf) · [Age and weight research workflow](docs/traits.md)
 
@@ -43,7 +43,7 @@ You can train separate research models on specialist datasets. Breed training ac
 
 ## Read the results
 
-Breed macro-F1 was **0.500** on the locked CID folds. The weight benchmark reached **22.72 kg** mean absolute error, and the age benchmark reached **53.3%** balanced accuracy. On the 498 shared eligible CID animals, **160 (32.1%)** had a correct breed and age label and a weight within 10% of the recorded value. The research demo uses recorded CID labels. Field accuracy remains unverified. [Report](docs/report.md) · [Joint results](results/cid_joint.json) · [Research demo steps](docs/traits.md#three-output-research-prototype)
+Breed macro-F1 was **0.500** on the locked CID folds. Mean absolute error was **22.72 kg** for weight and **2.23 months** for numeric age. The simple training-median age baseline averaged **1.59 months** of error. On the 503 shared CID animals, **179 (35.6%)** had a correct breed, age within three months, and weight within 10% of the recorded values. Field accuracy remains unverified. [Report](docs/report.md) · [Joint results](results/cid_joint.json) · [Research demo steps](docs/traits.md#three-output-research-prototype)
 
 - `cattle_breed/` contains settings, downloads, image preparation, model training and scoring. `tests/` exercises the workflow on small fixtures.
 - `results/` contains the published tables, fold manifest and audit summaries. Evaluation regenerates plots under `results/figures/`. [CID confusion matrix](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/results/figures/cid_5-way_confusion.png)

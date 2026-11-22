@@ -6,7 +6,7 @@ CattleClass uses the Cow Images Dataset (CID), which links photos to recorded br
 |---|---|
 | Source SKU | Matches original photos with their labels. Whitespace is removed before joining. |
 | Breed | Five supported labels are Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi. |
-| Age | `age_in_year` is converted to months. The research model uses the 24- and 30-month groups. |
+| Age | `age_in_year` is converted to months. The research demo fits a continuous target from all usable ages. The earlier two-label benchmark uses 24 and 30 months. |
 | Weight | `weight_in_kg` is used as the recorded live-weight research label. |
 
 ## Preparation and splits
