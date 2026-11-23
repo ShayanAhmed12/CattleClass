@@ -6,7 +6,7 @@ Start here for project context and development. Read the linked source files for
 
 ## Purpose and current status
 
-CattleClass takes one RGB cattle photo. It estimates breed, age in months, and live weight in kilograms. The course project measures how much these traits can be inferred from photos of previously unseen animals in the Cow Images Dataset (CID). The app is a research prototype for decision support alongside documented records or experienced handlers. Independent farm validation and the individual course defence remain open.
+CattleClass takes one RGB cattle photo. It estimates breed, age in months, and live weight in kilograms. The course project measures how much these traits can be inferred from photos of previously unseen animals in the Cow Images Dataset (CID). The app is a research prototype for decision support alongside documented records or experienced handlers. The final course study uses CID. The group omitted the planned independent farm test, so field generalization remains unmeasured. The individual course defence is pending. [Course submission](docs/submission/README.md)
 
 | Mode | Command | Input and output |
 | --- | --- | --- |

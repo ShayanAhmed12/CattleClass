@@ -1,0 +1,4 @@
+# Research references
+
+- Mingxing Tan and Quoc V. Le. *EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks.* ICML 2019, PMLR 97, pp. 6105–6114. CattleClass uses the ImageNet-pretrained EfficientNet-B0 architecture. The [included publisher PDF](EfficientNet-Tan-Le-2019.pdf) is unmodified. [Original publication](https://proceedings.mlr.press/v97/tan19a.html) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) · [PMLR publication agreement](https://proceedings.mlr.press/pmlr-license-agreement.pdf)
+- Mobasshir Bhuiya Shagor, Md Zahidul Haque Alvi, and Khandaker Tabin Hasan. *CID: Cow Images Dataset for Regression and Classification.* ICCA 2022. This paper describes the project’s training and benchmark data. Use the official publication and dataset links for the paper and data. [Publication](https://doi.org/10.1145/3542954.3543018) · [Dataset](https://github.com/bhuiyanmobasshir94/CID)

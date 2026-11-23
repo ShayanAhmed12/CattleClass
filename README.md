@@ -2,7 +2,7 @@
 
 Upload one cattle photo to estimate breed, age in months, and weight in kilograms. The TensorFlow/Keras models use CID, a dataset of Bangladeshi cattle photos and recorded traits. [Open the Colab notebook](cattle-class.ipynb)
 
-[Project reference for developers and assistants](PROJECT.md)
+[Project reference for developers and assistants](PROJECT.md) · [CS4045 submission files](docs/submission/README.md)
 
 ## Run the research demo
 

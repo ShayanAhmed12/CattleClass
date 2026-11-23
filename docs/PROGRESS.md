@@ -1,6 +1,6 @@
 # Progress
 
-Owner throughout: Shayan Ahmed. Updated 23 November 2026.
+Repository progress maintained by Shayan Ahmed. Updated 23 November 2026.
 
 | Tasks | Status |
 |---|---|
@@ -29,6 +29,11 @@ Dataset scope changed to CID because it links breed, age and weight to the photo
 - The CID research prototype now estimates continuous age in months. On 503 locked held-out animals, age error was 2.23 months, versus 1.59 for the training-median baseline. Breed, age and weight met their joint criteria on 179 animals (35.6%). [Research mode and results](traits.md#three-output-research-prototype)
 - Private Keras candidate reload, field fit/calibration/evaluation, and demo withholding were exercised. Field approval remains open pending an independent cohort with paired photos, breed labels, scale weights and documented birth dates. [Workflow](traits.md) · [Results](../results/traits_evaluation.json) · [Plan](age-and-weight-plan.md)
 
+## Course submission
+
+- The group decided to omit the original proposal’s independent farm test (E3). The final report uses held-out CID folds. Field validation remains outside this submission.
+- Prepared the [course submission files](submission/README.md), including the final report, original proposal, GitHub link and presentation. Added [precision and recall](../results/cid_per_class.csv) and [anonymized error analysis](error-analysis.md). The presentation and defence remain pending.
+
 ## Usability and maintenance
 
 - Added a pretrained setup for both public CID demo modes. The installer verifies the [versioned GitHub downloads](https://github.com/ShayanAhmed12/CattleClass/releases/tag/cid-models-v1) and keeps them in a separate cache so local training can still run independently. [Setup](../README.md#run-the-research-demo)
@@ -40,4 +45,4 @@ Dataset scope changed to CID because it links breed, age and weight to the photo
 
 ## Project archive
 
-[Original plan](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/PLAN.md) · [Decision log](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/decisions.md) · [Proposal](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/proposal.docx) · [Course guidelines](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/guidelines.pdf) · [Previous progress log](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/PROGRESS.md)
+[Original plan](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/PLAN.md) · [Decision log](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/decisions.md) · [Original proposal PDF](submission/CattleClass-Project-Proposal.pdf) · [Course guidelines](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/guidelines.pdf) · [Previous progress log](https://github.com/ShayanAhmed12/CattleClass/blob/82b6f78e15bed8dcb36bed79c1df79f7775a9bed/docs/PROGRESS.md)

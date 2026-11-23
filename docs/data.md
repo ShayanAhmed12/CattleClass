@@ -9,6 +9,10 @@ CattleClass uses the Cow Images Dataset (CID), which links photos to recorded br
 | Age | `age_in_year` is converted to months. The research demo fits a continuous target from all usable ages. The earlier two-label benchmark uses 24 and 30 months. |
 | Weight | `weight_in_kg` is used as the recorded live-weight research label. |
 
+## Dataset files
+
+Use `python prepare_data.py` to retrieve the version used by the project. The repository tracks the fold manifest, dataset checksums, and download code. CID hosts the image archive and original metadata. The separate YouTube archive was excluded from the study. [Main CID image archive](https://cid-21.s3.amazonaws.com/images.tar.gz) · [Original metadata CSV](https://cid-21.s3.amazonaws.com/dataset.csv) · [Upstream Apache-2.0 licence](https://github.com/bhuiyanmobasshir94/CID/blob/main/LICENSE)
+
 ## Preparation and splits
 
 Run `python prepare_data.py` to download, check and cache CID. The image archive has 2,056 photos in 514 folders. Its SHA-256 is `77a5a7aadb079b4d0d64db8b69549131b95339a8e7023b6e4c812b5372e78448`. The metadata CSV has 513 rows.
