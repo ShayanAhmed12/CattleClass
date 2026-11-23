@@ -36,6 +36,8 @@ Dataset scope changed to CID because it links breed, age and weight to the photo
 
 - Revised the [final report](submission/CattleClass-Project-Report.pdf) for plain language and clearer explanations of the methods and results.
 
+- Published the [nine-slide presentation](slides.md) as an editable PowerPoint and a PDF, with speaker notes and time for a live demo.
+
 ## Usability and maintenance
 
 - Added a pretrained setup for both public CID demo modes. The installer verifies the [versioned GitHub downloads](https://github.com/ShayanAhmed12/CattleClass/releases/tag/cid-models-v1) and keeps them in a separate cache so local training can still run independently. [Setup](../README.md#run-the-research-demo)

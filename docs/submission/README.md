@@ -6,7 +6,7 @@ The deadline supplied for this submission is Sunday, 29 November 2026. Attach th
 2. [Original project proposal](CattleClass-Project-Proposal.pdf)
 3. [GitHub link as plain text](CattleClass-GitHub-Link.txt)
 
-Use the [presentation PDF](CattleClass-Presentation.pdf) for the scheduled demonstration. The report and original proposal use the group details in the proposal. The report explains the decision to omit the planned farm test and states the limits of the CID evidence.
+Use the [presentation PDF](CattleClass-Presentation.pdf) or [editable PowerPoint](CattleClass-Presentation.pptx) for the scheduled demonstration. The PowerPoint includes speaker notes. [Presenter guide](../slides.md) The report and original proposal use the group details in the proposal. The report explains the decision to omit the planned farm test and states the limits of the CID evidence.
 
 ## Repository contents
 
