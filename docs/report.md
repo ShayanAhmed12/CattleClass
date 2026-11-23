@@ -38,21 +38,15 @@ Fall 2026 · Submission deadline 29 November 2026
 
 ## 1 Introduction
 
-This project measures how well image models predict cattle breed and recorded traits on independently held-out animals from CID. Farmers, livestock traders and dairy record keepers may encounter cattle in unfamiliar settings. A photo classifier could supply a candidate breed for inspection. The intended use is decision support alongside an experienced handler or verified records. Breed identity can depend on ancestry, and the model observes only what is visible in a photograph.
+CattleClass estimates breed from one RGB photograph. It gives farmers, livestock traders and dairy record keepers a breed suggestion they can check against records or with an experienced handler. A photograph shows appearance, so the prediction cannot establish ancestry.
 
-The task is five-class image classification. Each input is one RGB photo and each model output is a probability over Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi. The CID label Local groups indigenous cattle under a common dataset label. The study uses CID because it links breed, age and weight to the photographed animals. The breed evaluation tests controlled changes to lighting, sharpness and visibility.
+The classifier assigns probabilities to five labels from the Cow Images Dataset (CID), which documents cattle photographed at markets in Bangladesh. The labels are Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi. CID uses Local as a collective label for indigenous cattle. Its records also include age and weight, which we used in a separate exploratory study. We used EfficientNet-B0 with ImageNet weights as the starting point for the classifier. [CID publication](https://doi.org/10.1145/3542954.3543018) · [EfficientNet](https://proceedings.mlr.press/v97/tan19a.html)
 
-**Final study scope.** The group decided to omit the independent on-farm evaluation (proposal E3). The final report uses grouped held-out CID results for breed, robustness, age and weight. Generalization to independent farms remains unmeasured in the final study. The breed and research inference models are available from the [model release](https://github.com/ShayanAhmed12/CattleClass/releases/tag/cid-models-v1). The demo recording remains private.
-
-### Related work and contribution
-
-The CID publication and dataset provide images and metadata for Bangladeshi market cattle. EfficientNet-B0 supplies an ImageNet-pretrained representation for transfer learning. The evaluation holds out duplicate-linked animal groups and compares breed predictions under clean and corrupted conditions. The same groups support the trait benchmarks. [CID publication](https://doi.org/10.1145/3542954.3543018) · [EfficientNet](https://proceedings.mlr.press/v97/tan19a.html)
-
-\newpage
+We tested on held-out CID animals and checked how changes in sharpness, lighting and visibility affected breed predictions. The group omitted the farm test proposed as E3. Performance on independent farms is therefore unknown. Both inference models are available from GitHub, and the demo recording is stored privately. [Model release](https://github.com/ShayanAhmed12/CattleClass/releases/tag/cid-models-v1)
 
 ## 2 Data sources and label mapping
 
-The downloaded main CID archive contains 514 four-photo folders and 513 metadata records. The accompanying YouTube archive was excluded. The index removes spaces when matching SKUs, excludes the folder without a label and keeps the five classes with enough animals for grouped evaluation. Pabna, Brahma and Mir Kadim are excluded. Local makes up roughly 70% of the retained animals, so an accuracy figure alone can hide poor results on the other classes. The local CID sample grid displays all four indexed views of one example per class. All four photos enter the any-view protocol. Across 503 images per suffix, the pose audit found 475, 497 and 434 image-left profiles for suffixes 0, 1 and 2, and 496 image-right profiles for suffix 3. The labels describe direction within the frame. [Data provenance and checksums](data.md)
+The main CID archive contains 514 folders with four photos each and 513 metadata records. We matched folders to records by removing spaces from the stock keeping unit (SKU), CID's animal identifier. We skipped the folder with no label and excluded Pabna, Brahma and Mir Kadim because they had too few animals for grouped evaluation. The study used the main archive. CID's separate YouTube archive was outside the study. [Data provenance and checksums](data.md)
 
 | CID class | Source animal IDs | Indexed photos |
 |---|---:|---:|
@@ -63,42 +57,44 @@ The downloaded main CID archive contains 514 four-photo folders and 513 metadata
 | Sindhi | 38 | 152 |
 | **Total** | **503** | **2,012** |
 
-CID records indicate 375 animals at 24 months, 123 at 30 months and 5 at 36 months after the breed and image filtering. The weight data run from 150 to 698 kg for the 503 source animal IDs. The joint benchmark scores one representative image per source animal across all recorded ages. [Trait audit](age-and-weight-plan.md)
+Local accounts for roughly 70% of the animals, so accuracy alone can hide poor results for smaller classes. The private sample grid shows all four views of one animal per class. The evaluation considered all four views before deduplication. In the pose audit, each filename suffix had 503 images. Suffixes 0, 1 and 2 had 475, 497 and 434 profiles facing left in the image, respectively. Suffix 3 had 496 profiles facing right.
+
+The dataset records 375 animals at 24 months, 123 at 30 months and 5 at 36 months. Recorded weights range from 150 to 698 kg across the 503 source animal IDs. The joint benchmark uses one representative image per source animal and includes all three recorded ages. [Trait audit](age-and-weight-plan.md)
 
 \newpage
 
 ## 3 Curation, duplicate detection and grouped splits
 
-Every decodable image is compared using a 64-bit perceptual hash computed after EXIF orientation correction. Hamming distance at most four marks a pair as near-duplicate. CID produced 135 matching pairs, all between distinct source SKUs. Because a later photo can match multiple earlier photos, counting each removed photo once gives 119 removals. Linked SKUs are assigned the same group transitively, leaving 1,893 images in 371 groups.
+We corrected image orientation using EXIF metadata, then computed a 64-bit perceptual hash for each readable image. Two photos counted as near-duplicates when their hashes differed in at most four bits. We found 135 matching pairs across different SKUs. Some photos matched more than one other photo, so the 135 pairs led to 119 removals. We grouped linked SKUs together, including chains of matches. This left 1,893 photos in 371 groups.
 
-Some linked groups contain multiple source labels. Each retained photo keeps its metadata label. Grouping keeps potentially related images in the same partition despite label differences. Seventeen linked groups contain more than one label. The hash detects similarity in the pixels, and these groups may contain genuinely different animals. The grouped data therefore represent an evaluation safeguard rather than independent verification of animal identity.
+Seventeen groups have more than one breed label. Each photo kept its original label. A hash match reflects visual similarity, so a linked group can contain different animals. Keeping those photos together reduces the risk that similar images appear in both training and testing.
 
-The five test folds come from stratified group cross-validation with seed 42. A photo is tested exactly once. Within each training split, a second group-level split holds out 15% of its animal groups for validation. That holdout is stratified by each group's most frequent label. Every real training, validation and test split contains all five labels. The grouped split was checked for overlap at both levels. [Fold manifest](../results/cid_folds.csv)
+We used five stratified group folds with seed 42. Each photo appears in one test fold. Within each fold's training set, we held out 15% of the animal groups for validation, stratified by each group's most common breed label. Every training, validation and test split contains all five labels. We checked for group overlap in both the outer test split and the inner validation split. [Fold manifest](../results/cid_folds.csv)
 
 \newpage
 
 ## 4 Model and training procedure
 
-The pipeline decodes images upright in RGB, resizes with aspect ratio preserved and pads them to 240 × 240 pixels before caching as `uint8`. Training takes a random 224 × 224 crop. Validation, evaluation and the demo use the center crop. Inputs stay in the 0–255 range because EfficientNet includes an input rescaling layer. Large or unreadable images are reported and excluded from the cache. The prepared index and cache record row order and fold identity so downstream commands can detect mismatches.
+We load photos upright in RGB, resize without stretching and pad them to 240 × 240 pixels before caching them as `uint8`. Training uses a random 224 × 224 crop. Validation, evaluation and the demo use a center crop. Inputs stay in the 0 to 255 range because EfficientNet rescales them internally. The cache builder reports large or unreadable images and skips them. For the locked CID benchmark, preparation stops if any expected photo is missing from the cache. The index records row order and fold identity so later commands can check for mismatches.
 
-The TensorFlow Keras classifier uses ImageNet-pretrained EfficientNet-B0, global average pooling, dropout with probability 0.3 and a five-output softmax. Training augments the input using horizontal flips, rotations of about seven degrees, and mild brightness and contrast adjustments. Hue and saturation are preserved because coat color helps distinguish some classes. The backbone runs in inference mode throughout training so its BatchNorm moving statistics stay fixed. The fine-tuning stage can still update its trainable weights.
+The TensorFlow/Keras model uses ImageNet-pretrained EfficientNet-B0, global average pooling, dropout of 0.3 and a five-output softmax. Training uses horizontal flips, rotations of about seven degrees and mild changes in brightness and contrast. We preserve hue and saturation because coat color can help distinguish breeds. We run the backbone in inference mode to keep its BatchNorm statistics fixed. Its trainable weights can still change during fine-tuning.
 
 | Stage | Trainable layers | Adam learning rate | Maximum epochs |
 |---|---|---:|---:|
 | E1 | New head | 0.001 | 10 |
 | E2 | Head and backbone | 0.00001 | 20 |
 
-Both stages use balanced class weights and categorical cross-entropy with label smoothing of 0.1. Early stopping monitors validation loss and restores the best weights. E1 test predictions are captured at the end of the frozen stage before E2 starts. After all five folds, the final model fits all CID photos using the median number of selected epochs in each stage. The final fit has no validation holdout. Each complete fold records its predictions, epoch choices, fold ID and model checksum so a rerun can reuse verified outputs. [Keras EfficientNet reference](https://keras.io/api/applications/efficientnet/) · [Label smoothing](https://arxiv.org/abs/1512.00567)
+Both stages use balanced class weights and categorical cross-entropy with label smoothing of 0.1. Early stopping tracks validation loss and restores the best weights. We save E1 test predictions before fine-tuning. After cross-validation, we train the final model on all CID photos using the median number of selected epochs for each stage. This fit uses the entire dataset without a separate validation split. Each fold saves its predictions, selected epochs, fold ID and model checksum so later runs can reuse verified outputs. [Keras EfficientNet reference](https://keras.io/api/applications/efficientnet/) · [Label smoothing](https://arxiv.org/abs/1512.00567)
 
 \newpage
 
 ## 5 Evaluation protocol
 
-B0 always predicts Local. E1 and E2 use exactly the same five held-out CID folds as B0. The summary reports fold means and the standard deviation of macro-F1. The pooled out-of-fold predictions also produce the per-class F1 values and confusion matrix. The pooled matrices show actual labels in rows and predictions in columns. Precision divides true positives by all predictions of the class. Recall divides true positives by all actual examples of the class.
+B0 predicts Local for every photo. We scored B0, E1 and E2 on the same five test folds. The overall table reports fold means and the standard deviation of macro-F1. The per-breed table and confusion matrices use the pooled predictions. The matrices put true labels in rows and predicted labels in columns.
 
-The headline metrics are macro-F1 and balanced accuracy. Macro-F1 averages the F1 scores of the classes present in the ground truth and gives a rare class the same weight as a common class. Balanced accuracy is the mean recall across the same set of classes. Plain accuracy remains useful to show the fraction of correctly classified photos, especially when presented with these class-balanced metrics.
+Accuracy is the share of correct predictions. For one breed, precision is the share of predictions for that breed that were correct, and recall is the share of its photos the model found. Balanced accuracy averages recall across the breeds present in the test data. Macro-F1 averages the F1 scores for those breeds, giving each breed equal weight.
 
-E5 tests the CID breed labels after controlled corruption. Gaussian blur uses radii of two and four pixels. Pixel brightness is multiplied by 0.5 and 0.3. Occlusion adds a seeded gray square covering approximately one-eighth or one-quarter of the cropped input. CID uses each photo's held-out fold model. Comparing each corrupted condition with its clean counterpart controls for the underlying image set.
+For E5, we scored the same test photos with and without deliberate image changes. We applied Gaussian blur with a radius of two or four pixels, multiplied brightness by 0.5 or 0.3, or covered about one-eighth or one-quarter of the crop with a gray square placed using a fixed random seed. Each photo used its own held-out fold model in every condition.
 
 ![Clean CID and the strongest severity in each corruption family.](submission/figures/cid-robustness.png){width=94%}
 
@@ -112,19 +108,17 @@ E5 tests the CID breed labels after controlled corruption. Gaussian blur uses ra
 | E1 | CID, 1,893 photos | 0.611 | 0.533 | 0.453 ± 0.053 |
 | E2 | CID, 1,893 photos | 0.656 | 0.580 | 0.500 ± 0.046 |
 | E6 | CID, half training groups | 0.619 | 0.559 | 0.467 ± 0.034 |
-| E5 | Six CID corruption conditions | See CSV | See CSV | See below |
+| E5 | Six CID corruption conditions | See CSV | See CSV | See Figure 1 |
 
-Strong blur had the lowest CID macro-F1, at 0.189 compared with 0.500 on clean photos.
+Local is common enough that B0 was right on about 70% of the test photos. All five classes appear in every fold, and B0 finds only Local, giving it 0.200 balanced accuracy. Its macro-F1 is lower because four breeds score zero and every other breed predicted as Local counts against Local's precision. Grouped stratification kept the proportion of Local photos similar across folds.
 
-The B0 accuracy closely follows the fraction of Local photos in the folds. Its balanced accuracy is exactly one fifth because Local is the only class it recalls and all five classes occur in every fold. Its macro-F1 is lower than 0.20 because every non-Local photo is a false positive for Local and the other classes have zero F1. The small variation across folds is consistent with the grouped stratification. These results establish a reference before judging the CNN.
-
-The five-fold results followed the expected macro-F1 ordering: E2 exceeded E1, and both exceeded B0. E6 is the repository label for proposal E4, the training-size comparison. For E6, each fold trained on a stratified sample of half its training animal groups, with the same validation and test splits. E6 macro-F1 was 0.033 lower relative to E2. Both were evaluated on all 1,893 held-out CID photos across the five folds.
+Fine-tuning raised mean macro-F1 from 0.453 to 0.500. E6, the repository label for proposal E4, used a stratified sample of half the training groups in each fold. It kept the same validation and test splits and scored 0.033 lower than E2 across the same 1,893 test photos. Strong blur caused the largest drop in the corruption study, from 0.500 on clean photos to 0.189.
 
 \newpage
 
 ### 6.1 Per-breed results and research extension
 
-The following E2 results pool all held-out CID photo predictions. The overall metrics on the previous page average fold scores. Support is the number of true-label photographs.
+For E2, support is the number of held-out photos with each recorded breed.
 
 | Breed | Support | Precision | Recall | F1 |
 |---|---:|---:|---:|---:|
@@ -134,38 +128,31 @@ The following E2 results pool all held-out CID photo predictions. The overall me
 | Sahiwal | 225 | 29.9% | 49.8% | 37.3% |
 | Sindhi | 137 | 29.4% | 30.7% | 30.0% |
 
-Sindhi had the lowest recall at 30.7%. Of its 137 held-out photos, 64 were classified as Sahiwal. Local had the highest F1 at 79.9%, although 179 Local photos were predicted as Sahiwal. [Per-class E1 and E2 metrics](../results/cid_per_class.csv) · [Confusion matrices](../results/cid_cv_details.json)
+Sindhi had the lowest recall. The model classified 64 of its 137 photos as Sahiwal. Local had the highest F1, and the model still classified 179 Local photos as Sahiwal. [Per-class E1 and E2 metrics](../results/cid_per_class.csv) · [Confusion matrices](../results/cid_cv_details.json)
 
-Age and weight are exploratory extensions to the breed-classification proposal.
+We studied age and weight as optional extensions. The weight model averaged 22.72 kg of absolute error on CID. Using the median weight for the predicted breed gave 39.33 kg. The earlier age classification experiment reached 53.3% balanced accuracy, below its 55% threshold. [Breed metrics](../results/metrics.csv) · [Trait results](../results/traits_evaluation.json)
 
-The CID weight benchmark reached 22.72 kg mean absolute error against 39.33 kg for the predicted-breed median. The age benchmark reached 53.3% balanced accuracy and missed its 55% research gate. The weight background-control result motivates independent field testing. [Breed metrics](../results/metrics.csv) · [Trait results](../results/traits_evaluation.json)
-
-The three-output research demo packages the breed classifier and the CID age and weight regressions in a Keras checkpoint. On 503 held-out animals, 179 (35.6%) had a correct breed, age within three months, and weight within 10% of the recorded values. The numeric age model averaged 2.23 months of error versus 1.59 for the training-median baseline. The held-out estimates clustered between 23.3 and 27.8 months, so the benchmark gives limited evidence about older cattle. [Joint metrics](../results/cid_joint.json) · [Demo instructions](traits.md#three-output-research-prototype)
+The research demo combines the breed classifier with models that estimate age in months and weight in kilograms in one Keras checkpoint. Of 503 held-out animals, 179 (35.6%) met all three criteria on the same photo. The breed matched, age was within three months and weight was within 10% of the recorded value. The age estimates averaged 2.23 months of absolute error, compared with 1.59 months for the training-median baseline. They ranged from 23.3 to 27.8 months, so the benchmark offers little evidence about older cattle. [Joint metrics](../results/cid_joint.json) · [Demo instructions](traits.md#three-output-research-prototype)
 
 \newpage
 
 ## 7 Error analysis, limitations and ethics
 
-The evaluation command selects up to three correct and three incorrect held-out predictions by confidence. Each Grad-CAM overlay comes from the fold model that predicted the corresponding photo. These overlays can help identify whether influential regions coincide with the animal, coat or background. Interpret them with the predictions and image context. Galleries and annotations stay private. [Grad-CAM](https://arxiv.org/abs/1610.02391)
+The evaluation script selects up to three correct and three incorrect predictions by confidence. It uses the fold model that scored each photo to create a Grad-CAM overlay. The overlay helps locate image regions that influenced the prediction. We interpret it alongside the photo and the predicted breed. [Grad-CAM](https://arxiv.org/abs/1610.02391)
 
-A private review of the publication gallery found two dark brown Sahiwal side views predicted as Local (95% and 93%) and a dark-coated Local animal predicted as Holstein cross (97%). Similar coat and background cues are visible, but the gallery cannot establish which caused the errors. Three high-confidence correct examples were Local. The controlled corruption study supplies separate evidence about sharpness, visibility, and lighting. Strong blur and strong occlusion reduced macro-F1 by 0.311 and 0.261 respectively. [Anonymized error examples](error-analysis.md)
+In the private gallery, the model called two dark brown Sahiwal cattle Local with 95% and 93% confidence. It called one dark-coated Local animal Holstein cross with 97% confidence. The three high-confidence correct examples were all Local. The photos show similar coat and background details, and the gallery alone cannot establish what caused the errors. The controlled tests give firmer evidence for image quality effects. Strong blur cut macro-F1 by 0.311, and strong occlusion cut it by 0.261. [Anonymized error examples](error-analysis.md)
 
 ![Pooled E2 confusion matrix. Labels show counts. Colour uses a logarithmic scale to distinguish small classes.](submission/figures/cid-confusion.png){width=72%}
 
-CID is a cattle-market dataset dominated by Local cattle and young bulls. Some breeds have few groups. Its weight and age labels come from source records of unconfirmed measurement provenance. A background-only weight control performed well on a small subset, so the weight results require validation on new sites. A separate future trait validation would require all three reference labels linked to photographs of the same animal. [Field protocol](traits.md)
-
-Raw photo files, training checkpoints and photo-containing galleries stay private. The demo provides candidate breeds for a human to check.
+CID mostly represents Local cattle and young bulls photographed at markets. Some other breeds have few groups. We could not verify how the original age and weight records were measured. A background-only control performed well on a small weight subset, which raises the possibility that the weight model uses clues from the setting. A future field study would need verified breed, age and weight for the same photographed animals. The raw photos, training checkpoints, galleries and annotations stay private. [Field protocol](traits.md)
 
 \newpage
 
 ## 8 Reproducibility, contributions and AI use
 
-The initial cloud run used Python 3.12, TensorFlow 2.21.0 and Keras 3.15.1 on CPU. The grouped folds, breed metrics and trait scores are available with run instructions. [Run instructions](../README.md#run-the-research-demo) · [CID provenance](data.md) · [Grouped folds](../results/cid_folds.csv)
+The initial cloud run used Python 3.12, TensorFlow 2.21.0 and Keras 3.15.1 on CPU. The repository provides instructions for running the demo, reproducing the grouped splits and checking the published scores. We checked the workflow with synthetic tests and real CID runs. [Run instructions](../README.md#run-the-research-demo) · [CID provenance](data.md) · [Grouped folds](../results/cid_folds.csv)
 
-The title page lists the group members recorded in the original proposal. Repository work and technical maintenance are recorded under Shayan Ahmed in the progress log. The presentation and individual defence remain scheduled course activities. [Progress tracker](PROGRESS.md) · [Defence questions](defense_questions.md)
-
-OpenAI Codex assisted with implementation, debugging, automated tests and documentation. Synthetic tests and real CID runs verify the current workflow.
-
+The original proposal names the group members. Shayan Ahmed maintained the repository and recorded the technical work in the progress log. The presentation and individual defence are scheduled course activities. OpenAI Codex assisted with implementation, debugging, automated tests and documentation. [Progress tracker](PROGRESS.md) · [Defence questions](defense_questions.md)
 
 ### References and submission sources
 

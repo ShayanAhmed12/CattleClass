@@ -34,6 +34,8 @@ Dataset scope changed to CID because it links breed, age and weight to the photo
 - The group decided to omit the original proposal’s independent farm test (E3). The final report uses held-out CID folds. Field validation remains outside this submission.
 - Prepared the [course submission files](submission/README.md), including the final report, original proposal, GitHub link and presentation. Added [precision and recall](../results/cid_per_class.csv) and [anonymized error analysis](error-analysis.md). The presentation and defence remain pending.
 
+- Revised the [final report](submission/CattleClass-Project-Report.pdf) for plain language and clearer explanations of the methods and results.
+
 ## Usability and maintenance
 
 - Added a pretrained setup for both public CID demo modes. The installer verifies the [versioned GitHub downloads](https://github.com/ShayanAhmed12/CattleClass/releases/tag/cid-models-v1) and keeps them in a separate cache so local training can still run independently. [Setup](../README.md#run-the-research-demo)
