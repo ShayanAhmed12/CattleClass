@@ -1,6 +1,6 @@
 # CattleClass project reference
 
-Owner: Shayan Ahmed · Course: CS4045 Deep Learning for Perception · Updated 22 November 2026
+Owner: Shayan Ahmed · Course: CS4045 Deep Learning for Perception · Updated 23 November 2026
 
 Start here for project context and development. Read the linked source files for exact behavior and the published result files for exact measurements. Update this reference and the [progress log](docs/PROGRESS.md) when a change affects behavior, data, results, or project status.
 
@@ -18,10 +18,21 @@ The breed classifier scores Holstein cross, Local, Red Chittagong, Sahiwal, and 
 
 ## Run from a clean checkout
 
-Use Python 3.12 and run these commands from the repository root. TensorFlow 2.21.0, Keras 3.15.1, Gradio, and the other package versions are pinned. A GPU helps with breed training. Set `CATTLE_WORK_DIR` before running the pipeline to store data and models outside the checkout. The [Colab notebook](cattle-class.ipynb) uses Drive to retain them across runtime resets. [Dependencies](requirements.txt)
+Use Python 3.12 from the repository root. TensorFlow, Keras, Gradio, and the other dependencies are pinned. [Dependencies](requirements.txt)
 
 ```bash
 python -m pip install -r requirements.txt
+python -m cattle_breed.pretrained
+python demo.py --research
+```
+
+The installer downloads and verifies the published Keras bundle and its metadata once, then reuses them. For the breed-only app, run `python -m cattle_breed.pretrained --breed` once before `python demo.py`. The installer stores artifacts in `models/pretrained/` inside `CATTLE_WORK_DIR` (the checkout by default). The app prefers locally trained artifacts. An installation needs internet access. Inference can run offline after setup. Open the Gradio URL and select **Estimate traits** after uploading. Use **Reset** to try another photo. In [Colab](cattle-class.ipynb), `--share` creates a public Gradio URL. [Published assets](https://github.com/ShayanAhmed12/CattleClass/releases/tag/cid-models-v1)
+
+### Train from scratch
+
+Use a fresh `CATTLE_WORK_DIR` if you want to train without reusing any local checkpoints. A GPU helps with breed training. In Colab, mount Drive to retain the dataset and training outputs across runtime resets.
+
+```bash
 python prepare_data.py
 python train.py
 python train.py --final
@@ -30,7 +41,7 @@ python -m cattle_breed.research
 python demo.py --research
 ```
 
-Open the Gradio URL printed in the terminal. Select **Estimate traits** after uploading and **Reset** to try another photo. In Colab, `--share` creates a public Gradio URL. Use local field mode for enrolled animals. Matching checkpoints are reused. If preparation reports an incomplete download, rerun it to resume. If it reports a manifest or checksum mismatch, check the source files and work directory before rebuilding. [Setup guide](README.md) · [Data provenance](docs/data.md)
+If preparation reports an incomplete download, rerun it to resume. If it reports a manifest or checksum mismatch, check the source files and work directory before rebuilding. [Data provenance](docs/data.md)
 
 | Task | Command |
 | --- | --- |
@@ -77,6 +88,6 @@ The implemented field workflow runs per trait. It fits on development data, cali
 | App and experiments | [demo.py](demo.py) is the shared Gradio app. [experiments/](experiments/) contains optional CowDatabase2 transfer, capture, and breed-rejection studies. |
 | Verification and records | [tests/](tests/) and [GitHub Actions](.github/workflows/tests.yml) cover core software flows with fixture data. [results/](results/) holds aggregate evidence and the locked manifest. [docs/](docs/) holds protocols, course materials and the progress history. |
 
-Raw inputs and processed caches live under `CATTLE_WORK_DIR/data/`. Models and per-fold predictions live under `CATTLE_WORK_DIR/models/`. The breed app loads `models/final.keras`, and the research app loads `models/traits/cid-research.keras` with adjacent JSON metadata. Those paths are relative to the work directory. Aggregate results stay in the repository's `results/`, even when the work directory is elsewhere. Keep original images, checkpoints, per-animal records and predictions, private field ledgers, and photo galleries outside Git. [Ignore rules](.gitignore)
+Raw inputs and processed caches live under `CATTLE_WORK_DIR/data/`. Models and per-fold predictions live under `CATTLE_WORK_DIR/models/`. The breed app loads `models/final.keras`, and the research app loads `models/traits/cid-research.keras` with adjacent JSON metadata. Those paths are relative to the work directory. Aggregate results stay in the repository's `results/`, even when the work directory is elsewhere. The versioned GitHub model release links to the two inference models. Keep original images, training checkpoints, per-animal records and predictions, private field ledgers, and photo galleries outside Git. [Ignore rules](.gitignore)
 
 When changing input preparation, keep training, evaluation, and inference transformations aligned. Preserve the published folds and label order for direct comparisons. If a change alters an experiment, document the protocol and regenerate its aggregate metrics. Run pytest for code changes and verify a real upload when changing a demo or model artifact. Update this reference with any resulting change in supported behavior or validation status.

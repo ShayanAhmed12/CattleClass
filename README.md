@@ -6,19 +6,15 @@ Upload one cattle photo to estimate breed, age in months, and weight in kilogram
 
 ## Run the research demo
 
-Use Python 3.12 from the repository root. A GPU helps with breed training. In Colab, mount Drive to keep the dataset and checkpoints across sessions.
+Use Python 3.12 and run these commands from the repository root.
 
 ```bash
 python -m pip install -r requirements.txt
-python prepare_data.py
-python train.py
-python train.py --final
-python train.py --traits
-python -m cattle_breed.research
+python -m cattle_breed.pretrained
 python demo.py --research
 ```
 
-Open the URL shown in the terminal. Upload a clear side photo, select **Estimate traits**, then use **Reset** to try another animal. Add `--share` in Colab. Set `CATTLE_WORK_DIR` to choose where data and models are stored. Training reuses matching checkpoints.
+The one-time download verifies and caches the trained model. Open the URL from the terminal, upload a clear side photo, and select **Estimate traits**. Use **Reset** to try another photo. For the breed-only demo, run `python -m cattle_breed.pretrained --breed` once, then `python demo.py`. [Download files on GitHub](https://github.com/ShayanAhmed12/CattleClass/releases/tag/cid-models-v1) · [Optional training from scratch](PROJECT.md#train-from-scratch)
 
 ## Understand the results
 

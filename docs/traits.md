@@ -2,7 +2,7 @@
 
 ## Three-output research prototype
 
-Follow the [README](../README.md#run-the-research-demo) or [Colab notebook](../cattle-class.ipynb). The packaging command verifies held-out predictions, fits the age and weight heads, and saves `models/traits/cid-research.keras` with checksum metadata in the work directory.
+Follow the [README](../README.md#run-the-research-demo) or [Colab notebook](../cattle-class.ipynb). To train instead of using the published model, follow the [training commands](../PROJECT.md#train-from-scratch). The final packaging command verifies held-out predictions, fits the age and weight heads, and saves `models/traits/cid-research.keras` with checksum metadata in the work directory.
 
 The 503 CID references span 24–36 months and are concentrated at 24 and 30 months. Regression estimates on the held-out photos ranged from 23.3 to 27.8 months. Age error of 2.23 months exceeded the 1.59-month median baseline. Joint scoring uses one photo per animal. A correct prediction requires a matching breed, age within three months, and weight within 10%. The demo shows an average benchmark error for weight. [Joint metrics](../results/cid_joint.json)
 

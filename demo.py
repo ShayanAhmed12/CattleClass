@@ -6,7 +6,7 @@ from pathlib import Path
 import gradio as gr
 import numpy as np
 
-from cattle_breed import config, data, load_classifier
+from cattle_breed import config, data, load_classifier, pretrained
 
 BREED_SCOPE = (
     f"Supported breeds are {', '.join(config.CLASSES)}. "
@@ -27,7 +27,8 @@ PAGE_STYLE = """
 @lru_cache(maxsize=1)
 def _load_model(path: Path):
     if not path.is_file():
-        raise gr.Error(f"No trained model found at {path}. Run `python train.py --final` first.")
+        raise gr.Error(f"No trained model found at {path}. Run `python -m cattle_breed.pretrained --breed` "
+                       "or `python train.py --final`.")
 
     return load_classifier(path)
 
@@ -50,7 +51,9 @@ def breed_scores(probabilities):
 
 
 def predict_breed(batch):
-    classifier = _load_model(config.MODELS_DIR / "final.keras")
+    path = config.MODELS_DIR / "final.keras"
+    installed = pretrained.installed_path(path.name)
+    classifier = _load_model(installed if not path.is_file() and installed.is_file() else path)
     return breed_scores(np.asarray(classifier(batch, training=False))[0])
 
 
@@ -126,7 +129,8 @@ def create_research_demo() -> gr.Interface:
             if not np.isfinite(error) or error < 0:
                 raise ValueError("Invalid benchmark error.")
         except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
-            raise gr.Error("Research model unavailable. Run `python -m cattle_breed.research`.") from exc
+            raise gr.Error("Research model unavailable. Run `python -m cattle_breed.pretrained` to download it "
+                           "or `python -m cattle_breed.research` to export it after training.") from exc
         return (breed_scores(breed), f"About {age:.1f} months",
                 f"About {kg:.0f} kg · average held-out error {error:.1f} kg on CID")
 

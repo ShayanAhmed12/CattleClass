@@ -4,7 +4,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from . import config, data, load_classifier, metrics, trait_models, trait_release, traits
+from . import config, data, load_classifier, metrics, pretrained, trait_models, trait_release, traits
 from .download import sha256
 
 AGE_RIDGE_ALPHA = 100.0
@@ -78,6 +78,8 @@ def preview_path():
 
 def load_preview():
     path = preview_path()
+    if not path.is_file():
+        path = pretrained.installed_path(path.name)
     record = json.loads(path.with_suffix(".json").read_text(encoding="utf-8"))
     if (record.get("stage") != "cid_research" or record.get("field_approved") is not False
             or record.get("breeds") != list(config.CLASSES) or record.get("age_output") != "months"

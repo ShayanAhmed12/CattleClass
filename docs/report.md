@@ -11,7 +11,7 @@ This project measures how well image models predict cattle breed and recorded tr
 
 The task is five-class image classification. Each input is one RGB photo and each model output is a probability over Holstein cross, Local, Red Chittagong, Sahiwal and Sindhi. The CID label Local groups indigenous cattle under a common dataset label. The study uses CID because it links breed, age and weight to the photographed animals. The breed evaluation tests controlled changes to lighting, sharpness and visibility.
 
-**Status as of 21 November 2026.** The grouped breed evaluation, robustness tests and age and weight research benchmarks use CID. The final breed model and demo recording are stored privately. Trait estimates need independent field validation.
+**Status as of 23 November 2026.** The grouped breed evaluation, robustness tests and age and weight research benchmarks use CID. The breed and research inference models are available from the [model release](https://github.com/ShayanAhmed12/CattleClass/releases/tag/cid-models-v1). The demo recording remains private. Trait estimates need independent field validation.
 
 ### Related work and contribution
 
@@ -101,7 +101,7 @@ Potential error explanations include similar pigmentation between Sindhi and Sah
 
 CID is a cattle-market dataset dominated by Local cattle and young bulls. Some breeds have few groups. Its weight and age labels come from source records of unconfirmed measurement provenance. A background-only weight control performed well on a small subset, so the weight results require validation on new sites. Future data collection requires all three reference labels linked to photographs of the same animal. [Field protocol](traits.md)
 
-Raw photo files, trained models and photo-containing galleries stay private. The demo provides candidate breeds for a human to check.
+Raw photo files, training checkpoints and photo-containing galleries stay private. The demo provides candidate breeds for a human to check.
 
 \newpage
 

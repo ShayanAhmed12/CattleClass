@@ -85,3 +85,22 @@ def test_research_prompt_has_one_main_action_and_no_image_flagging():
     assert "Reset" in buttons and "Flag" not in buttons
     assert any(component["type"] == "accordion" and component["props"]["label"] == "About these estimates"
                for component in components)
+
+
+def test_breed_demo_uses_installed_model_until_local_training_exists(monkeypatch, tmp_path):
+    monkeypatch.setattr(config, "MODELS_DIR", tmp_path)
+    installed = tmp_path / "pretrained" / "final.keras"
+    installed.parent.mkdir()
+    installed.touch()
+    paths = []
+
+    def load(path):
+        paths.append(path)
+        return lambda batch, training: [[0.1, 0.5, 0.2, 0.1, 0.1]]
+
+    monkeypatch.setattr(demo, "_load_model", load)
+    demo.predict_breed(None)
+    local = tmp_path / "final.keras"
+    local.touch()
+    demo.predict_breed(None)
+    assert paths == [installed, local]

@@ -1,6 +1,6 @@
 # Progress
 
-Owner throughout: Shayan Ahmed. Updated 22 November 2026.
+Owner throughout: Shayan Ahmed. Updated 23 November 2026.
 
 | Tasks | Status |
 |---|---|
@@ -30,6 +30,8 @@ Dataset scope changed to CID because it links breed, age and weight to the photo
 - Private Keras candidate reload, field fit/calibration/evaluation, and demo withholding were exercised. Field approval remains open pending an independent cohort with paired photos, breed labels, scale weights and documented birth dates. [Workflow](traits.md) · [Results](../results/traits_evaluation.json) · [Plan](age-and-weight-plan.md)
 
 ## Usability and maintenance
+
+- Added a pretrained setup for both public CID demo modes. The installer verifies the [versioned GitHub downloads](https://github.com/ShayanAhmed12/CattleClass/releases/tag/cid-models-v1) and keeps them in a separate cache so local training can still run independently. [Setup](../README.md#run-the-research-demo)
 
 - Added a [canonical project reference](../PROJECT.md) for project context, development, and handoff. The Colab notebook now uses the default branch.
 
